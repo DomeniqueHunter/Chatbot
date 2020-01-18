@@ -1,0 +1,22 @@
+{
+	"account"   : "",
+	"password"  : "",
+	"protocol"  : "wss://",
+	"server"    : "chat.f-list.net",
+	"endpoint"  : "/chat2",
+	"port"      : 8722,
+	"character" : "",
+	"owner"		: "",
+	"default_channels": ["Development"],
+	"webserver" : {
+	    "protocol" : "http",
+		"host"     : "127.0.0.1",
+		"port"     : "8081",
+		"secret"   : "321!_total_secret_phrase_42"
+	},
+	"plugins" : {
+		"ranch" : {
+			"channels" : ["H-Milk", "milk-test"]
+		}
+	}	
+}
