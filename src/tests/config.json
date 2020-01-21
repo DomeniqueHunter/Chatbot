@@ -1,0 +1,23 @@
+{
+	"account"   : "ACCOUNT",
+	"password"  : "123456",
+	"protocol"  : "wss://",
+	"server"    : "chat.f-list.net",
+	"endpoint"  : "/chat2",
+	"port"      : 9722,
+	"character" : "CHAR",
+	"owner"		: "OWNER",
+	"default_channels": ["Development"],
+	"webserver" : {
+		"protocol" : "http",
+		"host"     : "127.0.0.1",
+		"port"     : "9042",
+		"secret"   : "321!_total_secret_phrase_42"
+	},
+	"plugins" : {
+		"ranch" : {
+			"name" : "CHANNEL",
+			"channels" : ["CHANNEL", "Development"]
+		}
+	}	
+}
