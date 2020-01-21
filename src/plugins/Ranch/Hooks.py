@@ -20,7 +20,9 @@ class Hooks():
             if is_cow:
                 data = self.ranch.logic.get_cow_milkings(name)
                 (name, level, exp, milk) = self.ranch.logic.get_cow_stats(name)
-                message =  f"\nStats of [user]{name}[/user]: Level {level} [Ep {exp}/10] Total Milk: {milk}\n"
+                next_lvl_exp = self.ranch.logic.next_level_ep(level)
+                
+                message =  f"\nStats of [user]{name}[/user]: Level {level} [Ep {exp}/{next_lvl_exp}] Total Milk: {milk}\n"
                 message += "Top 10 milkers\nWorker, Total Milk\n"
                 
                 for d in data:

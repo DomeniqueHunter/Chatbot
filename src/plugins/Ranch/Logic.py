@@ -160,7 +160,7 @@ class Logic():
 
     def _level_up_cow(self, cow_name, milk, level, exp):
         exp += 1
-        if exp == 10:
+        if exp >= self.next_level_ep(level):
             level += 1
             milk += 1
             exp = 0
@@ -192,6 +192,22 @@ class Logic():
             success = self.ranch.database.milk_cow(cow_name, self.ranch.client.config.character, 1, date)
             if success:
                 self._level_up_cow(cow_name, milk, level, exp)
+          
+    def _max_level(self, current_level):
+        if current_level >= 100:
+            return True
+        else:
+            return False
+       
+    def next_level_ep(self, current_level):
+        if current_level >= 100:
+            return 2**int(current_level/10)
+        
+        elif current_level >= 85:
+            return current_level
+        
+        else:
+            return 10
                 
     def get_worker(self, name):
         """
