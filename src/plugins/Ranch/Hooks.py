@@ -239,7 +239,7 @@ class Hooks():
         
         await self.ranch.client.send_private_message(message, user)
     
-    async def rename_cow(self, user, input_string = " , "):        
+    async def rename_person(self, user, input_string = " , "):        
         if self.ranch.client.is_priviliged(user.strip()):
             old_name, new_name = input_string.strip().split(',')
             old_name = BBCode.get_name(old_name)
@@ -275,7 +275,28 @@ class Hooks():
             message = "you don't have the permission for this."
 
         await self.ranch.client.send_private_message(message, user)
-    
+
+    async def remove_worker(self, user, name):
+        """
+        Disable a worker
+        @param user: user who requests the cow to be disabled ( admin)
+        @param name: name of the cow
+        """
+        if self.ranch.client.is_priviliged(user.strip()):
+            status = self.ranch.logic.disable_worker(name)
+            if status:
+                message = f"cow [user]{name}[/user] was disabled!"
+                
+            else:
+                message = f"could not disable cow [user]{name}[/user]!"
+            
+        else:
+            message = "you don't have the permission for this."
+
+        await self.ranch.client.send_private_message(message, user)
+        
+            
+        
     async def set_cow_milk(self, user, input_string = " , "):
         """
         set the milk output of a cow
@@ -285,12 +306,14 @@ class Hooks():
         if self.ranch.client.is_priviliged(user):
             cow, amount = input_string.strip().split(',')
             
-            message = ""
+            message = f"cow {cow} can yield {amount}l milk now!"
             
+            if cow and amount > 0:
+                self.ranch.logic.cow_update_milk(cow, amount)
         else:
             message = "you don't have the permission for this."
 
-
+        await self.ranch.client.send_private_message(message, user)
 
 
 

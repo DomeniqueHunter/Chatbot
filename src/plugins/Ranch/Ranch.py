@@ -59,7 +59,7 @@ class Ranch(Plugin_Prototype):
             
             # admin commands
             self.client.private_msg_handler.add_action("!ranch_add_cow",    self.hooks.add_cow)
-            self.client.private_msg_handler.add_action("!ranch_rename_cow", self.hooks.rename_cow)
+            self.client.private_msg_handler.add_action("!ranch_rename_person", self.hooks.rename_cow)
             self.client.private_msg_handler.add_action("!ranch_remove_cow", self.hooks.remove_cow)
             
             self.client.private_msg_handler.add_action("!ranch_set_cow_milk", self.hooks.set_cow_milk)
@@ -91,9 +91,13 @@ class Ranch(Plugin_Prototype):
             setup manpage
         '''
         self.client.admin_manpage.add_command("!ranch_add_cow <name>, <milkoutput:optional>", "Add a cow to the Ranch")
-        self.client.admin_manpage.add_command("!ranch_rename_cow <old name>, <new name>", "Rename a cow from old name ot new name")
+        self.client.admin_manpage.add_command("!ranch_rename_person <old name>, <new name>", "Rename a cow from old name ot new name")
         self.client.admin_manpage.add_command("!ranch_remove_cow <name>", "Removes a cow from the Ranch")
-        self.client.admin_manpage.add_command("!ranch_set_cow_milk <cow_name>, <yield>", "sets a new milk yield for cow")
+        self.client.admin_manpage.add_command("!ranch_set_cow_milk <cow_name>, <yield>", "sets a new milk yield for cow")        
+        self.client.admin_manpage.add_command("!ranch_remove_cow <cow_name>")
+        self.client.admin_manpage.add_command("!ranch_remove_worker <worker_name>")
+        
+        
               
         #self.client.owner_manpage.add_command("!ranch_fix_worker", "Fix Worker Milk Yield")
         

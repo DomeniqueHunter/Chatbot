@@ -279,9 +279,13 @@ class Logic():
         
     def disable_cow(self, name):
         return self.ranch.database.disable("cow", name)
-        
     
+    def disable_worker(self, name):
+        return self.ranch.database.disable("worker", name)
         
+    def cow_update_milk(self, name, milk):
+        return self.ranch.database.cow_update_milk(name, milk)
+    
         
         
         
