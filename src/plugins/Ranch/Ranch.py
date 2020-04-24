@@ -59,8 +59,10 @@ class Ranch(Plugin_Prototype):
             
             # admin commands
             self.client.private_msg_handler.add_action("!ranch_add_cow",    self.hooks.add_cow)
-            self.client.private_msg_handler.add_action("!ranch_rename_person", self.hooks.rename_cow)
+            self.client.private_msg_handler.add_action("!ranch_rename_person", self.hooks.rename_person)
+            
             self.client.private_msg_handler.add_action("!ranch_remove_cow", self.hooks.remove_cow)
+            self.client.private_msg_handler.add_action("!ranch_remove_worker", self.hooks.remove_worker)
             
             self.client.private_msg_handler.add_action("!ranch_set_cow_milk", self.hooks.set_cow_milk)
             

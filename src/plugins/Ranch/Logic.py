@@ -277,14 +277,23 @@ class Logic():
     def rename_person (self, old_name, new_name):
         return self.ranch.database.rename_person(old_name, new_name)
         
-    def disable_cow(self, name):
-        return self.ranch.database.disable("cow", name)
+    async def disable_cow(self, name):
+        if await self.is_cow(name):
+            return self.ranch.database.disable("cow", name)
+        else:
+            return False
     
-    def disable_worker(self, name):
-        return self.ranch.database.disable("worker", name)
+    async def disable_worker(self, name):
+        if await self.is_worker(name):
+            return self.ranch.database.disable("worker", name)
+        else:
+            return False
         
-    def cow_update_milk(self, name, milk):
-        return self.ranch.database.cow_update_milk(name, milk)
+    async def cow_update_milk(self, name, milk):
+        if await self.is_cow(name):
+            return self.ranch.database.cow_update_milk(name, milk)
+        else:
+            return False
     
         
         
