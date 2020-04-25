@@ -23,7 +23,7 @@ class Hooks():
                 next_lvl_exp = self.ranch.logic.next_level_ep(level)
                 
                 message =  f"\nStats of [user]{name}[/user]: Level {level} [Ep {exp}/{next_lvl_exp}] Total Milk: {milk}\n"
-                message += "Top 10 milkers\nWorker, Total Milk\n"
+                #message += "Top 10 milkers\nWorker, Total Milk\n"
                 
                 for d in data:
                     message += "[user]{}[/user], {} liters\n".format(d[0], d[1])
@@ -32,6 +32,20 @@ class Hooks():
                 message = "[user]{}[/user] is not a cow".format(name)
             
             await self.ranch.client.send_public_message(message, channel)
+            
+    async def get_cow_stats(self, user, name):
+        if self.ranch.client.is_priviliged(user):
+            name = BBCode.get_name(name)
+            is_cow = await self.ranch.logic.is_cow(name)
+            message = ""
+            if is_cow:
+                _, amount, lvl, exp = self.ranch.logic.get_cow(name)
+                message = "[user]{}[/user] is lvl {} and yields {}l and has {} ep".format(name, lvl, amount, exp) 
+                  
+            else:
+                message = "[user]{}[/user] is not a cow!".format(name)
+            
+            await self.ranch.client.send_private_message(message, user)
 
     async def get_cows(self, user, channel, page = 1):
         """
@@ -316,6 +330,8 @@ class Hooks():
         if self.ranch.client.is_priviliged(user):
             name, amount = input_string.strip().split(',')
             name = BBCode.get_name(name) 
+            
+            message = ""
             
             if int(amount) > 0:
                 check = await self.ranch.logic.cow_update_milk(name, amount)

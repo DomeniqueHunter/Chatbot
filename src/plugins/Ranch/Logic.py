@@ -42,8 +42,13 @@ class Logic():
         
         return status
     
-    def add_worker(self, worker):
-        return self.ranch.database.add_worker(worker)
+    def add_worker(self, name):
+        status = self.ranch.database.add_worker(name)
+        
+        if not status:
+            self.ranch.database.enable("worker", name)
+        
+        return status
     
     async def _get_milk_multiplier(self, worker_name):
         worker_is_cow = await self.is_cow(worker_name)
@@ -244,7 +249,7 @@ class Logic():
     
     def get_cow(self, name):
         data = self.ranch.database.get_cow(name)
-        return data
+        return data[0][0], data[0][1], data[0][2], data[0][3]
     
     def get_cow_stats(self, name):
         data = self.ranch.database.get_cow_stats(name)

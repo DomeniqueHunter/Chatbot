@@ -109,7 +109,7 @@ class RANCH_DB(DB_WRAPPER):
         if status:
             print("new worker", name)
         else:
-            print("worker already exists")
+            print("person already exists")
         
         statement = f"""INSERT INTO worker(person_id) VALUES((SELECT id FROM person WHERE lower(name) = lower('{name}')))"""
         return self.execute(statement) and self.set_level(name, 'worker')
