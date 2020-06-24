@@ -2,7 +2,7 @@
 
 import os
 
-from core.ChatCodeHandler       import ChatCodeHandler    as Client
+from core.OpCodeHandler         import OpCodeHandler      as Client
 from core.Config                import Config             as Config
 from core.Plugin_Loader         import Plugin_Loader
 

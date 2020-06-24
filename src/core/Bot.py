@@ -4,8 +4,8 @@ class Bot():
     
     def __init__(self, config, root_path = "./"):
         self.core = Core(config, root_path)
-        self.chat_code_handler = ChatCodeHandler(config, root_path)
-        self.opcode_hander = OpCodeHandler(config, root_path)
+        self.op_code_handler = OpCodeHandler(config, root_path)
+        self.chat_code_hander = ChatCodeHandler(config, root_path)
     
     
     def create_message_handler(self):
