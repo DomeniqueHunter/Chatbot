@@ -103,7 +103,7 @@ class Core():
         try:
             self.merge_all_channels()
             list = self.all_channels.get()
-            if len(list) > 0 and channel_name:
+            if any(list) and channel_name:
                 for channel_object in list:
                     try:
                         # open private

@@ -1,7 +1,5 @@
-from interface import implements, Interface
-from plugins.Plugin_Interface import Plugin_Interface
-
-class Plugin_Prototype(implements(Plugin_Interface)):
+# kind of an interface
+class Plugin_Prototype():
 
     def __init__(self):
         self.module_name = "Plugin_Prototype"

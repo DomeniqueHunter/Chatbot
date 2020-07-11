@@ -50,7 +50,7 @@ class OpCodeHandler(ChatCodeHandler):
         await self._join_default_channels(self.config.default_channels)
         
     def start(self):
-        self.loop.run_until_complete(self._start())   
+        self.loop.run_until_complete(self._start())
         self.loop.run_until_complete(self._run())
                     
     async def _run (self):
@@ -171,8 +171,7 @@ class OpCodeHandler(ChatCodeHandler):
     
     async def _opcode_handler_inital_channel_data(self, json_object):
         data = json.loads(json_object)
-        print ("\n\n ___________________________\n")
-        print (data)
+        #print (data)
         channel = data['channel']
         for user in data['users']:
             self.channels[channel].characters.append(user['identity'].lower())

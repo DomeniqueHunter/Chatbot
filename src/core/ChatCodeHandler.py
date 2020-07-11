@@ -213,7 +213,7 @@ class ChatCodeHandler(Core):
     
     async def _hook_save_channels(self,  user = None):
         if (self.is_owner(user)):
-            if len(self.channels) > 0:
+            if any(self.channels):
                 self._save_channels_to_file(self.files.channels)
             else:
                 await self.send_private_message("Error on saving Channels", user)
