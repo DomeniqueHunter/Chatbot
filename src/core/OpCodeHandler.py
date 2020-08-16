@@ -60,7 +60,7 @@ class OpCodeHandler(ChatCodeHandler):
         
         while True:
             # https://websockets.readthedocs.io/en/stable/changelog.html
-            if str(self.connection.state.name) == "OPEN":
+            if self.connection != None and str(self.connection.state.name) == "OPEN":
                 message = await self._read()
                 
                 if message:

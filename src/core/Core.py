@@ -53,13 +53,12 @@ class Core():
         self.server = server
         self.port   = port
         
-        #ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-        #print ("PATH: " + str(os.path.dirname(__file__)))
-        #ssl_context.load_verify_locations(os.path.dirname(__file__) + '/../localhost.pem')
-        
         print("CONNECT:",self.config.protocol + self.server + self.config.endpoint)
-        
-        self.connection = await websockets.connect(self.config.protocol + self.server + self.config.endpoint)
+        try:
+            self.connection = await websockets.connect(self.config.protocol + self.server + self.config.endpoint)
+            
+        except:
+            self.connection = None
         
     async def get_api_ticket(self):
         return await Api.get_ticket(self.account, self.password)
