@@ -1,6 +1,4 @@
 
-
-
 class QUERY():
     def __init__(self, name):
         self.name = name
@@ -18,7 +16,21 @@ class QUERY():
             return self
         except:
             return None
-       
+        
+    def UPDATE (self, table):
+        if table:
+            self.statement = f"UPDATE {table} "
+            return self
+        else:
+            return None
+        
+    def INSERT_INTO(self, table):
+        if table:
+            self.statement = "f INSERT INTO {table} "
+            return self
+        else:
+            return None
+        
     def __expression(self, expr, a, b, operator, type):
         type = type.lower()
         if type == 'text' or type == 'date':
@@ -63,3 +75,9 @@ class QUERY():
         if not self.br_close == self.br_open:
             raise Exception("unequal brackets open: {}, closed: {}".format(self.br_open, self.br_close))
         return self.statement
+    
+    def __str__(self):
+        return self.get()
+
+    
+    

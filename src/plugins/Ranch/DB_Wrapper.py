@@ -20,6 +20,7 @@ class RANCH_DB(DB_WRAPPER):
         t_worker.add_column("id", "integer", "PRIMARY KEY")
         t_worker.add_column("person_id", "integer", "NOT NULL UNIQUE")
         t_worker.add_column("active", "integer", "NOT NULL DEFAULT 1")
+        t_worker.add_column("work_points", "integer", "NOT NULL DEFAULT 1")
         
         t_bull = DB_TABLE("bull")
         t_bull.add_column("id", "integer", "PRIMARY KEY")
@@ -41,7 +42,7 @@ class RANCH_DB(DB_WRAPPER):
         t_milking.add_column("cow_id", "int", "NOT NULL")
         t_milking.add_column("amount", "int", "NOT NULL")
         t_milking.add_column("date", "text", "NOT NULL")
-        t_milking.unique(["worker_id", "cow_id", "date"])
+        t_milking.add_column("work_points", "int", "NOT NULL DEFAULT 0")
         
         t_level = DB_TABLE("level")
         t_level.add_column("id", "integer", "PRIMARY KEY")
@@ -99,8 +100,13 @@ class RANCH_DB(DB_WRAPPER):
         statement = f"INSERT INTO cow(person_id, yield) VALUES((SELECT id from person where lower(name) = lower('{name}')),{amount})"        
         return self.execute(statement) and self.set_level(name, 'cow')
         
-    def cow_update_milk(self, name, milk = 10):
+    def update_cow_milk(self, name, milk = 10):
         statement = f"UPDATE cow set yield={milk} WHERE lower(person_id)=(SELECT id from person where lower(name) = lower('{name}'))"
+        return self.execute(statement)
+    
+    
+    def update_worker_points(self, name, points = 1):
+        statement = f"UPDATE worker SET work_points={points} WHERE lower(person_id)=(SELECT id from person where lower(name) = lower('{name}'))"
         return self.execute(statement)
     
     def add_worker(self, name):
@@ -114,11 +120,11 @@ class RANCH_DB(DB_WRAPPER):
         statement = f"""INSERT INTO worker(person_id) VALUES((SELECT id FROM person WHERE lower(name) = lower('{name}')))"""
         return self.execute(statement) and self.set_level(name, 'worker')
             
-    def milk_cow(self, cow, worker_name, amount, date):
-        statement = f"""INSERT INTO milking(worker_id, cow_id, amount, date) VALUES(
-                                                                           (SELECT id FROM worker WHERE person_id = (SELECT id FROM person WHERE lower(name) = lower('{worker_name}'))),
-                                                                           (SELECT id FROM cow WHERE person_id = (SELECT id FROM person WHERE lower(name) = lower('{cow}'))),
-                                                                           {amount},'{date}')"""
+    def milk_cow(self, cow, worker_name, amount, date, work_points = 1):
+        statement = f"""INSERT INTO milking(worker_id, cow_id, amount, date, work_points) VALUES(
+                           (SELECT id FROM worker WHERE person_id = (SELECT id FROM person WHERE lower(name) = lower('{worker_name}'))),
+                           (SELECT id FROM cow WHERE person_id = (SELECT id FROM person WHERE lower(name) = lower('{cow}'))),
+                           {amount},'{date}', {work_points})"""
         return self.execute(statement)
         
     def get_cow_milkings(self, cow):
@@ -274,20 +280,47 @@ class RANCH_DB(DB_WRAPPER):
             offset = 0
             
         rows = self.select(f"""
-                    select person.name, IFNULL((SELECT SUM(amount) 
+                    select person.name, lvl.level, lvl.experience, IFNULL((SELECT SUM(amount) 
                                          FROM milking,worker 
                                          where milking.date >= date('now', 'start of month')
                                          and   milking.date <= date('now', 'start of month', '+1 month', '-1 day')
                                          AND worker.id = w.id 
                                          AND milking.worker_id = w.id 
                                          GROUP BY milking.worker_id),0) as M
-                    from worker w, person
+                    from worker w, person, level lvl
                     where w.person_id = person.id
+                    and lvl.person_id = person.id
+                    and lvl.job = 'worker'
                     order by M DESC
                     LIMIT 10 OFFSET {offset}
                     ;
                     """)
         return rows
+    
+    def get_worker_work_points(self, worker_name, cow_name):
+        '''
+            @param worker_name: the Name of the Worker who milks the cow
+            @param cow_name: the Name of the Cow that is milked by the worker
+            @return: A Tuple with 
+                        0: the Workers max Workpoints
+                        1: the Workpoints the Worker spend on the cow TODAY
+        '''
+        statement  = f"""
+                       SELECT l.level, l.experience, w0.work_points, IFNULL((SELECT SUM(m.work_points)
+                            FROM milking m, worker w, cow c
+                            WHERE w.id = w0.id
+                            AND c.person_id = (select id from person where lower(name) = lower('{cow_name}') )
+                            AND m.date = date('now') 
+                            AND m.worker_id = w.id
+                            AND m.cow_id = c.id
+                            GROUP BY m.worker_id, m.cow_id, m.date), 0)
+                        FROM worker w0, level l
+                        where w0.person_id = (select id from person where lower(name) = lower('{worker_name}') )
+                        and l.person_id = w0.person_id
+                        and l.job = 'worker'
+                        ;
+                      """
+        return self.select(statement)[0]
     
     def get_cow_stats(self, name):
         statement = f"""
@@ -367,7 +400,15 @@ class RANCH_DB(DB_WRAPPER):
                     INSERT INTO level('person_id', 'job')
                     VALUES ( (SELECT id FROM person WHERE lower(name) = lower('{name}') ), '{job}')
                     """
-        return self.execute(statement) 
+        return self.execute(statement)
+    
+    def set_work_points(self, worker, points):
+        statement = f"""
+                    UPDATE worker
+                    SET work_points={points}
+                    WHERE person_id = (SELECT id FROM person WHERE lower(name) = lower('{worker}'))
+                    """
+        return self.execute(statement)
     
     
     

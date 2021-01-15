@@ -2,6 +2,7 @@ from plugins.Ranch.Logic import Logic
 
 from core.BBCode import BBCode
 from core.Channel import Channel
+from _testcapi import awaitType
 
 
 class Hooks():
@@ -20,7 +21,7 @@ class Hooks():
             if is_cow:
                 data = self.ranch.logic.get_cow_milkings(name)
                 (name, level, exp, milk) = self.ranch.logic.get_cow_stats(name)
-                next_lvl_exp = self.ranch.logic.next_level_ep(level)
+                next_lvl_exp = self.ranch.logic.next_level_ep_cow(level)
                 
                 message =  f"\nStats of [user]{name}[/user]: Level {level} [Ep {exp}/{next_lvl_exp}] Total Milk: {milk}\n"
                 #message += "Top 10 milkers\nWorker, Total Milk\n"
@@ -98,7 +99,7 @@ class Hooks():
             pages = int (pages / 10) +1
             
             message = f"\nName, Milked [Page: {page}/{pages}]\n"
-            print (data)
+            #print (data)
             if data:
                 message += data
                 await self.ranch.client.send_public_message(message, channel)
@@ -152,6 +153,9 @@ class Hooks():
                     
                     if data[2]:
                         message += f"\n[user]{cow_name}[/user] had a boobgasm through milking and is now more productive!"
+                        
+                    if data[4]:
+                        message += f"\n[user]{worker}[/user] becomes more skilled!"
                  
                 else:
                     message = f"You can milk [user]{cow_name}[/user] again on the next day, [user]{worker}[/user]"
@@ -334,7 +338,7 @@ class Hooks():
             message = ""
             
             if int(amount) > 0:
-                check = await self.ranch.logic.cow_update_milk(name, amount)
+                check = await self.ranch.logic.update_cow_milk(name, amount)
                 
                 if check:
                     message = f"cow {name} can yield {amount}l milk now!"
@@ -347,6 +351,22 @@ class Hooks():
             message = "you don't have the permission for this."
 
         await self.ranch.client.send_private_message(message, user)
+        
+        
+        
+    async def debug_set_work_points(self, user, input_string = " , "):
+        
+        if self.ranch.client.is_priviliged(user):
+            
+            try:
+                worker_name, work_points = input_string.strip().split(',')
+                work_points = int(work_points)
+            
+                check = await self.ranch.logic.debug_set_work_points(worker_name, work_points)
+            except:
+                pass
+        
+    
 
 
 
