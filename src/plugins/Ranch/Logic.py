@@ -255,7 +255,7 @@ class Logic():
             return current_level * 20
         
         else:
-            return 100
+            return 10
         
                 
     def get_worker(self, name):
@@ -288,8 +288,11 @@ class Logic():
         
         return message
     
+    def get_worker_jobs(self, name):
+        return self.ranch.database.get_worker_jobs(name)
+    
     def get_worker_stats(self, name):
-        return self.ranch.database.get_worker_jobs(name)    
+        return self.ranch.database.get_worker_stats(name)
     
     def get_cow(self, name):
         data = self.ranch.database.get_cow(name)

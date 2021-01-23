@@ -23,7 +23,7 @@ class Hooks():
                 (name, level, exp, milk) = self.ranch.logic.get_cow_stats(name)
                 next_lvl_exp = self.ranch.logic.next_level_ep_cow(level)
                 
-                message =  f"\nStats of [user]{name}[/user]: Level {level} [Ep {exp}/{next_lvl_exp}] Total Milk: {milk}\n"
+                message =  f"\nStats of [user]{name}[/user]: Level {level} [Ep {exp}/{next_lvl_exp}] Total Milk: {milk}l\n"
                 #message += "Top 10 milkers\nWorker, Total Milk\n"
                 
                 for d in data:
@@ -114,8 +114,13 @@ class Hooks():
             message = "ERROR"
             
             if is_worker:
-                data = self.ranch.logic.get_worker_stats(name)
-                message = "\nStats of Worker [user]{}[/user]:\nCow, Total Milk\n".format(name)
+                data = self.ranch.logic.get_worker_jobs(name)
+                name, level, exp, milk = self.ranch.logic.get_cow_stats(name)
+                next_lvl_exp = self.ranch.logic.next_level_ep_worker(level)
+                
+                message =  f"\nStats of [user]{name}[/user]: Level {level} [Ep {exp}/{next_lvl_exp}] Total milked: {milk}l\n"
+                
+                "\nCow, Total Milk\n"
                 
                 for d in data:
                     message += "[user]{}[/user], {} liters\n".format(d[0], d[1])
