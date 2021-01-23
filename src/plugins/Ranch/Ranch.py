@@ -51,6 +51,7 @@ class Ranch(Plugin_Prototype):
             self.client.public_msg_handler.add_action("!workers", self.hooks.get_workers)
             self.client.public_msg_handler.add_action("!worker",  self.hooks.get_worker)
             self.client.public_msg_handler.add_action("!milk",    self.hooks.milk)
+            self.client.public_msg_handler.add_action("!Milk",    self.hooks.milk)
             self.client.public_msg_handler.add_action("!milkall", self.hooks.milkall)
             
             self.client.public_msg_handler.add_action("!makemecow",     self.hooks.makemecow)

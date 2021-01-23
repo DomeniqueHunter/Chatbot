@@ -56,6 +56,8 @@ class Logic():
         worker_is_worker = await self.is_worker(worker_name)
         worker_is_breeder = False #self.ranch.database.get_breeder(worker_name) 
         
+        multiplier = 1
+        
         if worker_is_worker or worker_is_breeder:              
             if worker_is_cow:
                 multiplier = 0.5
@@ -63,17 +65,15 @@ class Logic():
             elif worker_is_worker and worker_is_cow:
                 multiplier = 0.8
                 
+            elif worker_is_worker:
+                multiplier = 1
+                
             elif worker_is_breeder:
                 multiplier = 2
-                
-            else:
-                multiplier = 1
-        else:
-            multiplier = 0  #error
-             
+                     
         return multiplier
     
-    def _milk_that_meat_sack(self, worker_name, cow_name, multiplier = 0, work_points = 1):
+    def _milk_that_meat_sack(self, worker_name, cow_name, multiplier = 1, work_points = 1):
         """
         sends the milking request to the database, 
         returns if the milking was a success, the amount of max_milk, if there was a lvl up and the new milking yield of the cow
@@ -92,7 +92,7 @@ class Logic():
         # grab some worker stats
         lvl_worker, exp_worker, max_work_points, used_work_points = self.ranch.database.get_worker_work_points(worker_name, cow_name)
         
-        print (f"milk: n:{worker_name}, lvl_worker:{lvl_worker} e_w:{exp_worker} | c:{cow_name}, m:{max_milk}, lvl:{level}, exp:{exp} | m_wp:{max_work_points}, u_wp:{used_work_points}")    # debug!
+        #print (f"milk: n:{worker_name}, lvl_worker:{lvl_worker} e_w:{exp_worker} | c:{cow_name}, m:{max_milk}, lvl:{level}, exp:{exp} | m_wp:{max_work_points}, u_wp:{used_work_points}")    # debug!
         
         lvlup_cow = False
         lvlup_worker = False
@@ -100,7 +100,11 @@ class Logic():
         if (max_work_points - used_work_points) >= work_points and  multiplier > 0:
             date = datetime.now().strftime("%Y-%m-%d")
             max_milk = int(max_milk * multiplier / max_work_points)
-            amount = int(random.uniform(0.2* max_milk, max_milk))          
+            amount = int(random.uniform(0.2* max_milk, max_milk))
+            
+            if amount == 0:
+                amount = 1
+                    
             success = self.ranch.database.milk_cow(cow_name, worker_name, amount, date, work_points)
             
             if success:
@@ -143,7 +147,7 @@ class Logic():
         work_points = 2
         
         if not max_work_points >= work_points:
-            return f"[user]{user}[/user] has not enough workpoints, {work_points} are required!"
+            return f"[user]{user}[/user] has not enough workpoints, {work_points} are required! Milk more cows to level up and gain more work points."
         
         
         if multiplier > 0:
