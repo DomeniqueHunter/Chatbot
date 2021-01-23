@@ -381,7 +381,7 @@ class RANCH_DB(DB_WRAPPER):
     
     def get_worker(self, name):
         statement = f"""
-                    select worker.id, person.name
+                    select worker.id, person.name, worker.work_points
                     from worker, person
                     where worker.person_id = (SELECT id FROM person WHERE lower(name) = lower('{name}'))
                     and worker.person_id = person.id

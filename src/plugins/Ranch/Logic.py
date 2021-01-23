@@ -131,11 +131,20 @@ class Logic():
     async def milk_all(self, user, channel):
         '''
             An easier way to milk all the cows in the channel
-        '''        
+        '''
+        
+        if not self.is_worker(user):
+            return f"[user]{user}[/user] is not a worker"
+        
         message = ""
         multiplier = await self._get_milk_multiplier(user)
+        _, _, max_work_points = self.ranch.database.get_worker(user)[0]
         not_milkable = 0
         work_points = 2
+        
+        if not max_work_points >= work_points:
+            return f"[user]{user}[/user] has not enough workpoints, {work_points} are required!"
+        
         
         if multiplier > 0:
             for character in self.ranch.client.channels[channel].characters.get():
@@ -172,6 +181,10 @@ class Logic():
         else:
             message = None
         
+        
+        #else:
+        #    message = f"\n[user]{user}[/user] has not enough workpoints for this action! {work_points} are required!"
+        
         #print ("mssage: {}".format(message))
         return message
 
@@ -198,7 +211,7 @@ class Logic():
             exp = 0
             lvlup = True
             
-            self.ranch.database.update_worker_points(worker_name, 1)
+            self.ranch.database.update_worker_points(worker_name, work_points)
         else:
             lvlup = False
         self.ranch.database.update_experience(worker_name, level, exp, 'worker')
