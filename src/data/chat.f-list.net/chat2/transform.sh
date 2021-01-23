@@ -2,7 +2,7 @@
 
 # Ranch 2.2.0 -> 2.3.0
 
-rm ranch.db
+#rm ranch.db
 cp ranch.db.backup ranch.db
 
 FILE=ranch.db
