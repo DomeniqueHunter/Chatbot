@@ -3,7 +3,6 @@ from core.BBCode import BBCode
 from core.Time import Time
 import random
 from datetime import datetime
-from multiprocessing.pool import worker
 
 
 class Logic():
@@ -56,8 +55,6 @@ class Logic():
         worker_is_worker = await self.is_worker(worker_name)
         worker_is_breeder = False #self.ranch.database.get_breeder(worker_name) 
         
-        multiplier = 1
-        
         if worker_is_worker or worker_is_breeder:              
             if worker_is_cow:
                 multiplier = 0.5
@@ -65,58 +62,52 @@ class Logic():
             elif worker_is_worker and worker_is_cow:
                 multiplier = 0.8
                 
-            elif worker_is_worker:
-                multiplier = 1
-                
             elif worker_is_breeder:
                 multiplier = 2
-                     
+                
+            else:
+                multiplier = 1
+        else:
+            multiplier = 0  #error
+                
         return multiplier
     
-    def _milk_that_meat_sack(self, worker_name, cow_name, multiplier = 1, work_points = 1):
+    def _milk_that_meat_sack(self, worker_name, cow_name, multiplier = 0):
         """
         sends the milking request to the database, 
-        returns if the milking was a success, the amount of max_milk, if there was a lvl up and the new milking yield of the cow
+        returns if the milking was a success, the amount of milk, if there was a lvl up and the new milking yield of the cow
         @param worker_name: name of the worker, milking the cow
         @param cow_name: name of the cow
-        @return: (success, amount, lvlup_cow, max_milk)
+        @return: (success, amount, lvlup, milk)
         """        
-        name, max_milk, level, exp = self.ranch.database.get_cow(cow_name)[0]
-                
+        milk_stats = self.ranch.database.get_cow(cow_name)
+        name = milk_stats[0][0]
+        milk = milk_stats[0][1]
+        level= milk_stats[0][2]
+        exp  = milk_stats[0][3]
+        
         if not name.lower() == cow_name.lower():
             return None
         
         if worker_name.lower() == cow_name.lower():
             return None
         
-        # grab some worker stats
-        lvl_worker, exp_worker, max_work_points, used_work_points = self.ranch.database.get_worker_work_points(worker_name, cow_name)
-        
-        #print (f"milk: n:{worker_name}, lvl_worker:{lvl_worker} e_w:{exp_worker} | c:{cow_name}, m:{max_milk}, lvl:{level}, exp:{exp} | m_wp:{max_work_points}, u_wp:{used_work_points}")    # debug!
-        
-        lvlup_cow = False
-        lvlup_worker = False
-        
-        if (max_work_points - used_work_points) >= work_points and  multiplier > 0:
+        if multiplier > 0:            
             date = datetime.now().strftime("%Y-%m-%d")
-            max_milk = int(max_milk * multiplier / max_work_points)
+            max_milk = int(milk * multiplier)
             amount = int(random.uniform(0.2* max_milk, max_milk))
-            
-            if amount == 0:
-                amount = 1
-                    
-            success = self.ranch.database.milk_cow(cow_name, worker_name, amount, date, work_points)
-            
+            lvlup = False
+            success = self.ranch.database.milk_cow(cow_name, worker_name, amount, date)
             if success:
-                lvlup_cow = self._level_up_cow(cow_name, max_milk, level, exp)
-                lvlup_worker = self._level_up_worker(worker_name, max_milk, lvl_worker, exp_worker)
+                lvlup = self._level_up_cow(cow_name, milk, level, exp)
                 
         else:
             success = False
             amount = 0
-            max_milk = 0
+            lvlup = False
+            milk = 0
         
-        return (success, amount, lvlup_cow, max_milk, lvlup_worker)
+        return (success, amount, lvlup, milk)
     
     async def milk_cow(self, worker_name, cow_name):
         """
@@ -126,35 +117,23 @@ class Logic():
         @param cow_name: name of the cow
         @return: (success, amount, lvlup, milk)
         """
-        work_points = 1
         multiplier = await self._get_milk_multiplier(worker_name)
         bonus = 0.4
-        
-        return self._milk_that_meat_sack(worker_name, cow_name, multiplier+bonus, work_points)
-
+        return self._milk_that_meat_sack(worker_name, cow_name, multiplier + bonus)
+    
     async def milk_all(self, user, channel):
         '''
             An easier way to milk all the cows in the channel
-        '''
-        
-        if not self.is_worker(user):
-            return f"[user]{user}[/user] is not a worker"
-        
+        '''        
         message = ""
         multiplier = await self._get_milk_multiplier(user)
-        _, _, max_work_points = self.ranch.database.get_worker(user)[0]
         not_milkable = 0
-        work_points = 2
-        
-        if not max_work_points >= work_points:
-            return f"[user]{user}[/user] has not enough workpoints, {work_points} are required! Milk more cows to level up and gain more work points."
-        
         
         if multiplier > 0:
             for character in self.ranch.client.channels[channel].characters.get():
                 
                 if await self.is_cow(character) and not user.lower() == character.lower():
-                    success, amount, lvlup, milk, lvlup_worker = self._milk_that_meat_sack(user, character, multiplier, work_points)
+                    success, amount, lvlup, milk = self._milk_that_meat_sack(user, character, multiplier)
                     
                     if success:
                         message += f"\n[user]{user}[/user] milked [user]{character}[/user] and got {amount} liters of Milk"
@@ -163,13 +142,9 @@ class Logic():
                             message += f"\n[user]{character}[/user] has leveled up!"
                     else:
                         not_milkable += 1
-                        
-                    if lvlup_worker:
-                        message += f"\n[user]{user}[/user] has leveled up!"
                                                 
                 else:
-                    #print (character, await self.is_cow(character))
-                    pass
+                    print (character, await self.is_cow(character))
             
             if not_milkable > 0:
                 if not_milkable == 1:
@@ -185,40 +160,21 @@ class Logic():
         else:
             message = None
         
-        
-        #else:
-        #    message = f"\n[user]{user}[/user] has not enough workpoints for this action! {work_points} are required!"
-        
-        #print ("mssage: {}".format(message))
+        print ("mssage: {}".format(message))
         return message
 
     def _level_up_cow(self, cow_name, milk, level, exp):
         exp += 1
-        if exp >= self.next_level_ep_cow(level):
+        if exp >= self.next_level_ep(level):
             level += 1
             milk += 1
             exp = 0
             lvlup = True
-            
-            self.ranch.database.update_cow_milk(cow_name, milk)
+            self.ranch.database.cow_update_milk(cow_name, milk)
         else:
             lvlup = False
         self.ranch.database.update_experience(cow_name, level, exp, 'cow')
         
-        return lvlup
-    
-    def _level_up_worker(self, worker_name, work_points, level, exp):
-        exp += 1
-        if exp >= self.next_level_ep_worker(level):
-            level += 1
-            work_points += 1
-            exp = 0
-            lvlup = True
-            
-            self.ranch.database.update_worker_points(worker_name, work_points)
-        else:
-            lvlup = False
-        self.ranch.database.update_experience(worker_name, level, exp, 'worker')
         return lvlup
 
     async def milkmachine(self):
@@ -248,32 +204,15 @@ class Logic():
         else:
             return False
        
-    def next_level_ep_cow(self, current_level):
+    def next_level_ep(self, current_level):
         if current_level >= 100:
             return 2**int(current_level/10)
         
         elif current_level >= 85:
-            return current_level * 3
-        
-        elif current_level >= 50:
-            return current_level * 2
+            return current_level
         
         else:
             return 10
-        
-    def next_level_ep_worker(self, current_level):
-        if current_level >= 100:
-            return 2**int(current_level/10)
-        
-        elif current_level >= 85:
-            return current_level * 30
-        
-        elif current_level >= 50:
-            return current_level * 20
-        
-        else:
-            return 10
-        
                 
     def get_worker(self, name):
         """
@@ -299,17 +238,14 @@ class Logic():
         else:
             number = 0
         
-        for worker, lvl, _, milk in workers:
+        for worker in workers:
             number += 1
-            message += f"{number}. [user]{worker}[/user] ({lvl}) milked {milk} liters\n"     
+            message += "{}. [user]{}[/user] milked {} liters\n".format(number, worker[0], worker[1])        
         
         return message
     
-    def get_worker_jobs(self, name):
-        return self.ranch.database.get_worker_jobs(name)
-    
     def get_worker_stats(self, name):
-        return self.ranch.database.get_worker_stats(name)
+        return self.ranch.database.get_worker_jobs(name)    
     
     def get_cow(self, name):
         data = self.ranch.database.get_cow(name)
@@ -358,16 +294,9 @@ class Logic():
         else:
             return False
         
-    async def update_cow_milk(self, name, milk):
+    async def cow_update_milk(self, name, milk):
         if await self.is_cow(name):
-            return self.ranch.database.update_cow_milk(name, milk)
-        else:
-            return False
-        
-    async def debug_set_work_points(self, name, points):
-        if await self.is_worker(name) and type(points) == type(1):
-            return self.ranch.database.set_work_points(name, points)
-        
+            return self.ranch.database.cow_update_milk(name, milk)
         else:
             return False
     

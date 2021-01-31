@@ -252,20 +252,6 @@ class RANCH_DB(DB_WRAPPER):
                     """)
         return rows
     
-    def get_worker_stats(self, name):
-        statement = f"""
-                    select person.name, level.level, level.experience, SUM(milking.amount)
-                    from milking, worker, person, level
-                    where milking.worker_id = worker.id
-                    and worker.person_id = person.id
-                    and level.person_id = person.id
-                    and level.job = 'worker'
-                    and worker.id = (select id from worker where person_id = (select id from person where lower(name) = lower('{name}') ) )
-                    group by worker.id
-                    ;
-                    """        
-        return self.select(statement)[0]
-    
     def get_worker_stats_last_N_days(self, n = "-30", page= 1):
         if page > 1:
             offset = (page-1) * 10
@@ -381,7 +367,7 @@ class RANCH_DB(DB_WRAPPER):
     
     def get_worker(self, name):
         statement = f"""
-                    select worker.id, person.name, worker.work_points
+                    select worker.id, person.name
                     from worker, person
                     where worker.person_id = (SELECT id FROM person WHERE lower(name) = lower('{name}'))
                     and worker.person_id = person.id

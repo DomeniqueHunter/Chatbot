@@ -68,7 +68,6 @@ class Ranch(Plugin_Prototype):
             self.client.private_msg_handler.add_action("!ranch_set_cow_milk", self.hooks.set_cow_milk)
             self.client.private_msg_handler.add_action("!ranch_cow_stats", self.hooks.get_cow_stats)
             
-            self.client.private_msg_handler.add_action("!ranch_debug_set_wp", self.hooks.debug_set_work_points)
             #self.client.private_msg_handler.add_action("!ranch_save",       self.hook_debug_save)
             #self.client.private_msg_handler.add_action("!ranch_fix_worker", self.hook_fix_workers)
         else:
