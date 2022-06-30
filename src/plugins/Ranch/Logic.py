@@ -1,17 +1,25 @@
 from lib.Time.Time import Time
 import random
 from datetime import datetime
-
+from collections import deque
 
 class Logic():
     
     def __init__(self, ranch):
         self.ranch = ranch
         
-    async def is_worker(self, name):
+        # todo: Queues to remember cows and workers
+        self.remember_cows = deque(maxlen=30)
+        self.remember_workers = deque(maxlen=30)
+        
+    async def is_worker(self, name):        
+        if name in self.remember_workers:
+            return True
+        
         worker = self.ranch.database.get_worker(name)
         
         if worker:
+            self.remember_workers.append(name)
             return True
         else:
             return False
@@ -300,6 +308,14 @@ class Logic():
                
     def rename_person (self, old_name, new_name):
         return self.ranch.database.rename_person(old_name, new_name)
+    
+    def set_milking_channel(self, channel_id):
+        if not channel_id in self.ranch.milking_channels:
+            self.ranch.milking_channels.append(channel_id)
+            
+    def remove_milking_channel(self, channel_id):
+        if channel_id in self.ranch.milking_channels:
+            self.ranch.milking_channels.remove(channel_id)
         
     async def disable_cow(self, name):
         if await self.is_cow(name):

@@ -59,7 +59,7 @@ class OpCodeHandler(ChatCodeHandler):
     async def _start(self):
         await self.connect(self.config.server, self.config.port)
         await self.identify()
-        await self._join_default_channels(self.config.default_channels)
+        await self.join_default_channels(self.config.default_channels)
         
     def start(self):
         self.loop.run_until_complete(self._start())

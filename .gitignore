@@ -1,0 +1,9 @@
+
+
+.project
+.pydevproject
+
+src/config.json
+src/data
+src/*/__pycache__
+src/*/*/__pycache__

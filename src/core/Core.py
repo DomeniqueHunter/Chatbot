@@ -78,7 +78,7 @@ class Core():
         
     async def join(self, channel_name, true_name = None):
         data = {'channel': channel_name}
-        if channel_name not in self.channels:
+        if channel_name not in self.channels and channel_name:
             if true_name:
                 channel = Channel(true_name, channel_name)
             else:    
@@ -86,7 +86,7 @@ class Core():
                 
             self.channels[channel_name] = channel
             
-        await self._message(opcode.JOIN_CHANNEL, data)
+            await self._message(opcode.JOIN_CHANNEL, data)
         
     async def create_private_channel(self, channel_name:str):
         data = {"channel": channel_name}
@@ -140,7 +140,7 @@ class Core():
     def _add_bot_admin(self, user):
         self.admins[user.lower()] = user
                 
-    async def _join_default_channels(self, channels):
+    async def join_default_channels(self, channels):
         for channel in channels:
             await self.join(channel)
     
@@ -254,7 +254,9 @@ class Core():
     def is_owner(self, user):
         return user == self.owner
     
+    # depricated
     def is_priviliged(self, user):
+        print("the method 'is_priviliged' is depricated")
         return (self.is_admin(user)  or self.is_owner(user))
     
     def has_owner_rights(self, user):

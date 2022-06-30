@@ -39,17 +39,10 @@ def insert_person(db:DB):
     test = db.add_person("Gudrun")
     print(test)
     
-    
-    table_1 = DB_TABLE("test", True)
-    table_1.add_column("id", "int", "not null auto_increment")
-    table_1.add_column("name", "varchar(255)", "not null")
-    table_1.primary_key(["id"])
-    table_1.unique(["name"])
-    
-    db.insert(table_1, 2, "Badrun")
-    db.insert(table_1, 5, "Schwelf")
-    db.insert(table_1, 7, "Hannelore")
-    db.insert(table_1, 9, "Berta")
+    db.insert("test", [2, "Badrun"])
+    db.insert("test", [5, "Gnubbel"])
+    db.insert("test", [7, "Hannelore"])
+    db.insert("test", [9, "Berta"])
     
     
     test = db.add_person("Bomann")

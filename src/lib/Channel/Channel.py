@@ -54,6 +54,9 @@ class Channel(object):
     def is_admin(self, user:str) -> bool:
         return self.admins.contains(user)
     
+    def __eq__(self, other):
+        return other == self.code
+    
     def __str__(self):
         return self.code      
     

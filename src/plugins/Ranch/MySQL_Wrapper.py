@@ -1,60 +1,60 @@
 from database.MySqlDB import DB_WRAPPER, DB_TABLES, DB_TABLE, QUERY
-
+import time
 
 class RANCH_DB(DB_WRAPPER):
     
     def setup(self):
         # DB        
-        t_person = DB_TABLE("person", True)
-        t_person.add_column("id", "int", "PRIMARY KEY")
-        t_person.add_column("name", "varchar(22)", "NOT NULL UNIQUE")
+        self.add_table("person", True)
+        self.tables["person"].add_column("id", "int", "PRIMARY KEY AUTO_INCREMENT")
+        self.tables["person"].add_column("name", "varchar(22)", "NOT NULL UNIQUE")
         
-        t_cow = DB_TABLE("cow", True)
-        t_cow.add_column("id", "int", "PRIMARY KEY")
-        t_cow.add_column("person_id", "int", "NOT NULL UNIQUE")
-        t_cow.add_column("active", "int", "NOT NULL DEFAULT 1")
-        t_cow.add_column("yield", "int", "NOT NULL")
+        self.add_table("cow", True)
+        self.tables["cow"].add_column("id", "int", "PRIMARY KEY AUTO_INCREMENT")
+        self.tables["cow"].add_column("person_id", "int", "NOT NULL UNIQUE")
+        self.tables["cow"].add_column("active", "int", "NOT NULL DEFAULT 1")
+        self.tables["cow"].add_column("yield", "int", "NOT NULL")
         
-        t_worker = DB_TABLE("worker", True)
-        t_worker.add_column("id", "int", "PRIMARY KEY")
-        t_worker.add_column("person_id", "int", "NOT NULL UNIQUE")
-        t_worker.add_column("active", "int", "NOT NULL DEFAULT 1")
+        self.add_table("worker", True)
+        self.tables["worker"].add_column("id", "int", "PRIMARY KEY AUTO_INCREMENT")
+        self.tables["worker"].add_column("person_id", "int", "NOT NULL UNIQUE")
+        self.tables["worker"].add_column("active", "int", "NOT NULL DEFAULT 1")
         
-        t_bull = DB_TABLE("bull", True)
-        t_bull.add_column("id", "int", "PRIMARY KEY")
-        t_bull.add_column("person_id", "int", "NOT NULL UNIQUE")
-        t_bull.add_column("active", "int", "NOT NULL DEFAULT 1")
+        self.add_table("bull", True)
+        self.tables["bull"].add_column("id", "int", "PRIMARY KEY AUTO_INCREMENT")
+        self.tables["bull"].add_column("person_id", "int", "NOT NULL UNIQUE")
+        self.tables["bull"].add_column("active", "int", "NOT NULL DEFAULT 1")
         
-        t_breeding = DB_TABLE("breeding", True)
-        t_breeding.add_column("id", "int", "PRIMARY KEY")
-        t_breeding.add_column("breeder_id", "int", "NOT NUNLL")
-        t_breeding.add_column("prey_id", "int", "NOT NULL")
-        t_breeding.add_column("amount", "int", "NOT NULL")
-        t_breeding.add_column("status", "varchar(22)", "NOT NULL") # pregnant, finished
-        t_breeding.add_column("children", "int", "DEFAULT 0")
-        t_breeding.add_column("date", "datetime", "NOT NULL")
+        self.add_table("breeding", True)
+        self.tables["breeding"].add_column("id", "int", "PRIMARY KEY AUTO_INCREMENT")
+        self.tables["breeding"].add_column("breeder_id", "int", "NOT NUNLL")
+        self.tables["breeding"].add_column("prey_id", "int", "NOT NULL")
+        self.tables["breeding"].add_column("amount", "int", "NOT NULL")
+        self.tables["breeding"].add_column("status", "varchar(22)", "NOT NULL") # pregnant, finished
+        self.tables["breeding"].add_column("children", "int", "DEFAULT 0")
+        self.tables["breeding"].add_column("date", "datetime", "NOT NULL")
                 
-        t_milking = DB_TABLE("milking", True)
-        t_milking.add_column("id", "int", "PRIMARY KEY")
-        t_milking.add_column("worker_id", "int", "NOT NULL")
-        t_milking.add_column("cow_id", "int", "NOT NULL")
-        t_milking.add_column("amount", "int", "NOT NULL")
-        t_milking.add_column("date", "datetime", "NOT NULL")
-        t_milking.unique(["worker_id", "cow_id", "date"])
+        self.add_table("milking", True)
+        self.tables["milking"].add_column("id", "int", "PRIMARY KEY AUTO_INCREMENT")
+        self.tables["milking"].add_column("worker_id", "int", "NOT NULL")
+        self.tables["milking"].add_column("cow_id", "int", "NOT NULL")
+        self.tables["milking"].add_column("amount", "int", "NOT NULL")
+        self.tables["milking"].add_column("date", "datetime", "NOT NULL")
+        self.tables["milking"].unique(["worker_id", "cow_id", "date"])
         
-        t_level = DB_TABLE("level", True)
-        t_level.add_column("id", "int", "PRIMARY KEY")
-        t_level.add_column("person_id", "int", "NOT NULL")
-        t_level.add_column("job", "varchar(22)", "NOT NULL")
-        t_level.add_column("level", "int", "NOT NULL DEFAULT 0")
-        t_level.add_column("experience", "int", "NOT NULL DEFAULT 0")        
-        t_level.unique(["person_id", "job"])   
+        self.add_table("level", True)
+        self.tables["level"].add_column("id", "int", "PRIMARY KEY AUTO_INCREMENT")
+        self.tables["level"].add_column("person_id", "int", "NOT NULL")
+        self.tables["level"].add_column("job", "varchar(22)", "NOT NULL")
+        self.tables["level"].add_column("level", "int", "NOT NULL DEFAULT 0")
+        self.tables["level"].add_column("experience", "int", "NOT NULL DEFAULT 0")        
+        self.tables["level"].unique(["person_id", "job"])   
         
-        self.create_table(t_person)
-        self.create_table(t_cow)
-        self.create_table(t_worker)
-        self.create_table(t_milking)
-        self.create_table(t_level)
+        self.create_table(self.tables["person"])
+        self.create_table(self.tables["cow"])
+        self.create_table(self.tables["worker"])
+        self.create_table(self.tables["milking"])
+        self.create_table(self.tables["level"])
     
     def rename_person(self, old_name, new_name):
         statement = f"UPDATE person SET name='{new_name}' WHERE name='{old_name}'"   
@@ -67,7 +67,6 @@ class RANCH_DB(DB_WRAPPER):
         return self.__deactivate(table, name)
             
     def __deactivate(self, table, name):
-        #statement = "UPDATE {} SET active = 0 WHERE lower(name) = '{}'"
         statement = f"UPDATE {table} SET active = 0 WHERE person_id = (SELECT id from person where lower(name) = lower('{name}'))"
         status = self.execute(statement)
         if not status:
@@ -189,35 +188,6 @@ class RANCH_DB(DB_WRAPPER):
                     ;
                     """)
         return rows
-    
-    def get_cow_stats_last_N_days(self, n = "-31", page= 1):
-        """
-        @return: (name, level, exp, milk)
-        
-        """
-        if page > 1:
-            offset = (page-1) * 10
-        else:
-            offset = 0
-
-        rows = self.select(f"""
-                    select person.name, level.level, level.experience, IFNULL((SELECT SUM(amount) 
-                                                         FROM milking,cow 
-                                                         WHERE milking.date >= date('now', '{n} day') 
-                                                         AND cow.id = c.id 
-                                                         AND milking.cow_id = c.id 
-                                                         GROUP BY milking.cow_id),0) as M
-                    from cow c, person, level
-                    where c.person_id = person.id
-                    and level.person_id = person.id
-                    and level.job = 'cow'
-                    and c.active = 1
-                    order by M DESC
-                    LIMIT 10 OFFSET {offset}
-                    ;
-                    """)
-        print (rows)
-        return rows
        
     def get_cow_stats_this_month(self, page= 1):
         """
@@ -229,25 +199,25 @@ class RANCH_DB(DB_WRAPPER):
             offset = (page-1) * 10
         else:
             offset = 0
-
+            
         rows = self.select(f"""
-                    select person.name, level.level, level.experience, IFNULL((SELECT SUM(amount) 
-                                                         FROM milking,cow 
-                                                         where milking.date >= date('now', 'start of month')
-                                                         and   milking.date <= date('now', 'start of month', '+1 month', '-1 day')
-                                                         AND cow.id = c.id 
-                                                         AND milking.cow_id = c.id 
-                                                         GROUP BY milking.cow_id),0) as M
-                    from cow c, person, level
+                    select person.name, lvl.level, lvl.experience, IFNULL((SELECT SUM(amount) 
+                                        FROM milking,cow 
+                                        where MONTH(milking.date) = MONTH(CURRENT_DATE())
+                                        AND YEAR(milking.date) = YEAR(CURRENT_DATE())
+                                        AND cow.id = c.id 
+                                        AND milking.cow_id = c.id 
+                                        GROUP BY milking.cow_id),0) as M
+                    from cow c, person, level lvl
                     where c.person_id = person.id
-                    and level.person_id = person.id
-                    and level.job = 'cow'
+                    and lvl.person_id = person.id
+                    and lvl.job = 'cow'
                     and c.active = 1
                     order by M DESC
                     LIMIT 10 OFFSET {offset}
                     ;
                     """)
-        print (rows)
+
         return rows
         
     def get_worker_stats_all(self):
@@ -263,52 +233,32 @@ class RANCH_DB(DB_WRAPPER):
                     """)
         return rows
     
-    def get_worker_stats_last_N_days(self, n = "-30", page= 1):
-        if page > 1:
-            offset = (page-1) * 10
-        else:
-            offset = 0
-            
-        rows = self.select(f"""
-                    select person.name, IFNULL((SELECT SUM(amount) 
-                                         FROM milking,worker 
-                                         WHERE milking.date >= date('now', '{n} day') 
-                                         AND worker.id = w.id 
-                                         AND milking.worker_id = w.id 
-                                         GROUP BY milking.worker_id),0) as M
-                    from worker w, person
-                    where w.person_id = person.id
-                    order by M DESC
-                    LIMIT 10 OFFSET {offset}
-                    ;
-                    """)
-        return rows
-    
     def get_worker_stats_this_month(self, page= 1):
         if page > 1:
             offset = (page-1) * 10
         else:
             offset = 0
-            
+           
         rows = self.select(f"""
                     select person.name, lvl.level, lvl.experience, IFNULL((SELECT SUM(amount) 
-                                         FROM milking,worker 
-                                         where milking.date >= date('now', 'start of month')
-                                         and   milking.date <= date('now', 'start of month', '+1 month', '-1 day')
-                                         AND worker.id = w.id 
-                                         AND milking.worker_id = w.id 
-                                         GROUP BY milking.worker_id),0) as M
+                                        FROM milking,worker 
+                                        where MONTH(milking.date) = MONTH(CURRENT_DATE())
+                                        AND YEAR(milking.date) = YEAR(CURRENT_DATE())
+                                        AND worker.id = w.id 
+                                        AND milking.worker_id = w.id 
+                                        GROUP BY milking.worker_id),0) as M
                     from worker w, person, level lvl
                     where w.person_id = person.id
                     and lvl.person_id = person.id
                     and lvl.job = 'worker'
+                    and w.active = 1
                     order by M DESC
                     LIMIT 10 OFFSET {offset}
                     ;
                     """)
-        return rows
 
-    
+        return rows
+ 
     def get_cow_stats(self, name):
         statement = f"""
                     select person.name, level.level, level.experience, SUM(milking.amount)
@@ -401,9 +351,8 @@ class RANCH_DB(DB_WRAPPER):
         return self.execute(statement)
     
     def set_level(self, name, job):
-        statement = f"""
-                    INSERT INTO level('person_id', 'job')
-                    VALUES ( (SELECT id FROM person WHERE lower(name) = lower('{name}') ), '{job}')
+        statement = f"""INSERT INTO level(person_id, job) 
+                        VALUES ( (SELECT id FROM person WHERE lower(name)=lower('{name}') ), '{job}')
                     """
         return self.execute(statement)
     

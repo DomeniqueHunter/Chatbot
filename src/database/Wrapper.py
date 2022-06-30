@@ -62,10 +62,10 @@ class DB_WRAPPER():
         :return:
         """
         cursor = self.connection.cursor()
-        cursor.execute(f"SELECT * FROM {table}")     
+        cursor.execute(f"SELECT * FROM {table} order by id")     
         rows = cursor.fetchall()     
-        for row in rows:
-            print(row)
+
+        return rows
             
     def select(self, statement):
         cursor = self.connection.cursor()

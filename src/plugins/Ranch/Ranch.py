@@ -2,7 +2,8 @@ from plugins.Plugin_Prototype import Plugin_Prototype
 
 from plugins.Ranch.Hooks import Hooks
 from plugins.Ranch.Logic import Logic
-from plugins.Ranch.DB_Wrapper import RANCH_DB
+#from plugins.Ranch.DB_Wrapper import RANCH_DB
+from plugins.Ranch.MySQL_Wrapper import RANCH_DB
 
 from lib.Channel.Channel import Channel
 from lib.Counter.Counter import Counter
@@ -26,29 +27,14 @@ class Ranch(Plugin_Prototype):
         count_to       = 720
         count_to_debug = 1
         self.counter = Counter (count_to)
+        
+        self.milking_channels = []  # id's of milking channels
              
     def is_milking_channel(self, channel):
-        allowed_channels = self.client.config.plugins['ranch']['channels']
-        #print(f"channel: {channel}")
-        for allowed_channel in allowed_channels:
-            try:
-                probe = Channel.find_channel_by_name(self.client.channels, allowed_channel)
-                
-                if probe == channel:
-                    return True
-            except Exception as e:
-                print (f"Exception {e}")
+        #allowed_channels = self.client.config.plugins['ranch']['channels']
+        print(f"channel: {channel}")
         
-        return channel in allowed_channels
-    
-    def is_in_miling_channel(self, user):
-        allowed_channels = self.client.config.plugins['ranch']['channels']
-        
-        for channel in self.ranch.bot.channels:
-            if channel.name in allowed_channels:
-                channel.is_online(user)
-        
-        return False
+        return channel in self.milking_channels
                       
     def register_actions(self):
         if (self.client):
@@ -75,6 +61,8 @@ class Ranch(Plugin_Prototype):
             self.client.private_msg_handler.add_action("!ranch_set_cow_milk <cow_name>, <yield>", self.hooks.set_cow_milk, "DEBUG sets a new milk yield for a cow", "admin", f"{self.module_name} (Admin)")
             self.client.private_msg_handler.add_action("!ranch_cow_stats <cow_name>", self.hooks.get_cow_stats, "Shows stats of a cow", "admin", f"{self.module_name} (Admin)")
             
+            self.client.public_msg_handler.add_action("!milkhere", self.hooks.set_milking_channel, "Enabled milking in the Channel", "admin", f"{self.module_name} (Admin)")
+            
             #self.client.private_msg_handler.add_action("!ranch_save",       self.hook_debug_save)
             #self.client.private_msg_handler.add_action("!ranch_fix_worker", self.hook_fix_workers)
         else:
@@ -85,18 +73,31 @@ class Ranch(Plugin_Prototype):
             setup database
         '''
         
-        self.database = RANCH_DB(f'{self.client.data_path}/ranch.db')
+        host = self.client.config.plugins["ranch"]["sql_host"]
+        user = self.client.config.plugins["ranch"]["sql_user"]
+        password = self.client.config.plugins["ranch"]["sql_pass"]
+        database = self.client.config.plugins["ranch"]["sql_database"]
+                        
+        self.database = RANCH_DB(user, password, database, host)
         self.database.connect()
         self.database.setup()
         
         self.logic.add_worker(self.client.config.character)
+        
+        self.client.files.add("ranch_milking_channels", "ranch_milking_channels.dat")
            
     def save (self):
-        pass
+        if len(self.milking_channels) > 0:
+            self.client.save_to_file(str(self.milking_channels), self.client.files.ranch_milking_channels, 'w')
 
             
     def load(self):
-        pass
+        try:
+            data = self.client.load_from_file(self.client.files.ranch_milking_channels)
+            self.milking_channels = eval(data)
+            print(self.milking_channels)
+        except:
+            print (f"could not load data in '{self.module_name}'")
         
     async def clock(self):
         if self.counter.tick():

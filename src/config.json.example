@@ -16,7 +16,11 @@
 	},
 	"plugins" : {
 		"ranch" : {
-			"channels" : ["H-Milk", "milk-test"]
+			"sql_host": "databse",
+			"sql_port": "3306",
+			"sql_user": "root",
+			"sql_pass": "example",
+			"sql_database": "Ranch" 
 		}
 	}	
 }

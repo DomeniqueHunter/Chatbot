@@ -1,8 +1,6 @@
 from plugins.Ranch.Logic import Logic
 
 from lib.BBCode.BBCode import BBCode
-from lib.Channel.Channel import Channel
-
 
 class Hooks():
     """
@@ -180,7 +178,6 @@ class Hooks():
             
             await self.ranch.client.send_public_message(message, channel)
     
-    
     async def power_milk(self, user, cow):
         if self.ranch.client.is_priviliged(user.strip()):
             cow_name = BBCode.get_name(cow)
@@ -256,7 +253,24 @@ class Hooks():
                 message = "[user]{}[/user] is already a Worker at H-Milk!".format(user)
             
             await self.ranch.client.send_public_message(message, channel)
-
+    
+    async def set_milking_channel(self, user, channel):
+        if self.ranch.client.has_admin_rights(user.strip()):
+            self.ranch.logic.set_milking_channel(channel)
+            
+            if channel in self.ranch.milking_channels:
+                message = "now you can milk cows here."
+                await self.ranch.client.send_public_message(message, channel)
+                
+                
+    async def remove_milking_channel(self, user, channel):
+        if self.ranch.client.has_admin_rights(user.strip()):
+            self.ranch.remove_milking_channel(channel)
+            
+            if channel not in self.ranch.milking_channels:
+                message = "now you can't milk cows here."
+                await self.ranch.client.send_public_message(message, channel)
+    
     # direct
     async def add_cow(self, user, input_string = " , "):
         """
