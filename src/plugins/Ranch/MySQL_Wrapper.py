@@ -6,47 +6,49 @@ class RANCH_DB(DB_WRAPPER):
     def setup(self):
         # DB        
         self.add_table("person", True)
-        self.tables["person"].add_column("id", "int", "PRIMARY KEY AUTO_INCREMENT")
+        self.tables["person"].add_column("id", "bigint unsigned", "PRIMARY KEY AUTO_INCREMENT")
         self.tables["person"].add_column("name", "varchar(22)", "NOT NULL UNIQUE")
         
         self.add_table("cow", True)
-        self.tables["cow"].add_column("id", "int", "PRIMARY KEY AUTO_INCREMENT")
-        self.tables["cow"].add_column("person_id", "int", "NOT NULL UNIQUE")
+        self.tables["cow"].add_column("id", "bigint unsigned", "PRIMARY KEY AUTO_INCREMENT")
+        self.tables["cow"].add_column("person_id", "bigint unsigned", "NOT NULL UNIQUE")
         self.tables["cow"].add_column("active", "int", "NOT NULL DEFAULT 1")
         self.tables["cow"].add_column("yield", "int", "NOT NULL")
         
         self.add_table("worker", True)
-        self.tables["worker"].add_column("id", "int", "PRIMARY KEY AUTO_INCREMENT")
-        self.tables["worker"].add_column("person_id", "int", "NOT NULL UNIQUE")
+        self.tables["worker"].add_column("id", "bigint unsigned", "PRIMARY KEY AUTO_INCREMENT")
+        self.tables["worker"].add_column("person_id", "bigint unsigned", "NOT NULL UNIQUE")
         self.tables["worker"].add_column("active", "int", "NOT NULL DEFAULT 1")
         
         self.add_table("bull", True)
-        self.tables["bull"].add_column("id", "int", "PRIMARY KEY AUTO_INCREMENT")
-        self.tables["bull"].add_column("person_id", "int", "NOT NULL UNIQUE")
+        self.tables["bull"].add_column("id", "bigint unsigned", "PRIMARY KEY AUTO_INCREMENT")
+        self.tables["bull"].add_column("person_id", "bigint unsigned", "NOT NULL UNIQUE")
         self.tables["bull"].add_column("active", "int", "NOT NULL DEFAULT 1")
         
         self.add_table("breeding", True)
-        self.tables["breeding"].add_column("id", "int", "PRIMARY KEY AUTO_INCREMENT")
-        self.tables["breeding"].add_column("breeder_id", "int", "NOT NUNLL")
-        self.tables["breeding"].add_column("prey_id", "int", "NOT NULL")
+        self.tables["breeding"].add_column("id", "bigint unsigned", "PRIMARY KEY AUTO_INCREMENT")
+        self.tables["breeding"].add_column("breeder_id", "bigint unsigned", "NOT NUNLL")
+        self.tables["breeding"].add_column("prey_id", "bigint unsigned", "NOT NULL")
         self.tables["breeding"].add_column("amount", "int", "NOT NULL")
         self.tables["breeding"].add_column("status", "varchar(22)", "NOT NULL") # pregnant, finished
-        self.tables["breeding"].add_column("children", "int", "DEFAULT 0")
+        self.tables["breeding"].add_column("children", "bigint unsigned", "DEFAULT 0")
         self.tables["breeding"].add_column("date", "datetime", "NOT NULL")
                 
         self.add_table("milking", True)
-        self.tables["milking"].add_column("id", "int", "PRIMARY KEY AUTO_INCREMENT")
-        self.tables["milking"].add_column("worker_id", "int", "NOT NULL")
-        self.tables["milking"].add_column("cow_id", "int", "NOT NULL")
-        self.tables["milking"].add_column("amount", "int", "NOT NULL")
+        self.tables["milking"].add_column("id", "bigint unsigned", "PRIMARY KEY AUTO_INCREMENT")
+        self.tables["milking"].add_column("worker_id", "bigint unsigned", "NOT NULL")
+        self.tables["milking"].add_column("cow_id", "bigint unsigned", "NOT NULL")
+        self.tables["milking"].add_column("amount", "int unsigned", "NOT NULL")
         self.tables["milking"].add_column("date", "datetime", "NOT NULL")
         self.tables["milking"].unique(["worker_id", "cow_id", "date"])
+        self.tables["milking"].foreign_key(["cow_id"], "cow", ["id"])
+        #self.tables["milking"].foreign_key(["worker_id"], "worker", ["id"])
         
         self.add_table("level", True)
-        self.tables["level"].add_column("id", "int", "PRIMARY KEY AUTO_INCREMENT")
-        self.tables["level"].add_column("person_id", "int", "NOT NULL")
+        self.tables["level"].add_column("id", "bigint unsigned", "PRIMARY KEY AUTO_INCREMENT")
+        self.tables["level"].add_column("person_id", "bigint unsigned", "NOT NULL")
         self.tables["level"].add_column("job", "varchar(22)", "NOT NULL")
-        self.tables["level"].add_column("level", "int", "NOT NULL DEFAULT 0")
+        self.tables["level"].add_column("level", "int unsigned", "NOT NULL DEFAULT 0")
         self.tables["level"].add_column("experience", "int", "NOT NULL DEFAULT 0")        
         self.tables["level"].unique(["person_id", "job"])   
         
@@ -83,8 +85,24 @@ class RANCH_DB(DB_WRAPPER):
         return status
     
     def _add_person(self, name):
-        statement = f"INSERT INTO person(name) VALUES('{name}')"
-        return self.execute(statement)
+        if not self.get_person(name):
+            statement = f"INSERT INTO person(name) VALUES('{name}')"
+            return self.execute(statement)
+        
+        else:
+            # person already exists
+            return True
+    
+    def get_person(self, name):
+        statement = f"""
+                    select name
+                    from person
+                    where name = '{name}'
+                    """
+        try:
+            return self.select(statement)[0]
+        except:
+            return None
     
     def add_cow(self, name, amount = 10):
         status = self._add_person(name)
@@ -199,7 +217,8 @@ class RANCH_DB(DB_WRAPPER):
             offset = (page-1) * 10
         else:
             offset = 0
-            
+        
+        start = time.time()
         rows = self.select(f"""
                     select person.name, lvl.level, lvl.experience, IFNULL((SELECT SUM(amount) 
                                         FROM milking,cow 
@@ -217,6 +236,8 @@ class RANCH_DB(DB_WRAPPER):
                     LIMIT 10 OFFSET {offset}
                     ;
                     """)
+        stop = time.time()
+        print(f"get_cows: {stop - start}s")
 
         return rows
         
@@ -238,7 +259,8 @@ class RANCH_DB(DB_WRAPPER):
             offset = (page-1) * 10
         else:
             offset = 0
-           
+        
+        start = time.time()
         rows = self.select(f"""
                     select person.name, lvl.level, lvl.experience, IFNULL((SELECT SUM(amount) 
                                         FROM milking,worker 
@@ -256,7 +278,8 @@ class RANCH_DB(DB_WRAPPER):
                     LIMIT 10 OFFSET {offset}
                     ;
                     """)
-
+        stop = time.time()
+        print(f"get_workers: {stop - start}s")
         return rows
  
     def get_cow_stats(self, name):

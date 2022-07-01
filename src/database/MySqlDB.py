@@ -1,5 +1,16 @@
 import mysql.connector as mysql
 
+
+def value_string(values):
+    value_list = []
+    for value in values:
+        if type(value) == int:
+            value_list.append(str(value))
+        else:
+            value_list.append(f"'{value}'")
+            
+    return ",".join(value_list)
+
 class DB_WRAPPER():
     
     def __init__(self, user, password, database, host, port=3306):
@@ -66,16 +77,6 @@ class DB_WRAPPER():
         except Exception as e:
             print (e)
             return False
-        
-    def _value_string(self, values):
-        value_list = []
-        for value in values:
-            if type(value) == int:
-                value_list.append(str(value))
-            else:
-                value_list.append(f"'{value}'")
-                
-        return ",".join(value_list)
     
     def insert(self, table, values):        
         if type(table) == str:
@@ -87,7 +88,7 @@ class DB_WRAPPER():
         if len(table.column_names) == len(values):
             
             fields = ",".join(table.column_names)
-            values = self._value_string(values)
+            values = value_string(values)
             
             statement = f"INSERT INTO {table.name}({fields}) VALUES({values})"
             return self.execute(statement)
@@ -165,6 +166,7 @@ class DB_TABLE():
         self.column_names = []
         self.unique_columns = None
         self.primary_columns = None
+        self.foreign_constrains = []
         self.if_not_exists = if_not_exists
         
     def add_column(self, name, type, attributes = None):
@@ -193,6 +195,15 @@ class DB_TABLE():
         
         # if all columns are in column names
         self.unique_columns = columns
+        
+    def foreign_key(self, from_fields:list, to_table, to_fields:list):
+        if from_fields and to_table and to_fields:
+            fields = ",".join(from_fields)
+            ref_fields = ",".join(to_fields)
+            
+            statement = f"FOREIGN KEY ({fields}) REFERENCES {to_table} ({ref_fields})"
+            self.foreign_constrains.append(statement)
+             
                      
     def to_string(self):
         if self.if_not_exists:
@@ -207,10 +218,13 @@ class DB_TABLE():
             statement += ",UNIQUE(" + ",".join(self.unique_columns) + ")"
         
         if self.primary_columns:
-            statement += ",PRIMARY KEY (" + ",".join(self.primary_columns) + ")"        
+            statement += ",PRIMARY KEY (" + ",".join(self.primary_columns) + ")"
+            
+        if self.foreign_constrains:
+            for constraint in self.foreign_constrains:
+                statement += "," + constraint      
         
         statement += ");"
-        #print ("XXX:", statement)
         return statement
     
     def parameter(self, if_not_exists=False):

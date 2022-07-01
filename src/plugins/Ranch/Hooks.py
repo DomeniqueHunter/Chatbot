@@ -229,8 +229,8 @@ class Hooks():
         @param channel: channel where request was sent
         """
         if self.ranch.is_milking_channel(channel):
-            status = self.ranch.logic.add_cow(user)
-            if status == True:
+            status = await self.ranch.logic.add_cow(user)
+            if status:
                 message = "[user]{}[/user] is now a Cow at H-Milk! Milk it dry using !milk [user]{}[/user]!".format (user, user)
             
             else:
@@ -245,8 +245,8 @@ class Hooks():
         @param channel: channel where request was sent
         """
         if self.ranch.is_milking_channel(channel):
-            status = self.ranch.logic.add_worker(user)
-            if status == True:
+            status = await self.ranch.logic.add_worker(user)
+            if status:
                 message = "[user]{}[/user] is now a Worker at H-Milk!".format (user, user)
             
             else:
@@ -288,7 +288,7 @@ class Hooks():
         
         if self.ranch.client.is_priviliged(user.strip()):
         
-            status = self.ranch.logic.add_cow(name, milk)
+            status = await self.ranch.logic.add_cow(name, milk)
             if status == True:
                 message = "[user]{}[/user] is now a Cow at H-Milk!".format (name)
                 message_4_cow = "Now you are a cow at H-Milk, offer you udders to all the workers!"

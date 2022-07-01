@@ -2,6 +2,7 @@
 
 from plugins.Ranch.DB_Wrapper import RANCH_DB as RanchOld
 from plugins.Ranch.MySQL_Wrapper import RANCH_DB as RanchNew
+import time
 
 """
     HOW TO USE
@@ -26,7 +27,7 @@ mysql.setup()
 
 tables = ["person", "cow", "worker", "milking", "level"]
 
-
+start_teleport = time.time()
 for table in tables:
     
     # get all data from one table and see how big it is
@@ -37,18 +38,19 @@ for table in tables:
     
     tab_len = len(data)
     index = 0
+    start_teleport_table = time.time()
     for d in data:
         index += 1
         mysql.insert(table, list(d))
         
-        if index % 50 == 0:
+        if index % 100 == 0:
             percent = index/tab_len *100 
             print(f"  {index} - {percent:.0f}%")
-    
-    print("done~") 
+            
+    end_teleport_table = time.time()
+    print(f"done in {end_teleport_table-start_teleport_table}s") 
     print()   
     
-    
-    
-    
+end_teleport = time.time()
+print(f"teleport finished in {end_teleport-start_teleport}s")    
     

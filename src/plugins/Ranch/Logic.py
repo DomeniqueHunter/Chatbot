@@ -25,9 +25,13 @@ class Logic():
             return False
     
     async def is_cow(self, name, respect = True):
-        #data = self.ranch.database.get_cow(name, respect)
-        data= self.get_cow(name, respect)
+        if name in self.remember_cows:
+            return True 
+        
+        data = self.get_cow(name, respect)
+        
         if data:
+            self.remember_cows.append(name)
             return True
         else:
             return False
@@ -39,22 +43,30 @@ class Logic():
         else:
             return False
     
-    def add_cow(self, cow_name, milk_yield = 10):
-        status = self.ranch.database.add_cow(cow_name, milk_yield)
+    async def add_cow(self, cow_name, milk_yield = 10):
+        is_cow = await self.is_cow(cow_name)
         
-        if not status:
-            # is already a cow
-            self.ranch.database.enable("cow", cow_name)
+        if not is_cow:
+            status = self.ranch.database.add_cow(cow_name, milk_yield)
         
-        return status
-    
-    def add_worker(self, name):
-        status = self.ranch.database.add_worker(name)
+            if not status:
+                # is already a cow
+                self.ranch.database.enable("cow", cow_name)
+            
+            return status
+        return not is_cow
         
-        if not status:
-            self.ranch.database.enable("worker", name)
+    async def add_worker(self, name):
+        is_worker = await self.is_worker(name)
         
-        return status
+        if not is_worker:
+            status = self.ranch.database.add_worker(name)
+            
+            if not status:
+                self.ranch.database.enable("worker", name)
+            
+            return status
+        return not is_worker
     
     async def _get_milk_multiplier(self, worker_name):
         worker_is_cow = await self.is_cow(worker_name)

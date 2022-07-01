@@ -8,6 +8,8 @@ from plugins.Ranch.MySQL_Wrapper import RANCH_DB
 from lib.Channel.Channel import Channel
 from lib.Counter.Counter import Counter
 
+import asyncio
+
 class Ranch(Plugin_Prototype):
     def __init__(self):
         self.module_name = "Ranch"
@@ -32,8 +34,7 @@ class Ranch(Plugin_Prototype):
              
     def is_milking_channel(self, channel):
         #allowed_channels = self.client.config.plugins['ranch']['channels']
-        print(f"channel: {channel}")
-        
+        #print(f"channel: {channel}")        
         return channel in self.milking_channels
                       
     def register_actions(self):
@@ -77,12 +78,13 @@ class Ranch(Plugin_Prototype):
         user = self.client.config.plugins["ranch"]["sql_user"]
         password = self.client.config.plugins["ranch"]["sql_pass"]
         database = self.client.config.plugins["ranch"]["sql_database"]
-                        
+                
         self.database = RANCH_DB(user, password, database, host)
         self.database.connect()
         self.database.setup()
         
-        self.logic.add_worker(self.client.config.character)
+        loop = asyncio.new_event_loop()
+        loop.run_until_complete(self.logic.add_worker(self.client.config.character))
         
         self.client.files.add("ranch_milking_channels", "ranch_milking_channels.dat")
            
