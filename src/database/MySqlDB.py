@@ -133,8 +133,8 @@ class DB_WRAPPER():
         
         elif isinstance(table, str):
             if table in self.tables:
-                return self._execute(self.tables[table].to_string())
-            
+                statement = self.tables[table].to_string()
+                return self._execute(statement)           
                 
         return False
 
@@ -166,6 +166,7 @@ class DB_TABLE():
         self.column_names = []
         self.unique_columns = None
         self.primary_columns = None
+        self.index_string = None
         self.foreign_constrains = []
         self.if_not_exists = if_not_exists
         
@@ -196,12 +197,18 @@ class DB_TABLE():
         # if all columns are in column names
         self.unique_columns = columns
         
-    def foreign_key(self, from_fields:list, to_table, to_fields:list):
+    def index(self, index_field):
+        if index_field in self.column_names:
+            self.index_string = f"INDEX `idx_{index_field}` ({index_field})"
+        
+    def foreign_key(self, from_fields:list, to_table, to_fields:list, on_update="RESTRICT", on_delete="RESTRICT"):
         if from_fields and to_table and to_fields:
             fields = ",".join(from_fields)
             ref_fields = ",".join(to_fields)
             
-            statement = f"FOREIGN KEY ({fields}) REFERENCES {to_table} ({ref_fields})"
+            const_name = "_".join(to_fields)
+            statement = f"CONSTRAINT `fk_{self.name}_{to_table}_{const_name}` FOREIGN KEY ({fields}) REFERENCES {to_table} ({ref_fields}) ON UPDATE {on_update} ON DELETE {on_delete}"
+                       
             self.foreign_constrains.append(statement)
              
                      
@@ -219,6 +226,9 @@ class DB_TABLE():
         
         if self.primary_columns:
             statement += ",PRIMARY KEY (" + ",".join(self.primary_columns) + ")"
+            
+        if self.index_string:
+            statement += f",{self.index_string}"
             
         if self.foreign_constrains:
             for constraint in self.foreign_constrains:

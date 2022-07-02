@@ -321,9 +321,38 @@ class Logic():
     def rename_person (self, old_name, new_name):
         return self.ranch.database.rename_person(old_name, new_name)
     
-    def set_milking_channel(self, channel_id):
+    def set_milking_channel(self, channel_id):    
         if not channel_id in self.ranch.milking_channels:
-            self.ranch.milking_channels.append(channel_id)
+                self.ranch.milking_channels.append(channel_id)
+                
+    def show_milking_channels(self):
+        message = "\n"
+        
+        for index, channel_id in enumerate(self.ranch.milking_channels):
+            message += f"({index}) - {channel_id}\n"
+            
+        return message
+    
+    def remove_milking_channel_by_index(self, channel_index):
+        channel_index = int(channel_index)
+        if len(self.ranch.milking_channels) <= channel_index+1:
+            try:
+                self.ranch.milking_channels.pop(channel_index)
+            except Eception as e:
+                print(e)
+                return False
+            
+            return True
+        
+        return False
+    
+    def remove_milking_channel_by_id(self, channel_id):
+        if channel_id in self.ranch.milking_channels:
+            self.ranch.milking_channels.remove(channel_id)
+            
+            return True
+        
+        return False
             
     def remove_milking_channel(self, channel_id):
         if channel_id in self.ranch.milking_channels:

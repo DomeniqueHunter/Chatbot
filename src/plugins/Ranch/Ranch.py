@@ -32,9 +32,7 @@ class Ranch(Plugin_Prototype):
         
         self.milking_channels = []  # id's of milking channels
              
-    def is_milking_channel(self, channel):
-        #allowed_channels = self.client.config.plugins['ranch']['channels']
-        #print(f"channel: {channel}")        
+    def is_milking_channel(self, channel):     
         return channel in self.milking_channels
                       
     def register_actions(self):
@@ -61,8 +59,11 @@ class Ranch(Plugin_Prototype):
             self.client.private_msg_handler.add_action("!ranch_remove_worker <worker_name>", self.hooks.remove_worker, "Disables a worker", "admin", f"{self.module_name} (Admin)")
             self.client.private_msg_handler.add_action("!ranch_set_cow_milk <cow_name>, <yield>", self.hooks.set_cow_milk, "DEBUG sets a new milk yield for a cow", "admin", f"{self.module_name} (Admin)")
             self.client.private_msg_handler.add_action("!ranch_cow_stats <cow_name>", self.hooks.get_cow_stats, "Shows stats of a cow", "admin", f"{self.module_name} (Admin)")
+            self.client.private_msg_handler.add_action("!ranch_get_milking_channels", self.hooks.get_milking_channels, "Show milking channels", "admin", f"{self.module_name} (Admin)")
+            self.client.private_msg_handler.add_action("!ranch_remove_milking_channel <index>", self.hooks.remove_milking_channel_by_index, "Disable milking in the Channel", "admin", f"{self.module_name} (Admin)")
             
             self.client.public_msg_handler.add_action("!milkhere", self.hooks.set_milking_channel, "Enabled milking in the Channel", "admin", f"{self.module_name} (Admin)")
+            self.client.public_msg_handler.add_action("!dontmilkhere", self.hooks.remove_milking_channel_by_id, "Disable milking in the Channel", "admin", f"{self.module_name} (Admin)")
             
             #self.client.private_msg_handler.add_action("!ranch_save",       self.hook_debug_save)
             #self.client.private_msg_handler.add_action("!ranch_fix_worker", self.hook_fix_workers)
@@ -92,7 +93,7 @@ class Ranch(Plugin_Prototype):
         if len(self.milking_channels) > 0:
             self.client.save_to_file(str(self.milking_channels), self.client.files.ranch_milking_channels, 'w')
 
-            
+         
     def load(self):
         try:
             data = self.client.load_from_file(self.client.files.ranch_milking_channels)

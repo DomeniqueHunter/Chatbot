@@ -63,7 +63,7 @@ class Channels(object):
         else:
             return None
         
-    def find_channe_by_id(self, code:str) -> Channel:
+    def find_channel_by_id(self, code:str) -> Channel:
         if code in self.open_private_channels:
             return self.open_private_channels[code]
         

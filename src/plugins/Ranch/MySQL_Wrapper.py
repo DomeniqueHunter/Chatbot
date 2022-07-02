@@ -6,47 +6,50 @@ class RANCH_DB(DB_WRAPPER):
     def setup(self):
         # DB        
         self.add_table("person", True)
-        self.tables["person"].add_column("id", "bigint unsigned", "PRIMARY KEY AUTO_INCREMENT")
+        self.tables["person"].add_column("id", "int unsigned", "PRIMARY KEY AUTO_INCREMENT")
         self.tables["person"].add_column("name", "varchar(22)", "NOT NULL UNIQUE")
         
         self.add_table("cow", True)
-        self.tables["cow"].add_column("id", "bigint unsigned", "PRIMARY KEY AUTO_INCREMENT")
-        self.tables["cow"].add_column("person_id", "bigint unsigned", "NOT NULL UNIQUE")
+        self.tables["cow"].add_column("id", "int unsigned", "PRIMARY KEY AUTO_INCREMENT")
+        self.tables["cow"].add_column("person_id", "int unsigned", "NOT NULL UNIQUE")
         self.tables["cow"].add_column("active", "int", "NOT NULL DEFAULT 1")
         self.tables["cow"].add_column("yield", "int", "NOT NULL")
+        self.tables["cow"].foreign_key(["person_id"], "person", ["id"])
         
         self.add_table("worker", True)
-        self.tables["worker"].add_column("id", "bigint unsigned", "PRIMARY KEY AUTO_INCREMENT")
-        self.tables["worker"].add_column("person_id", "bigint unsigned", "NOT NULL UNIQUE")
+        self.tables["worker"].add_column("id", "int unsigned", "PRIMARY KEY AUTO_INCREMENT")
+        self.tables["worker"].add_column("person_id", "int unsigned", "NOT NULL UNIQUE")
         self.tables["worker"].add_column("active", "int", "NOT NULL DEFAULT 1")
+        self.tables["worker"].foreign_key(["person_id"], "person", ["id"])
         
         self.add_table("bull", True)
-        self.tables["bull"].add_column("id", "bigint unsigned", "PRIMARY KEY AUTO_INCREMENT")
-        self.tables["bull"].add_column("person_id", "bigint unsigned", "NOT NULL UNIQUE")
+        self.tables["bull"].add_column("id", "int unsigned", "PRIMARY KEY AUTO_INCREMENT")
+        self.tables["bull"].add_column("person_id", "int unsigned", "NOT NULL UNIQUE")
         self.tables["bull"].add_column("active", "int", "NOT NULL DEFAULT 1")
         
         self.add_table("breeding", True)
-        self.tables["breeding"].add_column("id", "bigint unsigned", "PRIMARY KEY AUTO_INCREMENT")
-        self.tables["breeding"].add_column("breeder_id", "bigint unsigned", "NOT NUNLL")
-        self.tables["breeding"].add_column("prey_id", "bigint unsigned", "NOT NULL")
+        self.tables["breeding"].add_column("id", "int unsigned", "PRIMARY KEY AUTO_INCREMENT")
+        self.tables["breeding"].add_column("breeder_id", "int unsigned", "NOT NUNLL")
+        self.tables["breeding"].add_column("prey_id", "int unsigned", "NOT NULL")
         self.tables["breeding"].add_column("amount", "int", "NOT NULL")
         self.tables["breeding"].add_column("status", "varchar(22)", "NOT NULL") # pregnant, finished
-        self.tables["breeding"].add_column("children", "bigint unsigned", "DEFAULT 0")
+        self.tables["breeding"].add_column("children", "int unsigned", "DEFAULT 0")
         self.tables["breeding"].add_column("date", "datetime", "NOT NULL")
                 
         self.add_table("milking", True)
-        self.tables["milking"].add_column("id", "bigint unsigned", "PRIMARY KEY AUTO_INCREMENT")
-        self.tables["milking"].add_column("worker_id", "bigint unsigned", "NOT NULL")
-        self.tables["milking"].add_column("cow_id", "bigint unsigned", "NOT NULL")
+        #self.tables["milking"].add_column("id", "bigint unsigned", "PRIMARY KEY AUTO_INCREMENT")
+        self.tables["milking"].add_column("worker_id", "int unsigned", "NOT NULL")
+        self.tables["milking"].add_column("cow_id", "int unsigned", "NOT NULL")
         self.tables["milking"].add_column("amount", "int unsigned", "NOT NULL")
         self.tables["milking"].add_column("date", "datetime", "NOT NULL")
+        self.tables["milking"].primary_key(["worker_id", "cow_id", "date"])
         self.tables["milking"].unique(["worker_id", "cow_id", "date"])
         self.tables["milking"].foreign_key(["cow_id"], "cow", ["id"])
-        #self.tables["milking"].foreign_key(["worker_id"], "worker", ["id"])
+        self.tables["milking"].foreign_key(["worker_id"], "worker", ["id"])
         
         self.add_table("level", True)
-        self.tables["level"].add_column("id", "bigint unsigned", "PRIMARY KEY AUTO_INCREMENT")
-        self.tables["level"].add_column("person_id", "bigint unsigned", "NOT NULL")
+        self.tables["level"].add_column("id", "int unsigned", "PRIMARY KEY AUTO_INCREMENT")
+        self.tables["level"].add_column("person_id", "int unsigned", "NOT NULL")
         self.tables["level"].add_column("job", "varchar(22)", "NOT NULL")
         self.tables["level"].add_column("level", "int unsigned", "NOT NULL DEFAULT 0")
         self.tables["level"].add_column("experience", "int", "NOT NULL DEFAULT 0")        
@@ -182,9 +185,9 @@ class RANCH_DB(DB_WRAPPER):
         statement = f"""
                     select person.name, SUM(milking.amount)
                     from milking
-                    inner join worker on worker.id = milking.worker_id
-                    inner join person on person.id = cow.person_id
                     inner join cow on cow.id = milking.cow_id
+                    inner join person on person.id = cow.person_id
+                    inner join worker on worker.id = milking.worker_id
                     and cow.active = 1
                     and worker.id = (select id from worker where person_id = (select id from person where lower(name) = lower('{worker}') ) )
                     group by cow.id                    
@@ -237,7 +240,7 @@ class RANCH_DB(DB_WRAPPER):
                     ;
                     """)
         stop = time.time()
-        print(f"get_cows: {stop - start}s")
+        #print(f"get_cows: {stop - start}s")
 
         return rows
         
@@ -279,7 +282,8 @@ class RANCH_DB(DB_WRAPPER):
                     ;
                     """)
         stop = time.time()
-        print(f"get_workers: {stop - start}s")
+        #print(f"get_workers: {stop - start}s")
+        
         return rows
  
     def get_cow_stats(self, name):

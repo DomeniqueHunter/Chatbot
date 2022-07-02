@@ -263,15 +263,31 @@ class Hooks():
                 await self.ranch.client.send_public_message(message, channel)
                 
                 
-    async def remove_milking_channel(self, user, channel):
+    async def remove_milking_channel_by_id(self, user, channel):
         if self.ranch.client.has_admin_rights(user.strip()):
-            self.ranch.remove_milking_channel(channel)
-            
-            if channel not in self.ranch.milking_channels:
-                message = "now you can't milk cows here."
-                await self.ranch.client.send_public_message(message, channel)
-    
+            if self.ranch.logic.remove_milking_channel_by_id(channel):
+                message = "milking is disabled here now! :("
+                
+            else:
+                message = "nope!"
+                
+            await self.ranch.client.send_public_message(message, channel)
+  
     # direct
+    async def get_milking_channels(self, user):
+        if self.ranch.client.has_admin_rights(user.strip()):
+            message = self.ranch.logic.show_milking_channels()
+            await self.ranch.client.send_private_message(message, user)
+            
+    async def remove_milking_channel_by_index(self, user, channel_index):
+        if self.ranch.client.has_admin_rights(user.strip()):
+            if self.ranch.logic.remove_milking_channel_by_index(channel_index):
+                message = f"removed channel {channel_index} from list"            
+            else:
+                message = "error on removing channel, chech id's"
+            
+            await self.ranch.client.send_private_message(message, user)
+            
     async def add_cow(self, user, input_string = " , "):
         """
         add a cow the the farm
