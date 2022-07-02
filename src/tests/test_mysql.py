@@ -20,10 +20,11 @@ class DB(DB_WRAPPER):
         self.tables["test"].add_column("name", "varchar(255)", "not null")
         self.tables["test"].primary_key(["id"])
         self.tables["test"].unique(["name"])
+        self.tables["test"].foreign_key(["id"], "test2", ["id2"])
         
         print(self.tables["test"].to_string())
         
-        self.create_table(self.tables["test"])
+        #self.create_table(self.tables["test"])
         #self.create_table("test")
         
     def add_person(self, name):

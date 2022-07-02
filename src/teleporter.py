@@ -10,7 +10,6 @@ import time
     2. enter your db credentials
 """
 
-
 SQLITE_FILE = "./data/chat.f-list.net/chat2/ranch.db"
 
 sqlite = RanchOld(SQLITE_FILE)
@@ -19,7 +18,7 @@ sqlite.connect()
 MYSQL_USER = "root"
 MYSQL_PASS = "example"
 MYSQL_DB   = "Ranch"
-MYSQL_HOST = "judy.local"
+MYSQL_HOST = "localhost"
 
 mysql = RanchNew(MYSQL_USER, MYSQL_PASS, MYSQL_DB, MYSQL_HOST)
 mysql.connect()
@@ -41,7 +40,12 @@ for table in tables:
     start_teleport_table = time.time()
     for d in data:
         index += 1
-        mysql.insert(table, list(d))
+        d = list(d)
+        
+        #if table == 'milking':
+        #    d.pop(0)
+        
+        mysql.insert(table, d)
         
         if index % 100 == 0:
             percent = index/tab_len *100 
@@ -52,5 +56,8 @@ for table in tables:
     print()   
     
 end_teleport = time.time()
-print(f"teleport finished in {end_teleport-start_teleport}s")    
-    
+
+total_time = end_teleport-start_teleport
+
+print(f"teleport finished in {time.strftime('%M:%S', time.gmtime(total_time))}")    
+print(f" -> {total_time}s")
