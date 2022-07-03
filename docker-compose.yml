@@ -1,12 +1,18 @@
 version: '3.1'
 
 services:
+  bot:
+    build: .
+    image: dh/chatbot
+    container_name: chatbot
+    volumes:
+      - ./data:/bot/data
+    links:
+      - db
 
   db:
     image: mariadb
     restart: always
-    ports:
-      - 3306:3306
     environment:
       MARIADB_USER: chatbot
       MARIADB_PASSWORD: example
@@ -15,8 +21,4 @@ services:
     volumes:
       - ./data-db:/var/lib/mysql
 
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 8080:8080
+
