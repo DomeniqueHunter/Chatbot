@@ -1,5 +1,5 @@
 import mysql.connector as mysql
-
+import time
 
 def value_string(values):
     value_list = []
@@ -28,7 +28,8 @@ class DB_WRAPPER():
     def setup(self):
         pass
     
-    def connect(self):
+    def connect(self, try_counter=0):
+        
         try:
             self.connection = mysql.connect(
                 user=self.user,
@@ -41,8 +42,14 @@ class DB_WRAPPER():
             self.connection.autocommit = False
             self.cursor = self.connection.cursor()
             return True
+
         except Exception as e:
-            print(e)
+            if try_counter <= 10:
+                print(f"could not connect.. ({try_counter})")
+                time.sleep(30)
+                try_counter += 1
+                return self.connect(try_counter)
+                
             return False
         
     def close(self):
