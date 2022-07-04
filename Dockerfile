@@ -1,6 +1,8 @@
 FROM python:3.10.2
 
-COPY /src/ /bot
+#COPY /src/ /bot
+
+VOLUME ["/bot"]
 
 RUN pip install requests websockets python-interface aiohttp mysql-connector
 
