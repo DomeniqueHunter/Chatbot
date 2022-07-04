@@ -3,6 +3,7 @@
 .project
 .pydevproject
 data/
+data-db/
 src/config.json
 src/data
 src/*/__pycache__

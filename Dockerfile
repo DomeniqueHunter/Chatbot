@@ -4,4 +4,9 @@ COPY /src/ /bot
 
 RUN pip install requests websockets python-interface aiohttp mysql-connector
 
+RUN groupadd -r botuser -g 1000 && \
+    useradd -u 1000 -r -g botuser -s /sbin/nologin -c "Docker image user" botuser
+
+USER botuser
+
 ENTRYPOINT ["/bot/main.py"]
