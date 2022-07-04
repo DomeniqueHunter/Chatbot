@@ -149,10 +149,8 @@ class Core():
     async def _message(self, opcode, data=None):
         try:
             if data:
-                #print("send: {} {}".format(opcode, json.dumps(data)))
-                await self.connection.send("{} {}".format(opcode, json.dumps(data)))
+                await self.connection.send(f"{opcode} {json.dumps(data)}")
             else:
-                #print("send: {}".format(opcode))
                 await self.connection.send(opcode)
         except Exception as e:
             print("could not send data to server")
