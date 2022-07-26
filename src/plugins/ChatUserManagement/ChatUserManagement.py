@@ -65,12 +65,12 @@ class ChatUserManagement(Plugin_Prototype):
             counter += 1
             
             #if counter > start_at+entries_per_page:
-             #   break
+            #   break
             
         await self.client.send_private_message(msg, user)
     
     async def tool_find(self, user, name):
-        try:
+        try:           
             character = self.client.all_users[name.lower()]
             await self.client.send_private_message(f"[user]{character['identity']}[/user] : {character['gender']}", user)
         except:
@@ -101,8 +101,13 @@ class ChatUserManagement(Plugin_Prototype):
         if self.client:
             print ("CUM register actions")
             self.client.opcodes_handler.add_action('NLN', self._opcode_user_connected)
-            self.client.private_msg_handler.add_action("!users",     self.choose_tool)
-            self.client.private_msg_handler.add_action("!userstats", self.gender_stats)
+            
+            self.client.private_msg_handler.add_action("!users <tool>", 
+                                                       self.choose_tool, 
+                                                       "list <gender:all> <page:1>| find <name>", 
+                                                       "owner", 
+                                                       "Bot (Admin)")
+            self.client.private_msg_handler.add_action("!userstats", self.gender_stats, "show gender stats of known users", "owner", "Bot (Admin)")
             
             
             
