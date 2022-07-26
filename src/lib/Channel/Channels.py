@@ -47,6 +47,9 @@ class Channels(object):
         elapsed = time.time() - start
         print(f"official channels ({len(self.official_channels)}) in {elapsed}s")
     
+    def reset_joined_channels(self):
+        self.joined_channels = {}
+    
     def reset_open_private(self):
         del self.open_private_channels
         self.open_private_channels = {}
