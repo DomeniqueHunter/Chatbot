@@ -1,11 +1,9 @@
 from core.ChatCodeHandler   import ChatCodeHandler   as ChatCodeHandler
-from lib.Reaction.Reaction  import Reaction as Reaction
 from lib.CommandManager.CommandManager import CommandManager
 from lib.Reaction.Reactions import Multi_Reaction as Reactions
 from core                   import Opcodes  as opcode
 
 from lib.Counter.Counter    import Counter as Counter
-from lib.List.List          import List
 
 import json, asyncio, time
 from lib.Channel.Channel import Channel
@@ -56,20 +54,33 @@ class OpCodeHandler(ChatCodeHandler):
         if op:
             await self.opcodes_handler.react(op, json_object)
             
-    async def _start(self):
+    async def _connect(self):
         await self.connect(self.config.server, self.config.port)
         await self.identify()
-        self.all_channels.reset_joined_channels()
+        
+        
+    async def _restart(self):
+        await self._connect()
+        self.channel_manager.rejoin_channels()
+        
+    async def _prepare(self):
+        # settings
+        await self._load_all_settings(self.owner)
+        
+        # requests
+        await self._order_list_of_open_private_channels()
+        await self._order_list_of_official_channels()
+        
+        # channel stuff
+        #self.channel_manager.reset_joined_channels()
         await self.join_default_channels(self.config.default_channels)
         
     def start(self):
-        self.loop.run_until_complete(self._start())
+        self.loop.run_until_complete(self._connect())
+        self.loop.run_until_complete(self._prepare())
         self.loop.run_until_complete(self._run())
                     
     async def _run (self):
-        await self._load_all_settings(self.owner)
-        await self._order_list_of_open_private_channels()
-        await self._order_list_of_official_channels()
         
         while True:
             # https://websockets.readthedocs.io/en/stable/changelog.html
@@ -84,9 +95,9 @@ class OpCodeHandler(ChatCodeHandler):
             else:
                 print ("!!!!!!!! RECONNECT !!!!!!!!")
                 await self._save_all_settings(self.owner)
-                time.sleep(2*60)   
+                time.sleep(30)   
                 self.restarts += 1           
-                await self._start()
+                await self._restart()
                 await self._load_all_settings(self.owner)
                     
     async def _opcode_handler_private_message(self, json_object):
@@ -116,7 +127,7 @@ class OpCodeHandler(ChatCodeHandler):
         await self.public_msg_handler.react(handler, user, channel, *message)
     
     async def _opcode_handler_ping(self, nothing = None):
-        #print ("PING ... .. .. ...")
+        print ("PING ... .. .. ...")
         await self._ping()
         await self.trigger_clock()
         
@@ -210,16 +221,10 @@ class OpCodeHandler(ChatCodeHandler):
             self.channels[channel].add_character(user['identity'].lower())
     
     async def _opcode_handler_receive_list_of_open_public_channels(self, json_object):
-        data = json.loads(json_object)
-        #self.list_of_open_private_channels = List(data['channels'])
+        self.channel_manager.add_open_private_channels(json_object)
         
-        self.all_channels.add_open_private_channels(json_object)
-        
-    async def _opcode_handler_receive_list_of_official_channels(self, json_object):
-        data = json.loads(json_object)
-        #self.official_channels = List(data['channels'])
-        
-        self.all_channels.add_official_channels(json_object)
+    async def _opcode_handler_receive_list_of_official_channels(self, json_object):        
+        self.channel_manager.add_official_channels(json_object)
     
     
         

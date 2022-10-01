@@ -140,10 +140,10 @@ class ChatCodeHandler(Core):
             if channel.find("c:") or channel.find("C:"):
                 # join by channel code
                 code = channel.split(":")[1]
-                channel_name = await self.all_channels.join_by_id(code)
+                channel_name = await self.channel_manager.join_by_id(code)
             else:
                 # join by channel name
-                channel_name = await self.all_channels.join(channel)
+                channel_name = await self.channel_manager.join(channel)
             
             await self.send_private_message(f"joined: {channel_name}", user)
         else:            
@@ -151,7 +151,7 @@ class ChatCodeHandler(Core):
     
     async def _hook_join_by_name(self,  user = None, channel = None):
         if (id and self.is_priviliged(user)):
-            channel_name = await self.all_channels.join(channel)
+            channel_name = await self.channel_manager.join(channel)
             await self.send_private_message(f"joined: {channel_name}", user)
         else:            
             await self.send_private_message(f"didn't find the channel {channel}", user)
@@ -228,7 +228,7 @@ class ChatCodeHandler(Core):
             message += "[session="+self.channels[channel].name+"]" + self.channels[channel].code + "[/session]: "+self.channels[channel].code+"\n"
             
         message += "\nNew Style:\n"
-        for channel in self.all_channels.joined_channels.values():
+        for channel in self.channel_manager.joined_channels.values():
             message += f"[session={channel.name}]{channel.code}[/session]: {channel.code}\n"           
             
         await self.send_private_message(message, user)
@@ -236,9 +236,9 @@ class ChatCodeHandler(Core):
     async def _debug_users(self, user=None, channel_code=None):
         if self.is_owner(user):
             message = "\nUsers in Channel:\n"
-            for name in self.all_channels.joined_channels[channel_code].characters:
+            for name in self.channel_manager.joined_channels[channel_code].characters:
                 message += f" - {name}"
-                print(self.all_channels.joined_channels[channel_code].characters)
+                print(self.channel_manager.joined_channels[channel_code].characters)
                 print(name)
             
             await self.send_public_message(message, channel_code)

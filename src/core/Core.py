@@ -3,11 +3,10 @@ from core           import Opcodes as opcode
 
 from lib.Manpage.Manpage   import Manpage
 from lib.KVS.KVS    import KVS as KVS
-from lib.List.List  import List
 from lib.Time.AdvTime  import AdvTime
 
 from lib.Channel.Channel  import Channel
-from lib.Channel.Channels import Channels
+from lib.Channel.Channels import ChannelManager
 from lib.Channel.ChannelCreationQueue import ChannelCreationQueue
 
 from time           import sleep
@@ -27,8 +26,8 @@ class Core():
         self.password = config.password
         self.version  = "0.6.0"
         
-        self.all_channels = Channels(self.join)
-        self.channels = self.all_channels.joined_channels # is this good?
+        self.channel_manager = ChannelManager(self.join)
+        self.channels = self.channel_manager.joined_channels # is this good?
         
         self.channel_creation_queue = ChannelCreationQueue()
         
@@ -105,7 +104,7 @@ class Core():
         await self._message(opcode.PROMOTE_OP, data)
     
     async def set_channel_description(self, channel_name, description:str):
-        channel = self.all_channels.find_channel(channel_name)
+        channel = self.channel_manager.find_channel(channel_name)
         data = {"channel": channel.code, "description": description}
         await self._message(opcode.CHANNEL_DESCRIPTION, data)
     
@@ -150,8 +149,10 @@ class Core():
         try:
             if data:
                 await self.connection.send(f"{opcode} {json.dumps(data)}")
+                
             else:
                 await self.connection.send(opcode)
+                
         except Exception as e:
             print("could not send data to server")
             print(e)
@@ -170,15 +171,13 @@ class Core():
     def _save_channels_to_file(self, file):
         Channel.save_file(self.channels, self.data_path+"/"+file)
     
-    async def _load_channels_from_file(self, file):    
-        #print ('FILE:', self.data_path+"/"+file)
+    async def _load_channels_from_file(self, file):
         channels = Channel.load_file(self.data_path+"/"+file)
         
         print("Load Channels:")      
         for channel in channels.values():
             print (" *", channel.name)
             await self.join(channel.code, channel.name)
-            #self.channels[channels[i].code].change_name(channels[i].name)
 
     # http://stackoverflow.com/questions/12517451/python-automatically-creating-directories-with-file-output
     def save_to_file(self,string, file, mode = 'w'):
@@ -188,7 +187,7 @@ class Core():
             try:
                 os.makedirs(os.path.dirname(path_to_file))
             except:
-                print ("ERROR on creating dir")
+                print (f"ERROR on creating dir {path_to_file}")
         
         if os.path.exists(os.path.dirname(path_to_file)):
             fp = open(path_to_file, mode)
@@ -203,14 +202,14 @@ class Core():
             string = open(path_to_file+file).read()
             return string
         except:
-            print ("EXCEPTION could not open/find the file!")
+            print(f"EXCEPTION could not open/find the file ({path_to_file + file})!")
             os.makedirs(path_to_file)
     
-    def save_to_binary_file(self, object, file):
+    def save_to_binary_file(self, object_, file):
         file = self.data_path+"/"+file
         try:
             with open(file, 'wb') as f:
-                pickle.dump(object, f)
+                pickle.dump(object_, f)
         except:
             print (f"Error: could not save binary file {file}")
 

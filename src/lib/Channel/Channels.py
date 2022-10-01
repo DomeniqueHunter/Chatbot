@@ -5,9 +5,10 @@ import time
 from lib.Channel.Channel import Channel
 from lib.Counter.Counter import Counter
 
-class Channels(object):
+class ChannelManager(object):
     """
         Dataclass to store channels
+        TODO: rename into ChannelManager
     
     """    
     
@@ -15,7 +16,7 @@ class Channels(object):
         self.open_private_channels = {}
         self.official_channels = {}
         
-        self.joined_channels = {} # not in use atm, in for testing
+        self.joined_channels = {}
         
         self.join_method = join_method
         self.counter = Counter(2)
@@ -76,14 +77,15 @@ class Channels(object):
         else:
             return None
     
-    async def join(self, name:str):
+    async def join(self, name:str, force=False):
         channel = self.find_channel(name)
         if self.join_method:
-            await self.join_method(channel.code, channel.name)
-            self.joined_channels[channel.code] = channel
-            return channel.name
-        else:
-            return None
+            if (channel and channel.code not in self.joined_channels) or force:
+                await self.join_method(channel.code, channel.name)
+                self.joined_channels[channel.code] = channel
+                return channel.name
+            
+        return None
         
     async def join_by_id(self, code:str):
         channel = self.find_channel_by_id(code)
@@ -94,6 +96,18 @@ class Channels(object):
         else:
             return None
         
+    
+    # TODO: test rejoin
+    async def rejoin(self, channel:Channel):
+        if channel.code in self.joined_channels:
+            await self.join_method(channel.code, channel.name)
+            return channel.code
+        else:
+            return None
+    
+    async def rejoin_channels(self):
+        for channel in self.joined_channels:
+            await self.rejoin(channel)
         
     def clock(self):
         if self.counter.tick():
