@@ -199,8 +199,9 @@ class Core():
     def load_from_file(self, file):
         path_to_file = self.data_path+"/"
         try:
-            string = open(path_to_file+file).read()
-            return string
+            with open(path_to_file+file) as f:
+                return f.read()
+        
         except:
             print(f"EXCEPTION could not open/find the file ({path_to_file + file})!")
             os.makedirs(path_to_file)
