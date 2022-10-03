@@ -48,6 +48,10 @@ class ChannelManager(object):
         elapsed = time.time() - start
         print(f"official channels ({len(self.official_channels)}) in {elapsed}s")
     
+    def add_channel(self, channel:Channel) -> Channel:
+        self.joined_channels[channel.code] = channel
+        return self.joined_channels[channel.code]
+    
     def reset_joined_channels(self):
         self.joined_channels = {}
     
@@ -77,12 +81,28 @@ class ChannelManager(object):
         else:
             return None
     
-    async def join(self, name:str, force=False):
+    async def join(self, name:str, code:str=None):
+        if name and code:
+            channel = Channel(name, code)
+            await self.join_method(channel.code, channel.name)
+            self.add_channel(channel)
+            return channel.name
+        
+        elif name and not code:
+            return await self.join_by_name(name)
+        
+        elif not name and code:
+            return await self.join_by_id(code)
+                
+            
+        return None
+    
+    async def join_by_name(self, name:str):
         channel = self.find_channel(name)
         if self.join_method:
-            if (channel and channel.code not in self.joined_channels) or force:
+            if (channel and channel.code not in self.joined_channels):
                 await self.join_method(channel.code, channel.name)
-                self.joined_channels[channel.code] = channel
+                self.add_channel(channel)
                 return channel.name
             
         return None
@@ -91,7 +111,7 @@ class ChannelManager(object):
         channel = self.find_channel_by_id(code)
         if self.join_method:
             await self.join_method(channel.code, channel.name)
-            self.joined_channels[channel.code] = channel
+            self.add_channel(channel)
             return channel.name
         else:
             return None

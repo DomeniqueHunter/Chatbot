@@ -136,7 +136,7 @@ class ChatCodeHandler(Core):
             
             
     async def _hook_join_channel(self, user:str=None, channel:str=None):
-        if (id and self.is_priviliged(user)):
+        if self.has_admin_rights(user):
             if channel.find("c:") or channel.find("C:"):
                 # join by channel code
                 code = channel.split(":")[1]
@@ -150,14 +150,14 @@ class ChatCodeHandler(Core):
             await self.send_private_message(f"didn't find the channel {channel}", user)
     
     async def _hook_join_by_name(self,  user = None, channel = None):
-        if (id and self.is_priviliged(user)):
+        if self.has_admin_rights(user):
             channel_name = await self.channel_manager.join(channel)
             await self.send_private_message(f"joined: {channel_name}", user)
         else:            
             await self.send_private_message(f"didn't find the channel {channel}", user)
     
     async def _hook_join_by_id(self, user = None, channel = None):
-        if self.is_priviliged(user) and channel:
+        if self.has_admin_rights(user) and channel:
             if not channel in self.channels:
                 await self.join(channel, channel)
                          

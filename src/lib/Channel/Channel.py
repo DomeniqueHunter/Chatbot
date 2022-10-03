@@ -33,7 +33,7 @@ class Channel(object):
         if name.lower() not in self.characters.get():
             self.characters.append(name.lower())
         else:
-            print ("CHARACTER ALREADY IN CHANNEL")
+            print("CHARACTER ALREADY IN CHANNEL")
     
     def add_admin(self, user:str):
         self.admins.append(user)
