@@ -13,6 +13,7 @@ from time           import sleep
 
 import os
 import websockets
+
 import json
 import pickle
 
@@ -53,11 +54,14 @@ class Core():
         self.server = server
         self.port   = port
         
-        print("CONNECT:",self.config.protocol + self.server + self.config.endpoint)
+        uri = self.config.protocol + self.server + self.config.endpoint
+        
+        print("CONNECT:",uri)
         try:
-            self.connection = await websockets.connect(self.config.protocol + self.server + self.config.endpoint)
+            self.connection = await websockets.connect(uri)
             
-        except:
+        except Exception as e:
+            print(e)
             self.connection = None
         
     async def get_api_ticket(self):
@@ -78,12 +82,12 @@ class Core():
     async def join(self, channel_name, true_name = None):
         data = {'channel': channel_name}
         if channel_name not in self.channels and channel_name:
-            if true_name:
-                channel = Channel(true_name, channel_name)
-            else:    
-                channel = Channel(channel_name, channel_name)
+            #if true_name:
+            #    channel = Channel(true_name, channel_name)
+            #else:    
+            #    channel = Channel(channel_name, channel_name)
                 
-            self.channels[channel_name] = channel
+            #self.channels[channel_name] = channel
             
             await self._message(opcode.JOIN_CHANNEL, data)
         
@@ -145,6 +149,9 @@ class Core():
     
     # TODO: sleep decorator from ChatCodeHandler, here
     # TODO: rename to message
+    async def message(self, opcode, data=None):
+        await self._message(opcode, data)
+    
     async def _message(self, opcode, data=None):
         try:
             if data:
@@ -156,14 +163,16 @@ class Core():
         except Exception as e:
             print("could not send data to server")
             print(e)
+            exit()
             
     async def _read(self):
         try:
             msg = await self.connection.recv()
-            
             return msg
-        except:
-            print ("could not read from stream ...")
+        
+        except Exception as e:
+            print("could not read from stream ...")
+            print(e)
         
     def _set_save_path(self, path):
         self.save_path = path+"/"
@@ -177,7 +186,7 @@ class Core():
         print("Load Channels:")      
         for channel in channels.values():
             print (" *", channel.name)
-            await self.join(channel.code, channel.name)
+            await self.channel_manager.join(channel.code, channel.name)
 
     # http://stackoverflow.com/questions/12517451/python-automatically-creating-directories-with-file-output
     def save_to_file(self,string, file, mode = 'w'):

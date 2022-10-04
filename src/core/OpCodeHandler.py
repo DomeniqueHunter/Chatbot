@@ -79,23 +79,22 @@ class OpCodeHandler(ChatCodeHandler):
         self.loop.run_until_complete(self._connect())
         self.loop.run_until_complete(self._prepare())
         self.loop.run_until_complete(self._run())
+        
+        self.loop.run_forever()
                     
     async def _run (self):
         
         while True:
-            # https://websockets.readthedocs.io/en/stable/changelog.html
             if self.connection != None and str(self.connection.state.name) == "OPEN":
                 message = await self._read()
-                
                 if message:
                     data = message.split(" ",1)
                     
-                    #print(data)
                     await self.dispatcher(*data)
             else:
                 print ("!!!!!!!! RECONNECT !!!!!!!!")
                 await self._save_all_settings(self.owner)
-                time.sleep(30)   
+                time.sleep(30)
                 self.restarts += 1           
                 await self._restart()
                 await self._load_all_settings(self.owner)
@@ -127,7 +126,7 @@ class OpCodeHandler(ChatCodeHandler):
         await self.public_msg_handler.react(handler, user, channel, *message)
     
     async def _opcode_handler_ping(self, nothing = None):
-        print ("PING ... .. .. ...")
+        #print ("PING ... .. .. ...")
         await self._ping()
         await self.trigger_clock()
         
