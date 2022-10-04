@@ -91,6 +91,11 @@ class OpCodeHandler(ChatCodeHandler):
                     data = message.split(" ",1)
                     
                     await self.dispatcher(*data)
+                    
+                    
+                if self.stop_impulse:
+                    exit()
+                    
             else:
                 print ("!!!!!!!! RECONNECT !!!!!!!!")
                 await self._save_all_settings(self.owner)

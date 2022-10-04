@@ -24,6 +24,8 @@ class ChatCodeHandler(Core):
         self.status = ""
         self.greetings_list = {}
         
+        self.stop_impulse = False
+        
         # Register Message Actions
         self.private_msg_handler = CommandManager(self.manpage)
         #  add_action(self, handler, function, man_text="", role="owner", section="Bot (Admin)")
@@ -321,6 +323,7 @@ class ChatCodeHandler(Core):
         if (self.is_owner(user)):
             await self._save_all_settings(user)
             await self.send_private_message("I'm out, Bye!", user)
+            self.stop_impulse = True
             exit() 
             
     def _hook_start_loggin(self, user = None, channel = None):
