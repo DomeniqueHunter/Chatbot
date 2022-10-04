@@ -12,7 +12,7 @@ from lib.Channel.ChannelCreationQueue import ChannelCreationQueue
 from time           import sleep
 
 import os
-import websockets
+import websockets.client
 
 import json
 import pickle
@@ -58,7 +58,7 @@ class Core():
         
         print("CONNECT:",uri)
         try:
-            self.connection = await websockets.connect(uri)
+            self.connection = await websockets.client.connect(uri)
             
         except Exception as e:
             print(e)
