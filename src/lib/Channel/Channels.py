@@ -120,7 +120,7 @@ class ChannelManager(object):
     # TODO: test rejoin
     async def rejoin(self, channel:Channel):
         if channel.code in self.joined_channels:
-            await self.join_method(channel.name, channel.code)
+            await self.join_method(channel.code, channel.name)
             return channel.code
         else:
             return None
