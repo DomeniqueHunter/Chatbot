@@ -61,7 +61,7 @@ class OpCodeHandler(ChatCodeHandler):
         
     async def _restart(self):
         await self._connect()
-        self.channel_manager.rejoin_channels()
+        await self.channel_manager.rejoin_channels()
         
     async def _prepare(self):
         # settings
