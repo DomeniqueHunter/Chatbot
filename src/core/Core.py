@@ -80,16 +80,16 @@ class Core():
         await self._message(opcode.IDENTIFY, data)
         await self._read()
         
-    async def join(self, channel_name, true_name = None):
-        data = {'channel': channel_name}
-        if channel_name not in self.channels and channel_name:
-            #if true_name:
-            #    channel = Channel(true_name, channel_name)
-            #else:    
-            #    channel = Channel(channel_name, channel_name)
-                
-            #self.channels[channel_name] = channel
-            
+    async def join(self, channel_code, channel_name = None):
+        data = {'channel': channel_code}
+        if channel_code not in self.channels and channel_code:
+            # if channel_name:
+            #     channel = Channel(channel_name, channel_code)
+            # else:    
+            #     channel = Channel(channel_code, channel_code)            
+            # self.channels[channel_code] = channel
+            #
+
             await self._message(opcode.JOIN_CHANNEL, data)
         
     async def create_private_channel(self, channel_name:str):
@@ -187,7 +187,7 @@ class Core():
         print("Load Channels:")      
         for channel in channels.values():
             print (" *", channel.name)
-            await self.channel_manager.join(channel.code, channel.name)
+            await self.channel_manager.join(channel.name, channel.code)
 
     # http://stackoverflow.com/questions/12517451/python-automatically-creating-directories-with-file-output
     def save_to_file(self,string, file, mode = 'w'):
