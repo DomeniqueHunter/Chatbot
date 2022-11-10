@@ -10,6 +10,7 @@ services:
       - ./src:/bot
     links:
       - db
+    restart: always
 
   db:
     image: mariadb
@@ -17,9 +18,10 @@ services:
     environment:
       MARIADB_USER: chatbot
       MARIADB_PASSWORD: example
-      MARIADB_ROOT_PASSWORD: examople
+      MARIADB_ROOT_PASSWORD: example
       MARIADB_DATABASE: Ranch
     volumes:
       - ./data-db:/var/lib/mysql
-
+    ports:
+      - 127.0.0.1:3306:3306
 

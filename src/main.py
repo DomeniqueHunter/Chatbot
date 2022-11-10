@@ -7,7 +7,7 @@ from core.Plugin_Loader         import Plugin_Loader
 
 from lib.Config.Config          import Config
 
-from webserver.Webserver import Webserver
+#from webserver.Webserver import Webserver
 
 PROJECT_ROOT = os.path.dirname(__file__)
 config = Config(PROJECT_ROOT+'/config.json')
