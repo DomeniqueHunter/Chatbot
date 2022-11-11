@@ -119,14 +119,20 @@ class ChannelManager(object):
     
     # TODO: test rejoin
     async def rejoin(self, channel:Channel):
-        if channel.code in self.joined_channels:
+        if isinstance(channel, Channel) and channel.code in self.joined_channels:
             await self.join_method(channel.code, channel.name)
             return channel.code
+        
+        elif isinstance(channel, str):
+            await self.join_method(channel, channel)
+            print(f"WARNING rejoin: {channel} is not of type Channel but of string")
+            return channel.code
+                
         else:
             return None
     
     async def rejoin_channels(self):
-        for channel in self.joined_channels:
+        for channel in self.joined_channels.values():
             await self.rejoin(channel)
         
     def clock(self):
@@ -136,16 +142,7 @@ class ChannelManager(object):
                 if not channel.persistent:
                     pass
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
     
     
     
