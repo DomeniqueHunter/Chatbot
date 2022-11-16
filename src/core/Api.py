@@ -14,17 +14,13 @@ class Api():
             request = await HTTPClient.post('https://www.f-list.net/json/getApiTicket.php', data)
             return request['ticket']
         
-        except asyncio.TimeoutError:
+        except Exception as e:
             if try_nr <= max_trys:
                 return await Api.get_ticket(account, password, try_nr=try_nr+1)
             else:
-                print(f"ERROR: too many reconnect trys ({try_nr})")
-                exit(0)
-        
-        except Exception as e:
-            print("ERROR, could not require a ticket")
-            print(e)
-            exit(1)        
+                print(f"ERROR: Too many reconnect trys failed ({try_nr})")
+                print(e)
+                exit(0)   
     
     @staticmethod    
     def send_friend_request(account, ticket, from_char, to_char):
