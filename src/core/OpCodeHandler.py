@@ -60,8 +60,10 @@ class OpCodeHandler(ChatCodeHandler):
         
         
     async def _restart(self):
+        print("MSG: restart chatbot")
         await self._connect()
         await self.channel_manager.rejoin_channels()
+        self.restarts += 1
         
     async def _prepare(self):
         # settings
@@ -99,8 +101,7 @@ class OpCodeHandler(ChatCodeHandler):
             else:
                 print ("!!!!!!!! RECONNECT !!!!!!!!")
                 await self._save_all_settings(self.owner)
-                time.sleep(30)
-                self.restarts += 1           
+                time.sleep(30)                        
                 await self._restart()
                 await self._load_all_settings(self.owner)
                     

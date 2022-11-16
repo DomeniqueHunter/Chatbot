@@ -1,29 +1,30 @@
 import requests
 import json
-import aiohttp
 
 from lib.HTTPClient.HTTPClient import HTTPClient
+import asyncio
 
 class Api():
     
     @staticmethod
-    async def get_ticket(account, password):
+    async def get_ticket(account, password, try_nr=0, max_trys=10):
         data={'account': account, 'password': password}
-                    
-        #request = requests.post('https://www.f-list.net/json/getApiTicket.php', data)
-        request = await HTTPClient.post('https://www.f-list.net/json/getApiTicket.php', data)
         
-        #print ("GOT: "+ str(request['ticket']))
-                
         try:
-            #assert request.status_code == 200        # from requests
-            #data = json.loads(request.text)
-            #return data['ticket']
+            request = await HTTPClient.post('https://www.f-list.net/json/getApiTicket.php', data)
             return request['ticket']
-        except:
-            print("ERROR, could not require a ticket")
-            exit(1) 
         
+        except asyncio.TimeoutError:
+            if try_nr <= max_trys:
+                return await Api.get_ticket(account, password, try_nr=try_nr+1)
+            else:
+                print(f"ERROR: too many reconnect trys ({try_nr})")
+                exit(0)
+        
+        except Exception as e:
+            print("ERROR, could not require a ticket")
+            print(e)
+            exit(1)        
     
     @staticmethod    
     def send_friend_request(account, ticket, from_char, to_char):

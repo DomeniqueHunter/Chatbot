@@ -43,7 +43,8 @@ class Core():
         self.config = config
         self.root_path = root_path
         self.data_path = self.root_path+"/"+self.config.server+self.config.endpoint
-        os.makedirs(self.data_path, exist_ok=True)
+        if not os.path.exists(self.data_path):
+            os.makedirs(self.data_path, exist_ok=True)
         
         self.files = KVS()
         self.files.add("status",   "status.dat")
