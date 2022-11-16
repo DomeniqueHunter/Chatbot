@@ -11,4 +11,5 @@ RUN groupadd -r botuser -g 1000 && \
 
 USER botuser
 
-ENTRYPOINT ["/bot/main.py"]
+CMD ["python","-u","/bot/main.py"]
+#ENTRYPOINT ["/bot/main.py"]
