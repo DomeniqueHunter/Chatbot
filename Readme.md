@@ -4,8 +4,9 @@
 I tested this bot on Linux. Raspbian (ARM) and Ubuntu (x86).
 You need at least Python 3.6.9 with the packages requests websockets python-interface aiohttp
 
-sudo pip install requests websockets python-interface aiohttp
-
+```bash
+python3 -m pip install requests websockets python-interface aiohttp
+```
 
 ## Install
 To install the bot you need to checkout all the files. Put them in the direcory of your choice.
