@@ -14,6 +14,7 @@ services:
 
   db:
     image: mariadb
+    container_name: chatbot_db
     restart: always
     environment:
       MARIADB_USER: chatbot
