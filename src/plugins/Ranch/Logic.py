@@ -155,45 +155,27 @@ class Logic():
     async def milk_all(self, user, channel):
         '''
             An easier way to milk all the cows in the channel
-        '''        
-        message = ""
+        '''
         multiplier = await self._get_milk_multiplier(user)
         not_milkable = 0
+        milked_cows = []
         
         if multiplier > 0:
-            for character in self.ranch.client.channels[channel].characters.get():
-                
+            for character in self.ranch.client.channels[channel].characters.get():                
                 
                 if await self.is_cow(character) and not user.lower() == character.lower():
-                    success, amount, lvlup, milk = self._milk_that_meat_sack(user, character, multiplier)
+                    success, amount, lvlup, _ = self._milk_that_meat_sack(user, character, multiplier)
                     
                     if success:
-                        message += f"\n[user]{user}[/user] milked [user]{character}[/user] and got {amount} liters of Milk"
+                        milked_cows.append((character, amount, lvlup))
                         
-                        if lvlup:
-                            message += f"\n[user]{character}[/user] has leveled up!"
                     else:
                         not_milkable += 1
                                                 
                 else:
                     print (character, await self.is_cow(character))
-            
-            if not_milkable > 0:
-                if not_milkable == 1:
-                    i = "is"
-                    c = "cow"
-                else:
-                    i = "are"
-                    c = "cows"
-                    
-                milkable_in = Time.time_until_tomorrow()
-                message += f"\nThere {i} {not_milkable} {c} who {i} milkable in {milkable_in}."
-                    
-        else:
-            message = None
         
-        #print (f"message: {message}")
-        return message
+        return milked_cows, not_milkable
 
     def _get_last_milking(self, cow, worker):
         last_milking_date = self.ranch.database.get_last_milking(worker, cow)
@@ -338,7 +320,7 @@ class Logic():
         if len(self.ranch.milking_channels) <= channel_index+1:
             try:
                 self.ranch.milking_channels.pop(channel_index)
-            except Eception as e:
+            except Exception as e:
                 print(e)
                 return False
             

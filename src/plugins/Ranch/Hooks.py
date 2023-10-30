@@ -1,4 +1,5 @@
 from plugins.Ranch.Logic import Logic
+from lib.Time.Time import Time
 
 from lib.BBCode.BBCode import BBCode
 
@@ -215,12 +216,31 @@ class Hooks():
         @param channel: channel where the cows supposed to be
         """
         if self.ranch.is_milking_channel(channel):
-            message = await self.ranch.logic.milk_all(user, channel) 
-            if message:
-                await self.ranch.client.send_public_message(message, channel)
-    
-            else:
-                pass
+            message = ""
+            milked_cows, not_milkable = await self.ranch.logic.milk_all(user, channel)
+            
+            # TODO: sort milked_cows
+            
+            for cow, amount, lvlup in milked_cows:
+                message += f"\n[user]{user}[/user] milked [user]{cow}[/user] and got {amount} liters of Milk"
+                
+                if lvlup:
+                    message += f"\n[user]{cow}[/user] has leveled up!"
+                    
+            if not_milkable > 0:
+                if not_milkable == 1:
+                    i = "is"
+                    c = "cow"
+                else:
+                    i = "are"
+                    c = "cows"
+                    
+                milkable_in = Time.time_until_tomorrow()
+                message += f"\nThere {i} {not_milkable} {c} who {i} milkable in {milkable_in}."
+                
+             
+            
+            await self.ranch.client.send_public_message(message, channel)
     
     async def makemecow(self, user, channel):
         """
