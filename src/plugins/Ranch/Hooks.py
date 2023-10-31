@@ -219,8 +219,6 @@ class Hooks():
             message = ""
             milked_cows, not_milkable = await self.ranch.logic.milk_all(user, channel)
             
-            # TODO: sort milked_cows
-            
             for cow, amount, lvlup in milked_cows:
                 message += f"\n[user]{user}[/user] milked [user]{cow}[/user] and got {amount} liters of Milk"
                 

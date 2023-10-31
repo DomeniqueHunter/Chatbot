@@ -152,9 +152,12 @@ class Logic():
         bonus = 1
         return self._milk_that_meat_sack(worker_name, cow_name, multiplier + bonus, False)
     
-    async def milk_all(self, user, channel):
+    async def milk_all(self, user, channel) -> (list, int):
         '''
-            An easier way to milk all the cows in the channel
+        An easier way to milk all the cows in the channel
+        @param user: user that runns the command
+        @param channel: channel where the command was started
+        @return: milked_cows, not_milkable
         '''
         multiplier = await self._get_milk_multiplier(user)
         not_milkable = 0
@@ -174,6 +177,8 @@ class Logic():
                                                 
                 else:
                     print (character, await self.is_cow(character))
+        
+        milked_cows.sort(key=lambda x: x[1], reverse=True) 
         
         return milked_cows, not_milkable
 
