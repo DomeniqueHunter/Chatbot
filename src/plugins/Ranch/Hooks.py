@@ -3,6 +3,7 @@ from lib.Time.Time import Time
 
 from lib.BBCode.BBCode import BBCode
 import calendar
+from datetime import datetime
 
 class Hooks():
     """
@@ -436,13 +437,19 @@ class Hooks():
         """
         get stats for the business year
         """
-        year, total, month_stats = await self.ranch.logic.get_buisines_year(year)
-        message = f"In year {year} we produced {total} l of milk:\n"
-        for month, amount in month_stats.items():
+        year = year or datetime.today().year
+        year = int(year)
+        
+        if year <= datetime.today().year:
+            year, total, month_stats = await self.ranch.logic.get_buisines_year(year)
+            message = f"In year {year} we produced {total} l of milk:\n"
+            for month, amount in month_stats.items():
+                
+                message += f" - {calendar.month_name[month]}: {amount} l\n"
+                
+            await self.ranch.client.send_public_message(message, channel)
+        
             
-            message += f" - {calendar.month_name[month]}: {amount} l\n"
-            
-        await self.ranch.client.send_public_message(message, channel)
 
 
 
