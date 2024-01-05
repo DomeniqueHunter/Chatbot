@@ -408,6 +408,22 @@ class RANCH_DB(DB_WRAPPER):
                     """
         return self.execute(statement)
     
+    def get_total_milk(self, year, month=None):
+        if month:
+            statement = f"""
+                        SELECT SUM(milk)
+                        FROM milking
+                        WHERE YEAR(date) = {year}
+                        AND MONTH(date) = {month}
+                        """
+        else:
+            statement = f"""
+                        SELECT SUM(milk)
+                        FROM milking
+                        WHERE YEAR(date) = {year}
+                        """
+        return self.execute(statement)
+    
     
     
     

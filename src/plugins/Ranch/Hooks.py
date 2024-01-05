@@ -2,6 +2,7 @@ from plugins.Ranch.Logic import Logic
 from lib.Time.Time import Time
 
 from lib.BBCode.BBCode import BBCode
+import calendar
 
 class Hooks():
     """
@@ -430,6 +431,18 @@ class Hooks():
             message = "you don't have the permission for this."
 
         await self.ranch.client.send_private_message(message, user)
+        
+    async def get_buisines_year(self, user, channel, year=None):
+        """
+        get stats for the business year
+        """
+        year, total, month_stats = await self.ranch.logic.get_buisines_year(year)
+        message = f"In year {year} we produced {total} l of milk:\n"
+        for month, amount in month_stats.items():
+            
+            message += f" - {calendar.month_name[month]}: {amount} l\n"
+            
+        await self.ranch.client.send_public_message(message, channel)
 
 
 
