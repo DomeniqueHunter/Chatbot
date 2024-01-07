@@ -184,15 +184,14 @@ class Core():
             print (" *", channel.name)
             await self.channel_manager.join(channel.name, channel.code)
 
-    # http://stackoverflow.com/questions/12517451/python-automatically-creating-directories-with-file-output
     def save_to_file(self, content:str, filename:str, mode='w'):
         path_to_file = os.path.join(self.data_path, filename)
 
-        if not os.path.exists(path_to_file):
+        if not os.path.exists(self.data_path):
             try:
-                os.makedirs(os.path.dirname(path_to_file))
+                os.makedirs(os.path.dirname(self.data_path))
             except:
-                print (f"ERROR on creating dir {path_to_file}")
+                print (f"ERROR on creating dir {self.data_path}")
 
         try:
             with open(path_to_file, 'w') as f:
@@ -203,7 +202,7 @@ class Core():
 
     def load_from_file(self, filename:str):
         path_to_file = os.path.join(self.data_path, filename)
-        
+
         try:
             with open(path_to_file, 'r') as f:
                 return f.read()
@@ -216,6 +215,7 @@ class Core():
 
     def save_to_binary_file(self, data, file):
         file = os.path.join(self.data_path, file)
+        
         try:
             with open(file, 'wb') as f:
                 pickle.dump(data, f)
@@ -224,6 +224,7 @@ class Core():
 
     def load_from_binary_file(self, filename):
         file = os.path.join(self.data_path, filename)
+        
         try:
             with open(file, 'rb') as f:
                 return pickle.load(f)
@@ -232,7 +233,28 @@ class Core():
             print(f"Error: could not load binary file {file}")
             print(e)
 
-        return None
+        #return None
+    
+    def save_json(self, data, filename):
+        file = os.path.join(self.data_path, filename)
+        
+        try:
+            with open(file, 'w') as fp:
+                json.dump(data, fp)
+        except Exception as e:
+            print(e)
+    
+    def load_json(self, filename):
+        file = os.path.join(self.data_path, filename)
+        
+        try:
+            with open(file, 'r') as fp:
+                return json.load(fp)
+            
+        except Exception as e:
+            print(e)
+            return None
+        
 
     async def _set_status(self, status):
         data = {"status":"online",

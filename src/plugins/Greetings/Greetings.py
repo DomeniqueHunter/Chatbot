@@ -33,17 +33,11 @@ class Greetings(Plugin_Prototype):
 
     def save(self):
         if len(self.greetings_list) > 0:
-            try:
-                with open(self.client.files.greetings, 'w') as fp:
-                    json.dump(self.greetings_list, fp)
-            except Exception as e:
-                print(e)
+            self.client.save_json(self.greetings_list, self.client.files.greetings)
 
     def load(self):
         try:
-            with open(self.client.files.greetings, 'r') as fp:
-                self.greetings_list = json.load(fp)
-                print(self.greetings_list)
+            self.greetings_list = self.client.load_json(self.client.files.greetings)
         except Exception as e:
             print(f"could not load data in '{self.module_name}'")
             print(e)

@@ -9,6 +9,7 @@ from lib.Channel.Channel import Channel
 from lib.Counter.Counter import Counter
 
 import asyncio
+import json
 
 
 class Ranch(Plugin_Prototype):
@@ -95,13 +96,12 @@ class Ranch(Plugin_Prototype):
 
     def save (self):
         if len(self.milking_channels) > 0:
-            self.client.save_to_file(str(self.milking_channels), self.client.files.ranch_milking_channels, 'w')
+            self.client.save_json(self.milking_channels, self.client.files.ranch_milking_channels)
 
     def load(self):
         try:
-            data = self.client.load_from_file(self.client.files.ranch_milking_channels)
-            self.milking_channels = eval(data)
-            print(self.milking_channels)
+            self.milking_channels = self.client.load_json(self.client.files.ranch_milking_channels) or []
+            
         except:
             print (f"could not load data in '{self.module_name}'")
 
