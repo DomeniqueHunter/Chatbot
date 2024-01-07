@@ -185,8 +185,8 @@ class Core():
             await self.channel_manager.join(channel.name, channel.code)
 
     # http://stackoverflow.com/questions/12517451/python-automatically-creating-directories-with-file-output
-    def save_to_file(self, content:str, file:str):
-        path_to_file = os.path.join(self.data_path, file)
+    def save_to_file(self, content:str, filename:str, mode='w'):
+        path_to_file = os.path.join(self.data_path, filename)
 
         if not os.path.exists(path_to_file):
             try:
@@ -201,15 +201,17 @@ class Core():
         except Exception as e:
             print(e)
 
-    def load_from_file(self, file:str):
-        path_to_file = os.path.join(self.data_path, file)
+    def load_from_file(self, filename:str):
+        path_to_file = os.path.join(self.data_path, filename)
+        
         try:
-            with open(path_to_file + file) as f:
+            with open(path_to_file, 'r') as f:
                 return f.read()
 
         except Exception as e:
-            print(f"EXCEPTION could not open/find the file ({path_to_file + file})!")
+            print(f"EXCEPTION could not open/find the filename ({path_to_file})!")
             print(e)
+            print('is file:', os.path.isfile(path_to_file))
             os.makedirs(path_to_file)
 
     def save_to_binary_file(self, data, file):
@@ -220,8 +222,8 @@ class Core():
         except:
             print(f"Error: could not save binary file {file}")
 
-    def load_from_binary_file(self, file):
-        file = os.path.join(self.data_path, file)
+    def load_from_binary_file(self, filename):
+        file = os.path.join(self.data_path, filename)
         try:
             with open(file, 'rb') as f:
                 return pickle.load(f)
