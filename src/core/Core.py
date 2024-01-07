@@ -185,8 +185,8 @@ class Core():
             await self.channel_manager.join(channel.name, channel.code)
 
     # http://stackoverflow.com/questions/12517451/python-automatically-creating-directories-with-file-output
-    def save_to_file(self, string, file, mode='w'):
-        path_to_file = self.data_path + "/" + file
+    def save_to_file(self, content:str, file:str):
+        path_to_file = os.path.join(self.data_path, file)
 
         if not os.path.exists(path_to_file):
             try:
@@ -194,43 +194,43 @@ class Core():
             except:
                 print (f"ERROR on creating dir {path_to_file}")
 
-        if os.path.exists(os.path.dirname(path_to_file)):
-            fp = open(path_to_file, mode)
-            fp.write(string)
-            fp.close()
-        else:
-            print ("Path/File does not exist: " + path_to_file)
+        try:
+            with open(path_to_file, 'w') as f:
+                f.write(content)
 
-    def load_from_file(self, file):
-        path_to_file = self.data_path + "/"
+        except Exception as e:
+            print(e)
+
+    def load_from_file(self, file:str):
+        path_to_file = os.path.join(self.data_path, file)
         try:
             with open(path_to_file + file) as f:
                 return f.read()
 
-        except:
+        except Exception as e:
             print(f"EXCEPTION could not open/find the file ({path_to_file + file})!")
+            print(e)
             os.makedirs(path_to_file)
 
-    def save_to_binary_file(self, object_, file):
-        file = self.data_path + "/" + file
+    def save_to_binary_file(self, data, file):
+        file = os.path.join(self.data_path, file)
         try:
             with open(file, 'wb') as f:
-                pickle.dump(object_, f)
+                pickle.dump(data, f)
         except:
-            print (f"Error: could not save binary file {file}")
+            print(f"Error: could not save binary file {file}")
 
     def load_from_binary_file(self, file):
-        data = None
-        file = self.data_path + "/" + file
+        file = os.path.join(self.data_path, file)
         try:
             with open(file, 'rb') as f:
-                data = pickle.load(f)
-                return data
-        except:
-            print (f"Error: could not load binary file {file}")
-            return False
+                return pickle.load(f)
 
-        return data
+        except Exception as e:
+            print(f"Error: could not load binary file {file}")
+            print(e)
+
+        return None
 
     async def _set_status(self, status):
         data = {"status":"online",
