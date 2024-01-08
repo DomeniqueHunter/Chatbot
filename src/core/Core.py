@@ -51,7 +51,7 @@ class Core():
         self.file_manager.add('status', 'status.txt', 'plain')
         self.file_manager.add('admins', 'admins.json', 'json')
         self.file_manager.add('all_users', 'all_users.bin', 'binary')
-        self.file_manager.add('channels', 'channels.json', 'json')
+        # self.file_manager.add('channels', 'channels.json.2', 'json')
 
     async def connect(self, server, port):
         self.server = server
