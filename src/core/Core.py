@@ -2,7 +2,6 @@ from core.Api       import Api as Api
 from core           import Opcodes as opcode
 
 from lib.Manpage.Manpage   import Manpage
-from lib.KVS.KVS    import KVS as KVS
 from lib.FileManager import FileManager
 from lib.Time.AdvTime  import AdvTime
 
@@ -48,13 +47,11 @@ class Core():
         if not os.path.exists(self.data_path):
             os.makedirs(self.data_path, exist_ok=True)
 
-        self.files = KVS()
-        self.files.add("channels", "channels.dat")
-        
         self.file_manager = FileManager(self.data_path)
         self.file_manager.add('status', 'status.txt', 'plain')
         self.file_manager.add('admins', 'admins.json', 'json')
         self.file_manager.add('all_users', 'all_users.bin', 'binary')
+        self.file_manager.add('channels', 'channels.json', 'json')
 
     async def connect(self, server, port):
         self.server = server
@@ -186,78 +183,6 @@ class Core():
         for channel in channels.values():
             print (" *", channel.name)
             await self.channel_manager.join(channel.name, channel.code)
-
-    def save_to_file(self, content:str, filename:str, mode='w'):
-        path_to_file = os.path.join(self.data_path, filename)
-
-        if not os.path.exists(self.data_path):
-            try:
-                os.makedirs(os.path.dirname(self.data_path))
-            except:
-                print (f"ERROR on creating dir {self.data_path}")
-
-        try:
-            with open(path_to_file, 'w') as f:
-                f.write(content)
-
-        except Exception as e:
-            print(e)
-
-    def load_from_file(self, filename:str):
-        path_to_file = os.path.join(self.data_path, filename)
-
-        try:
-            with open(path_to_file, 'r') as f:
-                return f.read()
-
-        except Exception as e:
-            print(f"EXCEPTION could not open/find the filename ({path_to_file})!")
-            print(e)
-            print('is file:', os.path.isfile(path_to_file))
-            os.makedirs(path_to_file)
-
-    def save_to_binary_file(self, data, file):
-        file = os.path.join(self.data_path, file)
-        
-        try:
-            with open(file, 'wb') as f:
-                pickle.dump(data, f)
-        except:
-            print(f"Error: could not save binary file {file}")
-
-    def load_from_binary_file(self, filename):
-        file = os.path.join(self.data_path, filename)
-        
-        try:
-            with open(file, 'rb') as f:
-                return pickle.load(f)
-
-        except Exception as e:
-            print(f"Error: could not load binary file {file}")
-            print(e)
-
-        #return None
-    
-    def save_json(self, data, filename):
-        file = os.path.join(self.data_path, filename)
-        
-        try:
-            with open(file, 'w') as fp:
-                json.dump(data, fp)
-        except Exception as e:
-            print(e)
-    
-    def load_json(self, filename):
-        file = os.path.join(self.data_path, filename)
-        
-        try:
-            with open(file, 'r') as fp:
-                return json.load(fp)
-            
-        except Exception as e:
-            print(e)
-            return None
-        
 
     async def _set_status(self, status):
         data = {"status":"online",

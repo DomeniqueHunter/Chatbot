@@ -23,7 +23,6 @@ class ChatCodeHandler(Core):
         self.charactername = config.character
         self.owner = config.owner
         self.status = ""
-        self.greetings_list = {}
 
         self.stop_impulse = False
 
@@ -256,7 +255,8 @@ class ChatCodeHandler(Core):
     async def _hook_save_channels(self, user=None):
         if (self.is_owner(user)):
             if any(self.channels):
-                self._save_channels_to_file(self.files.channels)
+                self._save_channels_to_file('channels.json')
+                # self.file_manager.save('channels', self.channel)
             else:
                 await self.send_private_message("Error on saving Channels", user)
         else:
@@ -265,7 +265,7 @@ class ChatCodeHandler(Core):
     async def _hook_load_channels(self, user=None):
         if (self.is_owner(user)):
             try:
-                await self._load_channels_from_file(self.files.channels)
+                await self._load_channels_from_file('channels.json')
             except:
                 await self.send_private_message("can not open channels file", user)
 
