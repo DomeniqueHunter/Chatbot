@@ -1,9 +1,8 @@
 #!/usr/bin/python3
 import unittest, sys
 sys.path.append('..')
-sys.path.append('../core')
 
-from core.Counter import Counter
+from lib.Counter.Counter import Counter
 
 class TestCase(unittest.TestCase):    
     def setUp(self):
