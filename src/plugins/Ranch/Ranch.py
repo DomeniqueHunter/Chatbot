@@ -92,15 +92,15 @@ class Ranch(Plugin_Prototype):
         loop = asyncio.new_event_loop()
         loop.run_until_complete(self.logic.add_worker(self.client.config.character))
 
-        self.client.files.add("ranch_milking_channels", "ranch_milking_channels.dat")
+        self.client.file_manager.add("ranch_milking_channels", "ranch_milking_channels.json", 'json')
 
     def save (self):
         if len(self.milking_channels) > 0:
-            self.client.save_json(self.milking_channels, self.client.files.ranch_milking_channels)
+            self.client.file_manager.save('ranch_milking_channels', self.milking_channels)
 
     def load(self):
         try:
-            self.milking_channels = self.client.load_json(self.client.files.ranch_milking_channels) or []
+            self.milking_channels = self.client.file_manager.load('ranch_milking_channels') or []
             
         except:
             print (f"could not load data in '{self.module_name}'")

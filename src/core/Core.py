@@ -3,6 +3,7 @@ from core           import Opcodes as opcode
 
 from lib.Manpage.Manpage   import Manpage
 from lib.KVS.KVS    import KVS as KVS
+from lib.FileManager import FileManager
 from lib.Time.AdvTime  import AdvTime
 
 from lib.Channel.Channel  import Channel
@@ -48,10 +49,12 @@ class Core():
             os.makedirs(self.data_path, exist_ok=True)
 
         self.files = KVS()
-        self.files.add("status", "status.dat")
         self.files.add("channels", "channels.dat")
-        self.files.add("admins", "admins.dat")
-        self.files.add("all_users", "all_users.bin")
+        
+        self.file_manager = FileManager(self.data_path)
+        self.file_manager.add('status', 'status.txt', 'plain')
+        self.file_manager.add('admins', 'admins.json', 'json')
+        self.file_manager.add('all_users', 'all_users.bin', 'binary')
 
     async def connect(self, server, port):
         self.server = server

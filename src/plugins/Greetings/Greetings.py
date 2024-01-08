@@ -15,7 +15,7 @@ class Greetings(Plugin_Prototype):
         
     def setup(self):
         self._info()
-        self.client.files.add("greetings", "greetings.dat")
+        self.client.file_manager.add("greetings", "greetings.json", 'json')
 
     def _register_greeting(self, user, title = None):
         if (title):
@@ -33,11 +33,12 @@ class Greetings(Plugin_Prototype):
 
     def save(self):
         if len(self.greetings_list) > 0:
-            self.client.save_json(self.greetings_list, self.client.files.greetings)
+            # self.client.save_json(self.greetings_list, self.client.files.greetings)
+            self.client.file_manager.save('greetings', self.greetings_list)
 
     def load(self):
         try:
-            self.greetings_list = self.client.load_json(self.client.files.greetings)
+            self.greetings_list = self.client.file_manager.load('greetings')
         except Exception as e:
             print(f"could not load data in '{self.module_name}'")
             print(e)
@@ -84,7 +85,7 @@ class Greetings(Plugin_Prototype):
             print(f"page: {page+1}")
             for k,v in zip(keys[start:start+n], values[start:start+n]):
                 print(f"{k}: {v}")
-                greetings += f"- {k} as {v}\n"
+                greetings += f"- {k} as {v}\n" if v else f" - {k}\n"
 
             await self.client.send_private_message(greetings, user)
         else:
