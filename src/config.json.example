@@ -16,7 +16,7 @@
 	},
 	"plugins" : {
 		"ranch" : {
-			"sql_host": "databse",
+			"sql_host": "db",
 			"sql_port": "3306",
 			"sql_user": "root",
 			"sql_pass": "example",
