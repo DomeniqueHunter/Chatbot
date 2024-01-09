@@ -17,6 +17,7 @@ Start the Bot.
 Join the chat and enter the channel where you want your bot.
 Type /invite Botname and the bot will enter you channel.
 
+
 ## Docker Usage
 If you want to use Docker, you just have to edit the config like in the Install Step. Then run ./build-container.sh to build the Docker Container.
 If the Container is build, just run ist with ./run-container.sh
@@ -25,3 +26,7 @@ If the Container is build, just run ist with ./run-container.sh
 ## Extensions
 To extend the Bot, I recommend to write own plugins!
 Documentatuon for this is an todo ;)
+
+
+## Api Reference
+[Here](https://toys.in.newtsin.space/api-docs/#f-list-api)
