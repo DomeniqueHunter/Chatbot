@@ -7,11 +7,6 @@ from lib.Counter.Counter import Counter
 
 
 class ChannelManager(object):
-    """
-        Dataclass to store channels
-        TODO: rename into ChannelManager
-    
-    """
 
     def __init__(self, join_method=None):
         self.open_private_channels = {}
@@ -80,6 +75,14 @@ class ChannelManager(object):
 
         else:
             return None
+        
+    def get_channels_list(self):
+        channels = []
+        
+        for _, channel in self.joined_channels.items():
+            channels.append(channel.json())
+        
+        return channels
 
     async def join(self, name:str, code:str=None):
         if name and code:

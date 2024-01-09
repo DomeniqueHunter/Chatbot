@@ -51,7 +51,7 @@ class Core():
         self.file_manager.add('status', 'status.txt', 'plain')
         self.file_manager.add('admins', 'admins.json', 'json')
         self.file_manager.add('all_users', 'all_users.bin', 'binary')
-        # self.file_manager.add('channels', 'channels.json.2', 'json')
+        self.file_manager.add('channels', 'channels2.json', 'json')
 
     async def connect(self, server, port):
         self.server = server
@@ -174,15 +174,13 @@ class Core():
         self.save_path = path + "/"
 
     def _save_channels_to_file(self, file):
-        Channel.save_file(self.channels, self.data_path + "/" + file)
+        self.file_manager.save('channels', self.channel_manager.get_channels_list())
 
     async def _load_channels_from_file(self, file):
-        channels = Channel.load_file(self.data_path + "/" + file)
-
-        print("Load Channels:")
-        for channel in channels.values():
-            print (" *", channel.name)
-            await self.channel_manager.join(channel.name, channel.code)
+        channels = self.file_manager.load('channels')
+        print('load Channels:')
+        for channel in channels:
+            await self.channel_manager.join(channel['name'], channel['code'])
 
     async def _set_status(self, status):
         data = {"status":"online",
