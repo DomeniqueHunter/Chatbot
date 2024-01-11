@@ -61,36 +61,6 @@ class Channel(object):
     def __str__(self):
         return self.code
 
-    # @staticmethod
-    # def save_file(channels:dict, file='channels.json'):
-    #     json_object = {
-    #             "channels": [channel.json() for channel in channels.values() if channel.persistent]
-    #         }
-    #
-    #     with open(file, "w") as f:
-    #         json.dump(json_object, f)
-    #
-    # @staticmethod
-    # def load_file(file='channels.json'):
-    #     try:
-    #         data = None
-    #
-    #         with open(file) as f:
-    #             data = json.load(f)
-    #
-    #         out = {}
-    #
-    #         if data:
-    #             for d in data['channels']:
-    #                 ch = Channel(d['name'], d['code'], d['description'])
-    #                 out[d['code']] = ch
-    #
-    #         return out
-    #
-    #     except Exception as e:
-    #         print("Exception load Channels")
-    #         print(e)
-
     @staticmethod
     def find_channel_by_name(dict_of_channels=None, channel_name=None):
         if type(dict_of_channels) == type ({}) and channel_name:

@@ -1,21 +1,20 @@
-from core.Api       import Api as Api
-from core           import Opcodes as opcode
+from core.Api import Api as Api
+from core import Opcodes as opcode
 
-from lib.Manpage.Manpage   import Manpage
+from lib.Manpage.Manpage import Manpage
 from lib.FileManager import FileManager
 from lib.Time.AdvTime  import AdvTime
 
-from lib.Channel.Channel  import Channel
+from lib.Channel.Channel import Channel
 from lib.Channel.Channels import ChannelManager
 from lib.Channel.ChannelCreationQueue import ChannelCreationQueue
 
-from time           import sleep
+from time import sleep
 
 import os
 import websockets.client
 
 import json
-import pickle
 
 
 class Core():
