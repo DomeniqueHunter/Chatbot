@@ -182,7 +182,7 @@ class Hooks():
             await self.ranch.client.send_public_message(message, channel)
     
     async def power_milk(self, user, cow):
-        if self.ranch.client.is_priviliged(user.strip()):
+        if self.ranch.client.is_owner(user.strip()):
             cow_name = BBCode.get_name(cow)
             is_worker = await self.ranch.logic.is_worker(user)
             is_cow    = await self.ranch.logic.is_cow(cow_name, False) 

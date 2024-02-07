@@ -107,12 +107,14 @@ class Logic():
         if worker_name.lower() == cow_name.lower():
             return None
 
-        if multiplier > 0:
-            if respect:
-                date = datetime.now().strftime("%Y-%m-%d")  #  %H:%M
-            else:
-                date = datetime.now().strftime("%Y-%m-%d %H:%M")
+        if respect:
+            date = datetime.now().strftime("%Y-%m-%d")  #  %H:%M
+        else:
+            date = datetime.now().strftime("%Y-%m-%d %H:%M")
 
+        count_milking = self.ranch.database.check_milking(cow_name, worker_name, date)[0]
+
+        if (count_milking == 0 or not respect) and multiplier > 0:
             max_milk = int(milk * multiplier)
             amount = int(random.uniform(0.2 * max_milk, max_milk))
             lvlup = False
@@ -132,9 +134,9 @@ class Logic():
     async def milk_cow(self, worker_name, cow_name):
         """
         sends the milking request to the database,
-        returns if the milking was a success, the amount of milk, if there was a lvl up and the new milking yield of the cow
-        @param worker_name: name of the worker, milking the cow
-        @param cow_name: name of the cow
+        returns if the milking was a success, the amount of milk, if there was a lvl up and the new milking yield of the cow_name
+        @param worker_name: name of the worker, milking the cow_name
+        @param cow_name: name of the cow_name
         @return: (success, amount, lvlup, milk)
         """
         multiplier = await self._get_milk_multiplier(worker_name)
@@ -371,6 +373,6 @@ class Logic():
         month_stats = {}
         for month in range(1, 13):
             month_stats[month] = self.ranch.database.get_total_milk(year, month) or 0
-            
+
         return year, total, month_stats
 

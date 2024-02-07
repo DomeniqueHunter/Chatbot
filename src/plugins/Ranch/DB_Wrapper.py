@@ -115,10 +115,10 @@ class RANCH_DB(DB_WRAPPER):
         statement = f"""INSERT INTO worker(person_id) VALUES((SELECT id FROM person WHERE lower(name) = lower('{name}')))"""
         return self.execute(statement) and self.set_level(name, 'worker')
             
-    def milk_cow(self, cow, worker_name, amount, date):
+    def milk_cow(self, cow_name, worker_name, amount, date):
         statement = f"""INSERT INTO milking(worker_id, cow_id, amount, date) VALUES(
                            (SELECT id FROM worker WHERE person_id = (SELECT id FROM person WHERE lower(name) = lower('{worker_name}'))),
-                           (SELECT id FROM cow WHERE person_id = (SELECT id FROM person WHERE lower(name) = lower('{cow}'))),
+                           (SELECT id FROM cow_name WHERE person_id = (SELECT id FROM person WHERE lower(name) = lower('{cow_name}'))),
                            {amount},'{date}')"""
         return self.execute(statement)
         
