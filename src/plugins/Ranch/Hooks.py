@@ -119,8 +119,10 @@ class Hooks():
             message = "ERROR"
 
             if is_worker:
+                _, _, lvl, exp, _ = self.ranch.logic.get_worker(name)
+                next_lvl_exp = self.ranch.logic.next_level_ep(lvl)
                 data = self.ranch.logic.get_worker_stats(name)
-                message = "\nStats of Worker [user]{}[/user]:\nCow, Total Milk\n".format(name)
+                message = f"\nStats of [user]{name}[/user]: Level {lvl} [Ep {exp}/{next_lvl_exp}]\nCow, Total Milk\n"
 
                 for d in data:
                     message += "[user]{}[/user], {} liters\n".format(d[0], d[1])
@@ -232,9 +234,6 @@ class Hooks():
                 if lvlup:
                     message += f"\n[user]{cow}[/user] has leveled up!"
 
-                if lvlup_worker:
-                    message += f"\n[user]{user}[/user] has leveled up!"
-
             if not_milkable > 0:
                 if not_milkable == 1:
                     i = "is"
@@ -245,6 +244,9 @@ class Hooks():
 
                 milkable_in = Time.time_until_tomorrow()
                 message += f"\nThere {i} {not_milkable} {c} who {i} milkable in {milkable_in}."
+            
+            if lvlup_worker:
+                message += f"\n[user]{user}[/user] has leveled up!"
 
             await self.ranch.client.send_public_message(message, channel)
 
