@@ -13,7 +13,7 @@ class Logic():
         self.remember_cows = deque(maxlen=30)
         self.remember_workers = deque(maxlen=30)
 
-    async def is_worker(self, name):
+    async def is_worker(self, name:str):
         if name in self.remember_workers:
             return True
 
@@ -25,7 +25,7 @@ class Logic():
         else:
             return False
 
-    async def is_cow(self, name, respect=True):
+    async def is_cow(self, name:str, respect=True):
         if name in self.remember_cows:
             return True
 
@@ -37,14 +37,14 @@ class Logic():
         else:
             return False
 
-    async def is_breeder(self, name):
+    async def is_breeder(self, name:str):
         data = self.ranch.get_breeder(name)
         if data:
             return True
         else:
             return False
 
-    async def add_cow(self, cow_name, milk_yield=10):
+    async def add_cow(self, cow_name:str, milk_yield=10):
         is_cow = await self.is_cow(cow_name)
 
         if not is_cow:
@@ -57,7 +57,7 @@ class Logic():
             return status
         return not is_cow
 
-    async def add_worker(self, name):
+    async def add_worker(self, name:str):
         is_worker = await self.is_worker(name)
 
         if not is_worker:
@@ -69,7 +69,7 @@ class Logic():
             return status
         return not is_worker
 
-    async def _get_milk_multiplier(self, worker_name):
+    async def _get_milk_multiplier(self, worker_name:str):
         worker_is_cow = await self.is_cow(worker_name)
         worker_is_worker = await self.is_worker(worker_name)
         worker_is_breeder = False  # self.ranch.database.get_breeder(worker_name)
@@ -91,15 +91,15 @@ class Logic():
 
         return multiplier
 
-    def _milk_that_meat_sack(self, worker_name, cow_name, multiplier=0, respect=True):
+    def _milk_that_meat_sack(self, worker_name:str, cow_name:str, multiplier=0, respect=True):
         """
         sends the milking request to the database,
         returns if the milking was a success, the amount of milk, if there was a lvl up and the new milking yield of the cow
         @param worker_name: name of the worker, milking the cow
         @param cow_name: name of the cow
-        @return: (success, amount, lvlup, milk)
+        @return: (success, amount, lvlup_cow, milk)
         """
-        name, milk, level, exp, _ = self.ranch.database.get_cow(cow_name, respect)
+        name, milk, level_cow, exp_cow, _ = self.ranch.database.get_cow(cow_name, respect)
 
         if not name.lower() == cow_name.lower():
             return None
@@ -107,31 +107,27 @@ class Logic():
         if worker_name.lower() == cow_name.lower():
             return None
 
-        if respect:
-            date = datetime.now().strftime("%Y-%m-%d")  #  %H:%M
-        else:
-            date = datetime.now().strftime("%Y-%m-%d %H:%M")
-
+        date = datetime.now().strftime("%Y-%m-%d %H:%M")
         count_milking = self.ranch.database.check_milking(cow_name, worker_name, date)[0]
 
         if (count_milking == 0 or not respect) and multiplier > 0:
             max_milk = int(milk * multiplier)
             amount = int(random.uniform(0.2 * max_milk, max_milk))
-            lvlup = False
+            lvlup_cow = False
             success = self.ranch.database.milk_cow(cow_name, worker_name, amount, date)
             if success:
-                lvlup = self._level_up_cow(cow_name, milk, level, exp)
+                lvlup_cow = self._level_up_cow(cow_name, milk, level_cow, exp_cow)
 
         else:
             success = False
             amount = 0
-            lvlup = False
+            lvlup_cow = False
             milk = 0
 
-        # todo: lvlup worker needs to be done
-        return (success, amount, lvlup, milk)
+        # todo: lvlup_cow worker needs to be done
+        return (success, amount, lvlup_cow, milk)
 
-    async def milk_cow(self, worker_name, cow_name):
+    async def milk_cow(self, worker_name:str, cow_name:str):
         """
         sends the milking request to the database,
         returns if the milking was a success, the amount of milk, if there was a lvl up and the new milking yield of the cow_name
@@ -139,11 +135,20 @@ class Logic():
         @param cow_name: name of the cow_name
         @return: (success, amount, lvlup, milk)
         """
+        if worker_name == cow_name:
+            return None
+
+        _, _, w_lvl, w_ep, _ = self.ranch.database.get_worker(worker_name)
         multiplier = await self._get_milk_multiplier(worker_name)
         bonus = 0.4
-        return self._milk_that_meat_sack(worker_name, cow_name, multiplier + bonus)
+        lvlup_worker = False
+        success, amount, lvlup, milk = self._milk_that_meat_sack(worker_name, cow_name, multiplier + bonus)
+        if success:
+            lvlup_worker = self._level_up_worker(worker_name, w_lvl, w_ep)
 
-    async def power_milk_cow(self, worker_name, cow_name):
+        return (success, amount, lvlup, milk)
+
+    async def power_milk_cow(self, worker_name:str, cow_name:str):
         """
         sends the milking request to the database,
         returns if the milking was a success, the amount of milk, if there was a lvl up and the new milking yield of the cow
@@ -151,11 +156,24 @@ class Logic():
         @param cow_name: name of the cow
         @return: (success, amount, lvlup, milk)
         """
+        if worker_name == cow_name:
+            return None
+
         multiplier = 2
         bonus = 1
-        return self._milk_that_meat_sack(worker_name, cow_name, multiplier + bonus, False)
+        
+        _, _, w_lvl, w_ep, _ = self.ranch.database.get_worker(worker_name)
+        
+        success, amount, lvlup, milk = self._milk_that_meat_sack(worker_name, cow_name, multiplier + bonus, False)
+        lvlup_worker = False
+        if success:
+            lvlup_worker = self._level_up_worker(worker_name, w_lvl, w_ep)
 
-    async def milk_all(self, user, channel) -> (list, int):
+        return (success, amount, lvlup, milk)
+
+        return (success, amount, lvlup, milk)
+
+    async def milk_all(self, user:str, channel) -> (list, int):
         '''
         An easier way to milk all the cows in the channel
         @param user: user that runns the command
@@ -185,14 +203,6 @@ class Logic():
 
         return milked_cows, not_milkable
 
-    def _get_last_milking(self, cow, worker):
-        last_milking_date = self.ranch.database.get_last_milking(worker, cow)
-
-        return True
-
-    def _is_milkable(self, cow, worker):
-        return self._get_last_milking(cow, worker)
-
     def _level_up_cow(self, cow_name, milk, level, exp):
         exp += 1
         if exp >= self.next_level_ep(level):
@@ -204,6 +214,20 @@ class Logic():
         else:
             lvlup = False
         self.ranch.database.update_experience(cow_name, level, exp, 'cow')
+
+        return lvlup
+
+    def _level_up_worker(self, worker_name, level, exp):
+        exp += 1
+        lvlup = False
+
+        if exp >= self.next_level_ep(level):
+            level += 1
+            milk += 1
+            exp = 0
+            lvlup = True
+
+        self.ranch.database.update_experience(worker_name, level, exp, 'worker')
 
         return lvlup
 
@@ -247,8 +271,7 @@ class Logic():
         @param name: name of theworker
         @return: list of Milkings
         """
-        data = self.ranch.database.get_worker(name)
-        return data
+        return self.ranch.database.get_worker(name)
 
     def get_workers(self, page=1):
         try:

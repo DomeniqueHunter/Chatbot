@@ -361,14 +361,15 @@ class RANCH_DB(DB_WRAPPER):
 
     def get_worker(self, name):
         statement = f"""
-                    select worker.id, person.name
-                    from worker, person
+                    select worker.id, person.name, level.level, level.experience, worker.active
+                    from worker, person, level
                     where worker.person_id = (SELECT id FROM person WHERE lower(name) = lower('{name}'))
                     and worker.person_id = person.id
-                    and active = 1
-                    ;
+                    and person.id = level.person_id
+                    and level.job = 'worker'
+                    and active = 1;
                     """
-        return self.select(statement)
+        return self.select(statement)[0]
 
     def get_breeder(self, name):
         statement = f"""
