@@ -107,7 +107,7 @@ class Logic():
         if worker_name.lower() == cow_name.lower():
             return None
 
-        date = datetime.now().strftime("%Y-%m-%d %H:%M")
+        date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         count_milking = self.ranch.database.check_milking(cow_name, worker_name, date)[0]
 
         if (count_milking == 0 or not respect) and multiplier > 0:
@@ -146,7 +146,7 @@ class Logic():
         if success:
             lvlup_worker = self._level_up_worker(worker_name, w_lvl, w_ep)
 
-        return (success, amount, lvlup, milk)
+        return (success, amount, lvlup, milk, lvlup_worker)
 
     async def power_milk_cow(self, worker_name:str, cow_name:str):
         """
@@ -161,19 +161,18 @@ class Logic():
 
         multiplier = 2
         bonus = 1
-        
+        debug_exp = 6
+
         _, _, w_lvl, w_ep, _ = self.ranch.database.get_worker(worker_name)
-        
+
         success, amount, lvlup, milk = self._milk_that_meat_sack(worker_name, cow_name, multiplier + bonus, False)
         lvlup_worker = False
         if success:
-            lvlup_worker = self._level_up_worker(worker_name, w_lvl, w_ep)
+            lvlup_worker = self._level_up_worker(worker_name, w_lvl, w_ep, debug_exp)
 
-        return (success, amount, lvlup, milk)
+        return (success, amount, lvlup, milk, lvlup_worker)
 
-        return (success, amount, lvlup, milk)
-
-    async def milk_all(self, user:str, channel) -> (list, int):
+    async def milk_all(self, user:str, channel:str) -> (list, int):
         '''
         An easier way to milk all the cows in the channel
         @param user: user that runns the command
@@ -181,8 +180,12 @@ class Logic():
         @return: milked_cows, not_milkable
         '''
         multiplier = await self._get_milk_multiplier(user)
+        _, _, w_lvl, w_ep, _ = self.ranch.database.get_worker(user)
         not_milkable = 0
         milked_cows = []
+        
+        lvlup_worker = False
+        new_worker_exp = 0
 
         if multiplier > 0:
             for character in self.ranch.client.channels[channel].characters.get():
@@ -192,18 +195,22 @@ class Logic():
 
                     if success:
                         milked_cows.append((character, amount, lvlup))
+                        new_worker_exp += 1
 
                     else:
                         not_milkable += 1
 
                 else:
                     print (character, await self.is_cow(character))
+                    
+        if new_worker_exp:
+            lvlup_worker = self._level_up_worker(user, w_lvl, w_ep, new_worker_exp)
 
         milked_cows.sort(key=lambda x: x[1], reverse=True)
 
-        return milked_cows, not_milkable
+        return milked_cows, not_milkable, lvlup_worker
 
-    def _level_up_cow(self, cow_name, milk, level, exp):
+    def _level_up_cow(self, cow_name, milk, level, exp) -> bool:
         exp += 1
         if exp >= self.next_level_ep(level):
             level += 1
@@ -217,14 +224,14 @@ class Logic():
 
         return lvlup
 
-    def _level_up_worker(self, worker_name, level, exp):
-        exp += 1
+    def _level_up_worker(self, worker_name, level, exp, add_exp=1) -> bool:
+        exp = exp + add_exp
         lvlup = False
-
-        if exp >= self.next_level_ep(level):
+        exp_needed = self.next_level_ep(level)
+        
+        if exp >= exp_needed:
             level += 1
-            milk += 1
-            exp = 0
+            exp = exp % exp_needed
             lvlup = True
 
         self.ranch.database.update_experience(worker_name, level, exp, 'worker')
