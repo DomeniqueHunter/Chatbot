@@ -91,7 +91,7 @@ class Logic():
 
         return multiplier
 
-    def _milk_that_meat_sack(self, worker_name:str, cow_name:str, multiplier=0, respect=True):
+    def _milk_that_meat_sack(self, worker_name:str, cow_name:str, multiplier:float=0, respect:bool=True):
         """
         sends the milking request to the database,
         returns if the milking was a success, the amount of milk, if there was a lvl up and the new milking yield of the cow
@@ -245,15 +245,18 @@ class Logic():
         # get list of cows
         cows = self.get_all_cows()
         date = datetime.now().strftime("%Y-%m-%d")
+        
+        worker_name = self.ranch.client.config.character 
 
         for cow in cows:
             cow_name = cow[0]
-
-            name, milk, level, exp = self.ranch.database.get_cow(cow_name)
-
-            success = self.ranch.database.milk_cow(cow_name, self.ranch.client.config.character, 1, date)
-            if success:
-                self._level_up_cow(cow_name, milk, level, exp)
+            _, milk, level, exp = self.ranch.database.get_cow(cow_name)
+            count_milking = self.ranch.database.check_milking(cow_name, worker_name, date)[0]
+            
+            if count_milking == 0:
+                success = self.ranch.database.milk_cow(cow_name, worker_name, 1, date)
+                if success:
+                    self._level_up_cow(cow_name, milk, level, exp)
 
     def _max_level(self, current_level):
         if current_level >= 100:
@@ -297,7 +300,7 @@ class Logic():
         for worker, lvl, _, milk in workers:
             number += 1
             # message += f"{number}. [user]{worker}[/user] ({lvl}) milked {milk} liters\n" # future
-            message += f"{number}. [user]{worker}[/user] milked {milk} liters\n"
+            message += f"{number}. [user]{worker}[/user] ({lvl}) milked {milk} liters\n"
 
         return message
 
