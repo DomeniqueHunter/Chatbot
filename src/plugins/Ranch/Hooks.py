@@ -28,14 +28,14 @@ class Hooks():
                     message = f"\nStats of [user]{name}[/user]: Level {level} [Ep {exp}/{next_lvl_exp}] Total Milk: {milk}\n"
                     # message += "Top 10 milkers\nWorker, Total Milk\n"
 
-                    for d in data:
-                        message += "[user]{}[/user], {} liters\n".format(d[0], d[1])
+                    for worker_name, milk_amount in data:
+                        message += f"[user]{worker_name}[/user], {milk_amount} liters\n"
 
                 else:
                     message = f"{name} was not milked yet"
 
             else:
-                message = "[user]{}[/user] is not a cow".format(name)
+                message = f"[user]{name}[/user] is not a cow"
 
             await self.ranch.client.send_public_message(message, channel)
 
@@ -75,11 +75,7 @@ class Hooks():
             message = f"\nNr. Name (lvl), Milk [Page: {page}/{pages}]\n"
 
             if data:
-                for d in data:
-                    name = d[0]
-                    level = d[1]
-                    exp = d[2]
-                    milk = d[3]
+                for name, level, exp, milk in data:
                     number += 1
                     message += f"{number}. [user]{name}[/user] ({level}): {milk}\n"
 
@@ -104,7 +100,6 @@ class Hooks():
             pages = int (pages / 10) + 1
 
             message = f"\nName, Milked [Page: {page}/{pages}]\n"
-            # print (data)
             if data:
                 message += data
                 await self.ranch.client.send_public_message(message, channel)
@@ -124,8 +119,8 @@ class Hooks():
                 data = self.ranch.logic.get_worker_stats(name)
                 message = f"\nStats of [user]{name}[/user]: Level {lvl} [Ep {exp}/{next_lvl_exp}]\nCow, Total Milk\n"
 
-                for d in data:
-                    message += "[user]{}[/user], {} liters\n".format(d[0], d[1])
+                for worker_name, milk_amount in data:
+                    message += f"[user]{worker_name}[/user], {milk_amount} liters\n"
 
             else:
                 message = "[user]{}[/user] is not a worker".format(name)
@@ -259,10 +254,10 @@ class Hooks():
         if self.ranch.is_milking_channel(channel):
             status = await self.ranch.logic.add_cow(user)
             if status:
-                message = "[user]{}[/user] is now a Cow at H-Milk! Milk it dry using !milk [user]{}[/user]!".format (user, user)
+                message = f"[user]{user}[/user] is now a Cow at H-Milk! Milk it dry using !milk [user]{user}[/user]!"
 
             else:
-                message = "[user]{}[/user] is already a Cow H-Milk!".format(user)
+                message = f"[user]{user}[/user] is already a Cow H-Milk!"
 
             await self.ranch.client.send_public_message(message, channel)
 
@@ -275,10 +270,10 @@ class Hooks():
         if self.ranch.is_milking_channel(channel):
             status = await self.ranch.logic.add_worker(user)
             if status:
-                message = "[user]{}[/user] is now a Worker at H-Milk!".format (user, user)
+                message = f"[user]{user}[/user] is now a Worker at H-Milk!"
 
             else:
-                message = "[user]{}[/user] is already a Worker at H-Milk!".format(user)
+                message = f"[user]{user}[/user] is already a Worker at H-Milk!"
 
             await self.ranch.client.send_public_message(message, channel)
 
@@ -333,11 +328,11 @@ class Hooks():
 
             status = await self.ranch.logic.add_cow(name, milk)
             if status == True:
-                message = "[user]{}[/user] is now a Cow at H-Milk!".format (name)
+                message = f"[user]{name}[/user] is now a Cow at H-Milk!"
                 message_4_cow = "Now you are a cow at H-Milk, offer you udders to all the workers!"
                 await self.ranch.client.send_private_message(message_4_cow, name)
             else:
-                message = "[user]{}[/user] is already a Cow H-Milk!".format(name)
+                message = f"[user]{name}[/user] is already a Cow H-Milk!"
 
         else:
             message = "you don't have the permission for this."
@@ -351,10 +346,10 @@ class Hooks():
             new_name = BBCode.get_name(new_name)
 
             if self.ranch.logic.rename_person(old_name, new_name):
-                message = "renamed {}to [user]{}[/user]".format(old_name, new_name)
+                message = f"renamed {old_name} to [user]{new_name}[/user]"
 
             else:
-                message = "couldn't find/rename {}".format(old_name)
+                message = f"couldn't find/rename {old_name}"
 
         else:
             message = "you don't have the permission for this."
@@ -364,7 +359,7 @@ class Hooks():
     async def remove_cow(self, user, name):
         """
         Disable a cow
-        @param user: user who requests the cow to be disabled ( admin)
+        @param user: user who requests the cow to be disabled (admin)
         @param cow_name: name of the cow
         """
         if name:

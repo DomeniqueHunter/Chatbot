@@ -199,9 +199,6 @@ class Logic():
 
                     else:
                         not_milkable += 1
-
-                else:
-                    print (character, await self.is_cow(character))
                     
         if new_worker_exp:
             lvlup_worker = self._level_up_worker(user, w_lvl, w_ep, new_worker_exp)
@@ -227,12 +224,16 @@ class Logic():
     def _level_up_worker(self, worker_name, level, exp, add_exp=1) -> bool:
         exp = exp + add_exp
         lvlup = False
-        exp_needed = self.next_level_ep(level)
         
-        if exp >= exp_needed:
-            level += 1
-            exp = exp % exp_needed
-            lvlup = True
+        while True:
+            exp_needed = self.next_level_ep(level)
+            
+            if exp >= exp_needed:
+                level += 1
+                exp -= exp_needed
+                lvlup = True
+            else:
+                break
 
         self.ranch.database.update_experience(worker_name, level, exp, 'worker')
 
