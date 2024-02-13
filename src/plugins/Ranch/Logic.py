@@ -97,8 +97,10 @@ class Logic():
         returns if the milking was a success, the amount of milk, if there was a lvl up and the new milking yield of the cow
         @param worker_name: name of the worker, milking the cow
         @param cow_name: name of the cow
+        @param respect: debug flag
         @return: (success, amount, lvlup_cow, milk)
         """
+        # TODO: give worker lvl in this method. If cow lvl << worker lvl => more milk
         name, milk, level_cow, exp_cow, _ = self.ranch.database.get_cow(cow_name, respect)
 
         if not name.lower() == cow_name.lower():
@@ -148,7 +150,7 @@ class Logic():
 
         return (success, amount, lvlup, milk, lvlup_worker)
 
-    async def power_milk_cow(self, worker_name:str, cow_name:str):
+    async def power_milk_cow(self, worker_name:str, cow_name:str, debug_exp=1):
         """
         sends the milking request to the database,
         returns if the milking was a success, the amount of milk, if there was a lvl up and the new milking yield of the cow
@@ -161,7 +163,6 @@ class Logic():
 
         multiplier = 2
         bonus = 1
-        debug_exp = 6
 
         _, _, w_lvl, w_ep, _ = self.ranch.database.get_worker(worker_name)
 
@@ -383,12 +384,20 @@ class Logic():
 
     async def disable_cow(self, name):
         if await self.is_cow(name):
+            try:
+                self.remember_cows.remove(name)
+            except:
+                pass
             return self.ranch.database.disable("cow", name)
         else:
             return False
 
     async def disable_worker(self, name):
         if await self.is_worker(name):
+            try:
+                self.remember_workers.remove(name)
+            except:
+                pass
             return self.ranch.database.disable("worker", name)
         else:
             return False
