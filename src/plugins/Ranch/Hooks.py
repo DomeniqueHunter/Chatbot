@@ -180,8 +180,16 @@ class Hooks():
 
             await self.ranch.client.send_public_message(message, channel)
 
-    async def power_milk(self, user, cow):
+    async def power_milk(self, user, input_str=" , "):
         if self.ranch.client.is_owner(user.strip()):
+            input = input_str.split(', ')
+            if len(input) == 1:
+                cow = input[0]
+                exp = 1
+            else:
+                cow = input[0]
+                exp = int(input[1])
+                
             cow_name = BBCode.get_name(cow)
             is_worker = await self.ranch.logic.is_worker(user)
             is_cow = await self.ranch.logic.is_cow(cow_name, False)
@@ -194,7 +202,7 @@ class Hooks():
                 message = "this is not a cow"
 
             if worker.lower() != cow_name.lower() and is_worker and is_cow and is_online:
-                (success, amount, lvlup, _, lvlup_worker) = await self.ranch.logic.power_milk_cow(worker, cow_name)
+                (success, amount, lvlup, _, lvlup_worker) = await self.ranch.logic.power_milk_cow(worker, cow_name, exp)
 
                 if success:
                     message = f"You milked [user]{cow_name}[/user] against it's will and got {amount}l of milk!"
