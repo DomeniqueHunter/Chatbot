@@ -19,7 +19,17 @@ Type /invite Botname and the bot will enter you channel.
 
 
 ## Docker Usage
-TODO: Docker-Compose
+Starting the stack:
+
+```bash
+docker compose up -d
+```
+
+Stop the Stack:
+
+```bash
+docker compose down
+```
 
 ## Extensions
 To extend the Bot, I recommend to write own plugins!
