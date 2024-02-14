@@ -34,6 +34,7 @@ class OpCodeHandler(ChatCodeHandler):
         self.opcodes_handler.add_action(opcode.CHANNEL_DESCRIPTION, self._opcode_handler_channeldescription)
         self.opcodes_handler.add_action(opcode.INVITE             , self._opcode_handler_invite)
         self.opcodes_handler.add_action(opcode.KICK               , self._opcode_handler_kicked)
+        # self.opcodes_handler.add_action(opcode.USER_CONNECTED     , self._opcode_user_connected)
         self.opcodes_handler.add_action(opcode.GONE_OFFLINE       , self._opcoce_user_disconnected)
         self.opcodes_handler.add_action(opcode.STATUS             , self._opcode_user_changed_status)
         self.opcodes_handler.add_action(opcode.JOIN_CHANNEL       , self._opcode_handler_user_joined_channel)
@@ -79,6 +80,9 @@ class OpCodeHandler(ChatCodeHandler):
         self.loop.run_until_complete(self._run())
 
         self.loop.run_forever()
+        
+    def get_user_gender(self, user:str) -> str:
+        return self.all_users[user.lower()]['gender']
 
     async def _run (self):
 
@@ -201,6 +205,7 @@ class OpCodeHandler(ChatCodeHandler):
             self.channels.pop(channel)
 
     async def _opcoce_user_disconnected(self, json_object):
+        # removes User from channels, managed by bot, the user is in
         data = json.loads(json_object)
         for ch_key in self.channels:
             self.channels[ch_key].remove_character(data['character'].lower())
