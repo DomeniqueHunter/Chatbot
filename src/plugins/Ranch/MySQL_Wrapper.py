@@ -369,7 +369,7 @@ class RANCH_DB(DB_WRAPPER):
                     and level.job = 'worker'
                     and active = 1;
                     """
-        return self.select(statement)[0]
+        return self.select(statement)
 
     def get_breeder(self, name):
         statement = f"""
