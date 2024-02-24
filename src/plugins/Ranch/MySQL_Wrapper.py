@@ -141,7 +141,9 @@ class RANCH_DB(DB_WRAPPER):
                     (SELECT id FROM cow WHERE person_id = (SELECT id FROM person WHERE lower(name) = lower('{cow_name}'))),
                     {amount},'{date}')
                 """
-        return self.execute(statement)
+        val = self.execute(statement)
+        print(val)
+        return val
 
     def check_milking(self, cow_name, worker_name, date):
         statement = f"""
@@ -369,7 +371,9 @@ class RANCH_DB(DB_WRAPPER):
                     and level.job = 'worker'
                     and active = 1;
                     """
-        return self.select(statement)
+        val = self.select(statement)
+        print(val)
+        return val
 
     def get_breeder(self, name):
         statement = f"""

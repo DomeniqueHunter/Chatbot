@@ -140,7 +140,7 @@ class Logic():
         if worker_name == cow_name:
             return None
 
-        _, _, w_lvl, w_ep, _ = self.ranch.database.get_worker(worker_name)
+        _, _, w_lvl, w_ep, _ = self.ranch.database.get_worker(worker_name)[0]
         multiplier = await self._get_milk_multiplier(worker_name)
         bonus = 0.4
         lvlup_worker = False
@@ -164,7 +164,7 @@ class Logic():
         multiplier = 2
         bonus = 1
 
-        _, _, w_lvl, w_ep, _ = self.ranch.database.get_worker(worker_name)
+        _, _, w_lvl, w_ep, _ = self.ranch.database.get_worker(worker_name)[0]
 
         success, amount, lvlup, milk = self._milk_that_meat_sack(worker_name, cow_name, multiplier + bonus, False)
         lvlup_worker = False
@@ -181,7 +181,7 @@ class Logic():
         @return: milked_cows, not_milkable
         '''
         multiplier = await self._get_milk_multiplier(user)
-        _, _, w_lvl, w_ep, _ = self.ranch.database.get_worker(user)
+        _, _, w_lvl, w_ep, _ = self.ranch.database.get_worker(user)[0]
         not_milkable = 0
         milked_cows = []
         
