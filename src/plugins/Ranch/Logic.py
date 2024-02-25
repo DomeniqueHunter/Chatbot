@@ -283,7 +283,7 @@ class Logic():
         @param name: name of theworker
         @return: list of Milkings
         """
-        return self.ranch.database.get_worker(name)
+        return self.ranch.database.get_worker(name)[0]
 
     def get_workers(self, page=1):
         try:
