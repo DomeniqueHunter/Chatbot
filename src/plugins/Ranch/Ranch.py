@@ -16,7 +16,7 @@ class Ranch(Plugin_Prototype):
 
     def __init__(self):
         self.module_name = "Ranch"
-        self.module_version = "2.6.3"
+        self.module_version = "2.6.7"
 
         self.logic = Logic(self)
         self.hooks = Hooks(self)
@@ -30,7 +30,7 @@ class Ranch(Plugin_Prototype):
             12 h contain 1440 pings
         '''
         count_to = 720
-        count_to_debug = 1
+        # count_to_debug = 1
         self.counter = Counter (count_to)
 
         self.milking_channels = []  # id's of milking channels
