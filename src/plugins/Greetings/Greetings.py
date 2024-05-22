@@ -38,7 +38,7 @@ class Greetings(Plugin_Prototype):
 
     def load(self):
         try:
-            self.greetings_list = self.client.file_manager.load('greetings')
+            self.greetings_list = self.client.file_manager.load('greetings') or {}
         except Exception as e:
             print(f"could not load data in '{self.module_name}'")
             print(e)
