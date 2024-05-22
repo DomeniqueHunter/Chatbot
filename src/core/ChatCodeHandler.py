@@ -187,7 +187,7 @@ class ChatCodeHandler(Core):
     async def _hook_load_admins(self, user=None):
         if (self.is_owner(user)):
             try:
-                self.admins = self.file_manager.load('admins')
+                self.admins = self.file_manager.load('admins') or {}
                 await self.send_private_message("loaded admins", user)
             except:
                 pass
@@ -265,7 +265,7 @@ class ChatCodeHandler(Core):
     async def _hook_load_channels(self, user=None):
         if (self.is_owner(user)):
             try:
-                await self._load_channels_from_file('channels.json')
+                await self._load_channels_from_file('channels.json') or {}
             except:
                 await self.send_private_message("can not open channels file", user)
 
@@ -280,7 +280,7 @@ class ChatCodeHandler(Core):
 
     async def _hook_load_all_users(self, user=None):
         if (self.is_owner(user)):
-            all_users = self.file_manager.load('all_users')
+            all_users = self.file_manager.load('all_users') or {}
             if all_users:
                 self.all_users = all_users
                 await self.send_private_message("loaded all users", user)
