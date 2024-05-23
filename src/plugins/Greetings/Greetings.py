@@ -7,7 +7,7 @@ class Greetings(Plugin_Prototype):
 
     def __init__(self):
         self.module_name    = "Greetings List"
-        self.module_version = "2.0"
+        self.module_version = "2.0.1"
         self.greetings_list = {}
 
     def set_client(self, client):

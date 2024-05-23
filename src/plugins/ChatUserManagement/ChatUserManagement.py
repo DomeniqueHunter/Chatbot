@@ -6,7 +6,7 @@ class ChatUserManagement(Plugin_Prototype):
 
     def __init__(self, client = None):
         self.module_name = "ChatUserManagement"
-        self.module_version = "0.0.1"
+        self.module_version = "0.0.2"
         self.client = client
         self.register_actions()
         self.store = {}
