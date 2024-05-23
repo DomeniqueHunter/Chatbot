@@ -128,7 +128,7 @@ class ChatCodeHandler(Core):
         await self.send_private_message("Permission denied!")
 
     async def _hook_join_old(self, user=None, channel=None):
-        if (channel and self.is_priviliged(user)):
+        if (channel and self.has_admin_rights(user)):
             await self.join(channel, channel)
             await self.send_private_message("joined: " + channel, user)
 
@@ -175,7 +175,7 @@ class ChatCodeHandler(Core):
             await self.send_private_message("you can use this bot now!", new_admin)
 
     async def _hook_remove_admin(self, user=None, admin=None):
-        if (self.is_priviliged(user)):
+        if (self.has_admin_rights(user)):
             self.admins.remove(admin.lower())
             await self.send_private_message(admin + " is no longer admin", user)
 
@@ -202,7 +202,7 @@ class ChatCodeHandler(Core):
     # CHANNEL HANDLING
 
     async def _hook_create_private_channel(self, user=None, channel_name:str=""):
-        if self.is_priviliged(user):
+        if self.has_admin_rights(user):
             await self.create_private_channel(channel_name)
             self.channel_creation_queue.add(channel_name, user)
             await self.send_private_message(f"created channel: {channel_name}", user)

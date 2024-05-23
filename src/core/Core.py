@@ -208,7 +208,7 @@ class Core():
 
     # depricated
     def is_priviliged(self, user):
-        print("the method 'is_priviliged' is depricated")
+        print("the method 'is_priviliged' is depricated, please use has_admin_rights")
         return (self.is_admin(user)  or self.is_owner(user))
 
     def has_owner_rights(self, user):
