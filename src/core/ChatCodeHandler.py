@@ -170,13 +170,13 @@ class ChatCodeHandler(Core):
     # ADMIN HANDLING
     async def _hook_add_admin(self, user=None, new_admin=None):
         if (self.is_priviliged(user)):
-            self._add_bot_admin(new_admin)
+            self._add_bot_admin(new_admin.lower())
             await self.send_private_message(new_admin + " can now use this bot!", user)
             await self.send_private_message("you can use this bot now!", new_admin)
 
     async def _hook_remove_admin(self, user=None, admin=None):
         if (self.is_priviliged(user)):
-            self.admins.pop(admin.lower())
+            self.admins.remove(admin.lower())
             await self.send_private_message(admin + " is no longer admin", user)
 
     async def _hook_save_admins(self, user=None):
@@ -187,7 +187,7 @@ class ChatCodeHandler(Core):
     async def _hook_load_admins(self, user=None):
         if (self.is_owner(user)):
             try:
-                self.admins = self.file_manager.load('admins') or {}
+                self.admins = self.file_manager.load('admins') or []
                 await self.send_private_message("loaded admins", user)
             except:
                 pass

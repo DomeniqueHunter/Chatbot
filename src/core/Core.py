@@ -25,14 +25,14 @@ class Core():
     def __init__(self, config, root_path="./"):
         self.account = config.account
         self.password = config.password
-        self.version = "0.7.1"
+        self.version = "0.7.2"
 
         self.channel_manager = ChannelManager(self.join)
         self.channels = self.channel_manager.joined_channels  # is this good?
 
         self.channel_creation_queue = ChannelCreationQueue()
 
-        self.admins = {}
+        self.admins = []
 
         self.plugin_loader = None
         self.restarts = 0
@@ -136,7 +136,7 @@ class Core():
             print(str(self.channels))
 
     def _add_bot_admin(self, user):
-        self.admins[user.lower()] = user
+        self.admins.append(user.lower())
 
     async def join_default_channels(self, channels):
         for channel in channels:
