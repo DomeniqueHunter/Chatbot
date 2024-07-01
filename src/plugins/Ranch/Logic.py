@@ -12,6 +12,12 @@ class Logic():
         # todo: Queues to remember cows and workers
         self.remember_cows = deque(maxlen=30)
         self.remember_workers = deque(maxlen=30)
+        
+    async def is_person(self, name:str):
+        person = self.ranch.database.get_person(name)
+        if person:
+            return True        
+        return False        
 
     async def is_worker(self, name:str):
         if name in self.remember_workers:
@@ -275,6 +281,24 @@ class Logic():
 
         else:
             return 10
+        
+    async def get_person_info(self, name:str) -> str:
+        is_person = await self.is_person(name)
+        if is_person:            
+            pid, pname = self.ranch.database.get_person(name)
+            response = f"\n[person] {pname} ({pid})\n"
+            
+            if await self.is_cow(name, True):
+                # person.name, cow.yield, level.level, level.experience, cow.active
+                pname, myield, clvl, cxp, cactive = self.get_cow(name)                
+                response += f"[cow] {pname}, yield:{myield}, lvl:{clvl}, xp:{cxp}, active:{cactive}\n"
+            
+            if await self.is_worker(name):
+                # worker.id, person.name, level.level, level.experience, worker.active
+                wid, pname, wlvl, wxp, wactive = self.get_worker(name)
+                response += f"[worker] {pname} ({wid}), lvl:{wlvl}, xp:{wxp}, active:{wactive}\n"
+            
+            return response
 
     def get_worker(self, name):
         """

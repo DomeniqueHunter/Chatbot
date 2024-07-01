@@ -99,7 +99,7 @@ class RANCH_DB(DB_WRAPPER):
 
     def get_person(self, name):
         statement = f"""
-                    select name
+                    select id, name
                     from person
                     where name = '{name}'
                     """
@@ -371,9 +371,7 @@ class RANCH_DB(DB_WRAPPER):
                     and level.job = 'worker'
                     and active = 1;
                     """
-        val = self.select(statement)
-        print(val)
-        return val
+        return self.select(statement)
 
     def get_breeder(self, name):
         statement = f"""

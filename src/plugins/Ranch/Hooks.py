@@ -126,6 +126,13 @@ class Hooks():
                 message = "[user]{}[/user] is not a worker".format(name)
 
             await self.ranch.client.send_public_message(message, channel)
+            
+    async def get_person(self, user:str, name:str):
+        if self.ranch.client.has_admin_rights(user):
+            response = await self.ranch.logic.get_person_info(name)
+            await self.ranch.client.send_private_message(response, user)
+        else:
+            await self.ranch.client.send_private_message("not permitted", user)
 
     async def milk(self, worker, channel, cow_name):
         """
