@@ -25,7 +25,7 @@ class Core():
     def __init__(self, config, root_path="./"):
         self.account = config.account
         self.password = config.password
-        self.version = "0.7.2"
+        self.version = "0.7.5"
 
         self.channel_manager = ChannelManager(self.join)
         self.channels = self.channel_manager.joined_channels  # is this good?
