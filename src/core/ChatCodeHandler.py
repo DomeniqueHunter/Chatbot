@@ -171,7 +171,7 @@ class ChatCodeHandler(Core):
 
     # ADMIN HANDLING
     async def _hook_add_admin(self, user=None, new_admin=None):
-        if (self.is_priviliged(user)):
+        if (self.has_admin_rights(user)):
             self._add_bot_admin(new_admin.lower())
             await self.send_private_message(new_admin + " can now use this bot!", user)
             await self.send_private_message("you can use this bot now!", new_admin)
@@ -239,7 +239,7 @@ class ChatCodeHandler(Core):
 
     async def _hook_get_users_in_channel(self, user=None, channel=None):
         code = Channel.find_channel_by_name(self.channels, channel)
-        if ((code in self.channels) and (self.is_priviliged(user))):
+        if ((code in self.channels) and (self.has_admin_rights(user))):
             message = f'Info for Channel [b]{self.channels[code].name}[/b] ({self.channels[code].characters.size()})\n'
             for char in self.channels[code].characters.get():
                 message += f"[user]{char}[/user]\n"
@@ -255,7 +255,7 @@ class ChatCodeHandler(Core):
             await self.send_private_message(_message, user)
 
     async def _hook_save_channels(self, user=None):
-        if (self.is_owner(user)):
+        if self.is_owner(user):
             if any(self.channels):
                 self._save_channels_to_file('channels.json')
                 # self.file_manager.save('channels', self.channel)
@@ -265,14 +265,14 @@ class ChatCodeHandler(Core):
             await self.send_private_message("Permission denied!", user)
 
     async def _hook_load_channels(self, user=None):
-        if (self.is_owner(user)):
+        if self.is_owner(user):
             try:
                 await self._load_channels_from_file('channels.json') or {}
             except:
                 await self.send_private_message("can not open channels file", user)
 
     async def _hook_save_all_users(self, user=None):
-        if (self.is_owner(user)):
+        if self.is_owner(user):
             if self.all_users:
                 self.file_manager.save('all_users', self.all_users)
             else:
@@ -281,14 +281,14 @@ class ChatCodeHandler(Core):
             await self.send_private_message("Permission denied!", user)
 
     async def _hook_load_all_users(self, user=None):
-        if (self.is_owner(user)):
+        if self.is_owner(user):
             all_users = self.file_manager.load('all_users') or {}
             if all_users:
                 self.all_users = all_users
                 await self.send_private_message("loaded all users", user)
 
     async def _hook_list_all_users(self, user_in=None, page=1):
-        if (self.is_owner(user_in)):
+        if self.is_owner(user_in):
 
             try:
                 page = int(page)
@@ -313,7 +313,7 @@ class ChatCodeHandler(Core):
             await self.send_private_message(msg, user_in)
 
     async def _hook_die(self, user=None):
-        if (self.is_owner(user)):
+        if self.is_owner(user):
             await self._save_all_settings(user)
             await self.send_private_message("I'm out, Bye!", user)
             self.stop_impulse = True
@@ -326,7 +326,7 @@ class ChatCodeHandler(Core):
     # STATUS HANDLING
 
     async def _hook_set_status(self, user=None, status=None):
-        if (self.is_priviliged(user)):
+        if self.has_admin_rights(user):
             if status:
                 self.status = status
                 await self._set_status(status)
@@ -356,7 +356,7 @@ class ChatCodeHandler(Core):
 
             print (f"invite USER {other_user.strip()} to {channel.strip()}")
 
-            if (self.is_priviliged(user) and other_user):
+            if (self.has_admin_rights(user) and other_user):
                 await self._invite_user_to_channel(other_user.strip(), channel.strip())
         except:
             print("ERROR: probably missing ,")
@@ -365,7 +365,7 @@ class ChatCodeHandler(Core):
         message = message.split(" ", 1)
         channel = message[0]
         other_user = message[1]
-        if (self.is_priviliged(user) and other_user):
+        if (self.has_admin_rights(user) and other_user):
             print ('other user: ', other_user, ' channel: ', channel)
 
             data = {'channel':channel,
