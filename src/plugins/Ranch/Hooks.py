@@ -143,8 +143,6 @@ class Hooks():
 
         """
         if self.ranch.is_milking_channel(channel):
-            print ("{} want to milk {} in channel {}!!!".format(worker, cow_name, channel))
-
             cow_name = BBCode.get_name(cow_name)
             is_worker = await self.ranch.logic.is_worker(worker)
             is_cow = await self.ranch.logic.is_cow(cow_name)

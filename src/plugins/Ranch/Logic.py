@@ -96,6 +96,18 @@ class Logic():
             multiplier = 0  # error
 
         return multiplier
+    
+    def worker_multiplier(self, lvl):
+        if lvl < 200:
+            m = lvl // 10
+            return 1 + (m / 100)
+        
+        return 1.2
+    
+    def worker_milkings(self, lvl):
+        if lvl >= 300: return 3
+        if lvl >= 200: return 2        
+        return 1
 
     def _milk_that_meat_sack(self, worker_name:str, cow_name:str, multiplier:float=0, respect:bool=True):
         """
@@ -106,8 +118,8 @@ class Logic():
         @param respect: debug flag
         @return: (success, amount, lvlup_cow, milk)
         """
-        # TODO: give worker lvl in this method. If cow lvl << worker lvl => more milk
         name, milk, level_cow, exp_cow, _ = self.ranch.database.get_cow(cow_name, respect)
+        _, wname, wlvl, _, _ = self.get_worker(worker_name)
 
         if not name.lower() == cow_name.lower():
             return None
@@ -118,9 +130,9 @@ class Logic():
         date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         count_milking = self.ranch.database.check_milking(cow_name, worker_name, date)[0]
 
-        if (count_milking == 0 or not respect) and multiplier > 0:
+        if (count_milking < self.worker_milkings(wlvl) or not respect) and multiplier > 0:
             max_milk = int(milk * multiplier)
-            amount = int(random.uniform(0.2 * max_milk, max_milk))
+            amount = int(random.uniform(0.2 * max_milk, max_milk) * self.worker_multiplier(wlvl))
             lvlup_cow = False
             success = self.ranch.database.milk_cow(cow_name, worker_name, amount, date)
             if success:
@@ -284,7 +296,7 @@ class Logic():
         
     async def get_person_info(self, name:str) -> str:
         is_person = await self.is_person(name)
-        if is_person:            
+        if is_person: 
             pid, pname = self.ranch.database.get_person(name)
             response = f"\n[person] {pname} ({pid})\n"
             
