@@ -1,5 +1,5 @@
 from plugins.Ranch.Logic import Logic
-from lib.Time.Time import Time
+from lib.Time.Time import time_until_tomorrow
 
 from lib.BBCode.BBCode import BBCode
 import calendar
@@ -250,7 +250,7 @@ class Hooks():
                     i = "are"
                     c = "cows"
 
-                milkable_in = Time.time_until_tomorrow()
+                milkable_in = time_until_tomorrow()
                 message += f"\nThere {i} {not_milkable} {c} who {i} milkable in {milkable_in}."
             
             if lvlup_worker:
