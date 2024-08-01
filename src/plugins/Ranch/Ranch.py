@@ -5,11 +5,9 @@ from plugins.Ranch.Logic import Logic
 # from plugins.Ranch.DB_Wrapper import RANCH_DB
 from plugins.Ranch.MySQL_Wrapper import RANCH_DB
 
-from lib.Channel.Channel import Channel
 from lib.Counter.Counter import Counter
 
 import asyncio
-import json
 
 
 class Ranch(Plugin_Prototype):
