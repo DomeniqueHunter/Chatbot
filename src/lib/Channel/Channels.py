@@ -83,6 +83,13 @@ class ChannelManager(object):
             channels.append(channel.json())
         
         return channels
+    
+    def json(self):
+        channels = dict()
+        for k, v in self.joined_channels.items():
+            channels[k] = v.json()
+            
+        return channels
 
     async def join(self, name:str, code:str=None):
         if name and code:

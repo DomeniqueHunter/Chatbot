@@ -175,10 +175,16 @@ class Core():
     def _save_channels_to_file(self, file):
         self.file_manager.save('channels', self.channel_manager.get_channels_list())
 
+    # deprecated!!!!
     async def _load_channels_from_file(self, file):
         channels = self.file_manager.load('channels')
-        print('load Channels:')
+        print(f'load Channels from file: {file}')
         for channel in channels:
+            await self.channel_manager.join(channel['name'], channel['code'])
+            
+    async def _join_channels(self, channels:dict):
+        print('load Channels:')
+        for channel in channels.values():
             await self.channel_manager.join(channel['name'], channel['code'])
 
     async def _set_status(self, status):

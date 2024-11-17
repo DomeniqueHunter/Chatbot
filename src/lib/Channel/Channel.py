@@ -60,6 +60,9 @@ class Channel(object):
 
     def __str__(self):
         return self.code
+    
+    def __repr__(self):
+        return self.name
 
     @staticmethod
     def find_channel_by_name(dict_of_channels=None, channel_name=None):
