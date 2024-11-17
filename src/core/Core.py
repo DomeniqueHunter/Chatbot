@@ -204,7 +204,7 @@ class Core():
         return user.lower() in self.admins
 
     def is_owner(self, user):
-        return user == self.owner
+        return user.lower() == self.owner.lower()
 
     # depricated
     def is_priviliged(self, user):

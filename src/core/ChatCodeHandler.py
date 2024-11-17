@@ -110,13 +110,13 @@ class ChatCodeHandler(Core):
     '''
 
     async def _hook_save_all(self, user=None):
-        if (user == self.owner):
+        if self.is_owner(user):
             print ("save settings")
             await self._save_all_settings(user)
             # await self.send_private_message("settings saved!", user)
 
     async def _hook_load_all(self, user=None):
-        if (user == self.owner):
+        if self.is_owner(user):
             await self._load_all_settings(user)
 
     async def _hook_exception_handler(self, handler, *args):
@@ -125,7 +125,7 @@ class ChatCodeHandler(Core):
         # await self.send_private_message("don't understand: "+handler)
 
     async def _hook_permission_denied(self, user):
-        await self.send_private_message("Permission denied!")
+        await self.send_private_message("Permission denied!", user)
 
     async def _hook_join_old(self, user=None, channel=None):
         if (channel and self.has_admin_rights(user)):
@@ -249,7 +249,7 @@ class ChatCodeHandler(Core):
     async def _hook_channel_name(self, user=None, message=None):
         data = message.split(" ", 1)
 
-        if len(data) >= 2 and user == self.owner or (user.lower() in self.admins):
+        if len(data) >= 2 and self.is_owner(user) or (user.lower() in self.admins):
             self._rename_channel(data[0], data[1])
             _message = "changed name of channel " + data[0] + " to " + data[1]
             await self.send_private_message(_message, user)
@@ -337,11 +337,11 @@ class ChatCodeHandler(Core):
             self._hook_permission_denied(user)
 
     async def _hook_save_status(self, user=None):
-        if (user == self.owner and self.status):
+        if (self.is_owner(user) and self.status):
             self.file_manager.save('status', self.status)
 
     async def _hook_load_status(self, user=None):
-        if (user == self.owner):
+        if self.is_owner(user):
             try:
                 self.status = self.file_manager.load('status')
                 await self._set_status(self.status)
