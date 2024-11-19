@@ -144,11 +144,9 @@ class OpCodeHandler(ChatCodeHandler):
 
     async def _opcode_handler_channeldescription(self, json_object):
         data = json.loads(json_object)
-        print(data)
         channel = data['channel']
         channel = channel[:3].upper() + channel[3:]
         data['channel'] = channel
-        print(data)
         
         await self._get_channel_description(data)
 
