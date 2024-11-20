@@ -474,4 +474,6 @@ class Hooks():
         if self.ranch.session_manager.running_session:
             # add set as data storage
             self.ranch.session_manager.running_session.storage = set()
+            sess = self.ranch.session_manager.running_session
+            await self.ranch.client.send_public_message(f"A Moo Session was started! Cows, show us your best Moo!", sess.channel_id)
 

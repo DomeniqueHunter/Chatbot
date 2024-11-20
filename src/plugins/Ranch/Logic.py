@@ -2,6 +2,7 @@ import random
 from datetime import datetime
 from collections import deque
 import json
+import re
 
 
 class Logic():
@@ -30,8 +31,8 @@ class Logic():
             return True
         else:
             return False
-
-    async def is_cow(self, name:str, respect=True):
+        
+    def _is_cow(self, name:str, respect=True):
         if name in self.remember_cows:
             return True
 
@@ -42,6 +43,9 @@ class Logic():
             return True
         else:
             return False
+
+    async def is_cow(self, name:str, respect=True):
+        return self._is_cow(name, respect)
 
     async def is_breeder(self, name:str):
         data = self.ranch.get_breeder(name)
@@ -455,16 +459,34 @@ class Logic():
 
         return year, total, month_stats
     
+    def is_moo(self, text:str):
+        pattern = re.compile(r"(?:m[oO0]{2,})+[.!?~]*", re.IGNORECASE)
+        return bool(pattern.search(text))
+    
     async def moo_function(self, json_object):
         data = json.loads(json_object)
         channel_id = data['channel']
         message = data['message'].strip()
         user = data['character']
         
-        if self.ranch.session_manager.is_channel(channel_id):
-            print(f"{user}: {message}")
-            if message == "moo":
+        if self.ranch.session_manager.is_channel(channel_id) and self._is_cow(user, True):
+            if self.is_moo(message):
                 self.ranch.session_manager.running_session.storage.add(user)
             
             print(self.ranch.session_manager.running_session.storage)
+            
+    async def moo_session_endpage(self):
+        last_session = self.ranch.session_manager.closed_sessions[-1]
+        
+        if last_session.storage:
+            # todo: reward
+            
+            text = f"Thank you for mooing, cows! Cows who participated:\n"
+            for cow in last_session.storage:
+                text += f" - {cow}"
+            
+        else:
+            text = "Moo Session closed!"
+            
+        await self.ranch.client.send_public_message(text, last_session.channel_id)
 

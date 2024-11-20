@@ -8,8 +8,6 @@ from plugins.Ranch.Session import SessionManager
 
 from lib.Counter.Counter import Counter
 
-
-
 import asyncio
 
 
@@ -117,6 +115,5 @@ class Ranch(Plugin_Prototype):
             await self.logic.milkmachine()
         
         if self.session_manager.check_session():
-            sess = self.session_manager.closed_sessions[-1]
-            await self.client.send_public_message(f"Session closed", sess.channel_id)
+            await self.logic.moo_session_endpage()
 
