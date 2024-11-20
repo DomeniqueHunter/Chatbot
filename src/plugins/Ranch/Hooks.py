@@ -461,4 +461,17 @@ class Hooks():
                 message += f" - {calendar.month_name[month]}: {amount} l\n"
 
             await self.ranch.client.send_public_message(message, channel)
+            
+    async def start_session(self, user:str, channel:str):
+        # get channel_id for channel
+        channel = self.ranch.client.channel_manager.find_channel(channel)
+        channel_id = channel.code
+        
+        # create session
+        if channel_id:
+            self.ranch.session_manager.start_session(5, self.ranch.logic.moo_function, channel_id)
+        
+        if self.ranch.session_manager.running_session:
+            # add set as data storage
+            self.ranch.session_manager.running_session.storage = set()
 

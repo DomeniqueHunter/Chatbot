@@ -4,8 +4,11 @@ from plugins.Ranch.Hooks import Hooks
 from plugins.Ranch.Logic import Logic
 # from plugins.Ranch.DB_Wrapper import RANCH_DB
 from plugins.Ranch.MySQL_Wrapper import RANCH_DB
+from plugins.Ranch.Session import SessionManager
 
 from lib.Counter.Counter import Counter
+
+
 
 import asyncio
 
@@ -29,7 +32,7 @@ class Ranch(Plugin_Prototype):
         '''
         count_to = 720
         # count_to_debug = 1
-        self.counter = Counter (count_to)
+        self.counter = Counter(count_to)
 
         self.milking_channels = []  # id's of milking channels
 
@@ -69,6 +72,8 @@ class Ranch(Plugin_Prototype):
             self.client.public_msg_handler.add_action("!milkhere", self.hooks.set_milking_channel, "Enabled milking in the Channel", "admin", f"{self.module_name} (Admin)")
             self.client.public_msg_handler.add_action("!dontmilkhere", self.hooks.remove_milking_channel_by_id, "Disable milking in the Channel", "admin", f"{self.module_name} (Admin)")
 
+            self.client.private_msg_handler.add_action("!new_moo <channel>", self.hooks.start_session, 'starts a moo sessions', 'admin', self.module_name)
+
             # self.client.private_msg_handler.add_action("!ranch_save",       self.hook_debug_save)
             # self.client.private_msg_handler.add_action("!ranch_fix_worker", self.hook_fix_workers)
         else:
@@ -87,6 +92,9 @@ class Ranch(Plugin_Prototype):
         self.database = RANCH_DB(user, password, database, host)
         self.database.connect()
         self.database.setup()
+        
+        # session setup
+        self.session_manager = SessionManager(bot=self.client)
 
         loop = asyncio.new_event_loop()
         loop.run_until_complete(self.logic.add_worker(self.client.config.character))
@@ -107,4 +115,8 @@ class Ranch(Plugin_Prototype):
     async def clock(self):
         if self.counter.tick():
             await self.logic.milkmachine()
+        
+        if self.session_manager.check_session():
+            sess = self.session_manager.closed_sessions[-1]
+            await self.client.send_public_message(f"Session closed", sess.channel_id)
 

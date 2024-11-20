@@ -1,6 +1,7 @@
 import random
 from datetime import datetime
 from collections import deque
+import json
 
 
 class Logic():
@@ -453,4 +454,17 @@ class Logic():
             month_stats[month] = self.ranch.database.get_total_milk(year, month) or 0
 
         return year, total, month_stats
+    
+    async def moo_function(self, json_object):
+        data = json.loads(json_object)
+        channel_id = data['channel']
+        message = data['message'].strip()
+        user = data['character']
+        
+        if self.ranch.session_manager.is_channel(channel_id):
+            print(f"{user}: {message}")
+            if message == "moo":
+                self.ranch.session_manager.running_session.storage.add(user)
+            
+            print(self.ranch.session_manager.running_session.storage)
 
