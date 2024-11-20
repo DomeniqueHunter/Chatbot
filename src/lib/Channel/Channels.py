@@ -56,7 +56,11 @@ class ChannelManager(object):
         self.open_private_channels = {}
 
     def find_channel(self, name:str) -> Channel:
-        for key, channel in self.open_private_channels.items():
+        for channel in self.joined_channels.values():
+            if channel.name.lower() == name.lower():
+                return channel
+        
+        for channel in self.open_private_channels.values():
             if channel.name.lower() == name.lower():
                 return channel
 
