@@ -399,7 +399,7 @@ class Logic():
 
     def remove_milking_channel_by_index(self, channel_index):
         channel_index = int(channel_index)
-        if len(self.ranch.milking_channels) <= channel_index + 1:
+        if len(self.ranch.milking_channels) >= channel_index + 1:
             try:
                 self.ranch.milking_channels.pop(channel_index)
             except Exception as e:
