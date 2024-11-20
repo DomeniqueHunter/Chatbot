@@ -14,13 +14,13 @@ class Logic():
         self.remember_cows = deque(maxlen=30)
         self.remember_workers = deque(maxlen=30)
         
-    async def is_person(self, name:str):
+    def is_person(self, name:str):
         person = self.ranch.database.get_person(name)
         if person:
             return True        
         return False        
 
-    async def is_worker(self, name:str):
+    def is_worker(self, name:str):
         if name in self.remember_workers:
             return True
 
@@ -31,8 +31,8 @@ class Logic():
             return True
         else:
             return False
-        
-    def _is_cow(self, name:str, respect=True):
+    
+    def is_cow(self, name:str, respect=True):
         if name in self.remember_cows:
             return True
 
@@ -44,10 +44,7 @@ class Logic():
         else:
             return False
 
-    async def is_cow(self, name:str, respect=True):
-        return self._is_cow(name, respect)
-
-    async def is_breeder(self, name:str):
+    def is_breeder(self, name:str):
         data = self.ranch.get_breeder(name)
         if data:
             return True
@@ -55,7 +52,7 @@ class Logic():
             return False
 
     async def add_cow(self, cow_name:str, milk_yield=10):
-        is_cow = await self.is_cow(cow_name)
+        is_cow = self.is_cow(cow_name)
 
         if not is_cow:
             status = self.ranch.database.add_cow(cow_name, milk_yield)
@@ -68,7 +65,7 @@ class Logic():
         return not is_cow
 
     async def add_worker(self, name:str):
-        is_worker = await self.is_worker(name)
+        is_worker = self.is_worker(name)
 
         if not is_worker:
             status = self.ranch.database.add_worker(name)
@@ -80,11 +77,12 @@ class Logic():
         return not is_worker
 
     async def _get_milk_multiplier(self, worker_name:str):
-        worker_is_cow = await self.is_cow(worker_name)
-        worker_is_worker = await self.is_worker(worker_name)
+        worker_is_cow = self.is_cow(worker_name)
+        worker_is_worker = self.is_worker(worker_name)
         worker_is_breeder = False  # self.ranch.database.get_breeder(worker_name)
 
-        if worker_is_worker or worker_is_breeder:
+        if worker_is_worker or worker_is_breeder:      
+
             if worker_is_cow:
                 multiplier = 0.5
 
@@ -213,7 +211,7 @@ class Logic():
         if multiplier > 0:
             for character in self.ranch.client.channels[channel].characters.get():
 
-                if await self.is_cow(character) and not user.lower() == character.lower():
+                if self.is_cow(character) and not user.lower() == character.lower():
                     success, amount, lvlup, _ = self._milk_that_meat_sack(user, character, multiplier)
 
                     if success:
@@ -230,8 +228,9 @@ class Logic():
 
         return milked_cows, not_milkable, lvlup_worker
 
-    def _level_up_cow(self, cow_name, milk, level, exp) -> bool:
-        exp += 1
+    def _level_up_cow(self, cow_name:str, milk:int, level:int, exp:int, add_exp:int=1) -> bool:
+        exp += add_exp
+        
         if exp >= self.next_level_ep(level):
             level += 1
             milk += 1
@@ -240,11 +239,12 @@ class Logic():
             self.ranch.database.update_cow_milk(cow_name, milk)
         else:
             lvlup = False
+            
         self.ranch.database.update_experience(cow_name, level, exp, 'cow')
 
         return lvlup
 
-    def _level_up_worker(self, worker_name, level, exp, add_exp=1) -> bool:
+    def _level_up_worker(self, worker_name:str, level:int, exp:int, add_exp:int=1) -> bool:
         exp = exp + add_exp
         lvlup = False
         
@@ -299,17 +299,17 @@ class Logic():
             return 10
         
     async def get_person_info(self, name:str) -> str:
-        is_person = await self.is_person(name)
+        is_person = self.is_person(name)
         if is_person: 
             pid, pname = self.ranch.database.get_person(name)
             response = f"\n[person] {pname} ({pid})\n"
             
-            if await self.is_cow(name, True):
+            if self.is_cow(name, True):
                 # person.name, cow.yield, level.level, level.experience, cow.active
                 pname, myield, clvl, cxp, cactive = self.get_cow(name)                
                 response += f"[cow] {pname}, yield:{myield}, lvl:{clvl}, xp:{cxp}, active:{cactive}\n"
             
-            if await self.is_worker(name):
+            if self.is_worker(name):
                 # worker.id, person.name, level.level, level.experience, worker.active
                 wid, pname, wlvl, wxp, wactive = self.get_worker(name)
                 response += f"[worker] {pname} ({wid}), lvl:{wlvl}, xp:{wxp}, active:{wactive}\n"
@@ -423,7 +423,7 @@ class Logic():
             self.ranch.milking_channels.remove(channel_id)
 
     async def disable_cow(self, name):
-        if await self.is_cow(name):
+        if self.is_cow(name):
             try:
                 self.remember_cows.remove(name)
             except:
@@ -443,7 +443,7 @@ class Logic():
             return False
 
     async def cow_update_milk(self, name, milk):
-        if await self.is_cow(name):
+        if self.is_cow(name):
             return self.ranch.database.update_cow_milk(name, milk)
         else:
             return False
@@ -469,7 +469,7 @@ class Logic():
         message = data['message'].strip()
         user = data['character']
         
-        if self.ranch.session_manager.is_channel(channel_id) and self._is_cow(user, True):
+        if self.ranch.session_manager.is_channel(channel_id) and self.is_cow(user, True):
             if self.is_moo(message):
                 self.ranch.session_manager.running_session.storage.add(user)
             
@@ -480,10 +480,15 @@ class Logic():
         
         if last_session.storage:
             # todo: reward
-            
             text = f"Thank you for mooing, cows! Cows who participated:\n"
-            for cow in last_session.storage:
-                text += f" - {cow}"
+            
+            
+            for cow_name in last_session.storage:
+                _, milk, level_cow, exp_cow, _ = self.ranch.database.get_cow(cow_name, True)
+                lvlup_cow = self._level_up_cow(cow_name, milk, level_cow, exp_cow)
+                lvlup_text = f" even leveled up!" if lvlup_cow else ""
+                
+                text += f" - {cow_name}{lvlup_text}"
             
         else:
             text = "Moo Session closed!"

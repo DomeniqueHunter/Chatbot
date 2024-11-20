@@ -17,7 +17,7 @@ class Hooks():
     async def get_cow(self, user, channel, name=None):
         if self.ranch.is_milking_channel(channel):
             name = BBCode.get_name(name)
-            is_cow = await self.ranch.logic.is_cow(name)
+            is_cow = self.ranch.logic.is_cow(name)
             message = "ERROR"
             if is_cow:
                 data = self.ranch.logic.get_cow_milkings(name)
@@ -42,7 +42,7 @@ class Hooks():
     async def get_cow_stats(self, user, name):
         if self.ranch.client.is_priviliged(user):
             name = BBCode.get_name(name)
-            is_cow = await self.ranch.logic.is_cow(name, False)
+            is_cow = self.ranch.logic.is_cow(name, False)
             message = ""
             if is_cow:
                 _, amount, lvl, exp, active = self.ranch.logic.get_cow(name, False)
@@ -110,7 +110,7 @@ class Hooks():
         if self.ranch.is_milking_channel(channel):
             name = BBCode.get_name(name)
 
-            is_worker = await self.ranch.logic.is_worker(name)
+            is_worker = self.ranch.logic.is_worker(name)
             message = "ERROR"
 
             if is_worker:
@@ -144,8 +144,8 @@ class Hooks():
         """
         if self.ranch.is_milking_channel(channel):
             cow_name = BBCode.get_name(cow_name)
-            is_worker = await self.ranch.logic.is_worker(worker)
-            is_cow = await self.ranch.logic.is_cow(cow_name)
+            is_worker = self.ranch.logic.is_worker(worker)
+            is_cow = self.ranch.logic.is_cow(cow_name)
             is_online = self.ranch.client.channels[channel].is_online(cow_name)
             message = ""
 
@@ -197,7 +197,7 @@ class Hooks():
                 
             cow_name = BBCode.get_name(cow)
             is_worker = await self.ranch.logic.is_worker(user)
-            is_cow = await self.ranch.logic.is_cow(cow_name, False)
+            is_cow = self.ranch.logic.is_cow(cow_name, False)
             is_online = True  # todo: find a better way
 
             if is_worker:
@@ -316,10 +316,11 @@ class Hooks():
 
     async def remove_milking_channel_by_index(self, user, channel_index):
         if self.ranch.client.has_admin_rights(user.strip()):
+            channel_index = int(channel_index)
             if self.ranch.logic.remove_milking_channel_by_index(channel_index):
                 message = f"removed channel {channel_index} from list"
             else:
-                message = "error on removing channel, chech id's"
+                message = "error on removing channel by id's"
 
             await self.ranch.client.send_private_message(message, user)
 
