@@ -1,8 +1,9 @@
 import inspect
-import time
+
 
 class Multi_Reaction(): 
-    def __init__(self, defaultExceptionFunction = None):
+
+    def __init__(self, defaultExceptionFunction=None):
         self.actions = {}
         self.index = 0
         if defaultExceptionFunction and (inspect.isfunction(defaultExceptionFunction) or inspect.ismethod(defaultExceptionFunction)):
@@ -23,7 +24,7 @@ class Multi_Reaction():
         elif inspect.ismethod(function): 
             self.actions[handler][self.index] = {}   
             self.actions[handler][self.index]['function'] = function
-            self.actions[handler][self.index]['args'] = function.__code__.co_argcount-1
+            self.actions[handler][self.index]['args'] = function.__code__.co_argcount - 1
             print(f"+ set multi action for method: {str(self.index)}.) {handler} ({str(self.actions[handler][self.index]['args'])})")
             
         else:
@@ -31,12 +32,20 @@ class Multi_Reaction():
             return None
 
         self.index += 1
-
+        return self.index - 1
+        
+    def remove_action(self, handler, function):
+        # TODO
+        if handler in self.actions:
+            for nr, func_data in self.actions[handler].items():
+                if func_data['function'] == function:
+                    del self.actions[handler][nr]
+                    return nr
  
     async def react (self, handler, *args):
         try:
             for index in self.actions[handler]:
-                try:    
+                try: 
                     await self.actions[handler][index]['function'](*args[:self.actions[handler][index]['args']])
                 except Exception as e:
                     print (f"error in opcode {handler}")
@@ -45,27 +54,10 @@ class Multi_Reaction():
         except:
             pass
         
-    def __defaultException(self, handler, message = 'handler not found!'):
+    def __defaultException(self, handler, message='handler not found!'):
         """
             The default Exception, should be replaced!
         """
         pass
-        #return "EXCEPTION: " + handler +' '+ message
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+        # return "EXCEPTION: " + handler +' '+ message
         
