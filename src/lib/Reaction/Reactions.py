@@ -28,14 +28,13 @@ class Multi_Reaction():
             print(f"+ set multi action for method: {str(self.index)}.) {handler} ({str(self.actions[handler][self.index]['args'])})")
             
         else:
-            print ("not function or method")
+            print("not function or method")
             return None
 
         self.index += 1
         return self.index - 1
         
     def remove_action(self, handler, function):
-        # TODO
         if handler in self.actions:
             for nr, func_data in self.actions[handler].items():
                 if func_data['function'] == function:
@@ -48,9 +47,9 @@ class Multi_Reaction():
                 try: 
                     await self.actions[handler][index]['function'](*args[:self.actions[handler][index]['args']])
                 except Exception as e:
-                    print (f"error in opcode {handler}")
-                    print (f"args: {args}")
-                    print (e)
+                    print(f"error in opcode {handler}")
+                    print(f"args: {args}")
+                    print(e)
         except:
             pass
         
