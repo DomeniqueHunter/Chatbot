@@ -19,6 +19,7 @@ class Reaction():
             self.actions[handler] = function
             self.actions[handler].__dict__['len'] = function.__code__.co_argcount
             print(f"+ set action for function: {handler} ({self.actions[handler].len})")
+            
         elif inspect.ismethod(function): 
             self.actions[handler] = function
             self.actions[handler].__dict__['len'] = function.__code__.co_argcount - 1                   
@@ -37,5 +38,5 @@ class Reaction():
         """
             The default Exception, should be replaced!
         """
-        return "EXCEPTION: " + handler + ' ' + message
+        return f"EXCEPTION: {handler} {message}"
         
