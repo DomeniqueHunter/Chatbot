@@ -160,7 +160,7 @@ class OpCodeHandler(ChatCodeHandler):
         title = data['title']
         channel = data['name']
 
-        if self.is_priviliged(user):
+        if self.has_admin_rights(user):
             await self._hook_join_by_id(user, channel)
             await self._hook_channel_name(user, channel + " " + title)
 

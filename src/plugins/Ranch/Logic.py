@@ -470,18 +470,20 @@ class Logic():
         user = data['character']
         
         if self.ranch.session_manager.is_channel(channel_id) and self.is_cow(user, True):
+            session = self.ranch.session_manager.get_session(channel_id)
+            
             if self.is_moo(message):
-                self.ranch.session_manager.running_session.storage.add(user)
+                session.storage.add(user)
             
-            print(self.ranch.session_manager.running_session.storage)
+            print(session, session.storage)
             
-    async def moo_session_endpage(self):
-        last_session = self.ranch.session_manager.closed_sessions[-1]
+    async def moo_session_endpage(self, channel_id):
+        print("END PAGE")
+        last_session = self.ranch.session_manager.last_session(channel_id)
         
-        if last_session.storage:
+        if last_session and last_session.storage:
             # todo: reward
-            text = f"Thank you for mooing, cows! Cows who participated:\n"
-            
+            text = f"Thank you for mooing, cows! Cows who participated:\n"            
             
             for cow_name in last_session.storage:
                 _, milk, level_cow, exp_cow, _ = self.ranch.database.get_cow(cow_name, True)

@@ -114,6 +114,8 @@ class Ranch(Plugin_Prototype):
         if self.counter.tick():
             await self.logic.milkmachine()
         
-        if self.session_manager.check_session():
-            await self.logic.moo_session_endpage()
+        # check if sessions were closed
+        recently_closed_sessions = self.session_manager.check_sessions()
+        for channel_id in recently_closed_sessions:
+            await self.logic.moo_session_endpage(channel_id)
 
