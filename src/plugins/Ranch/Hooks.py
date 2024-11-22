@@ -463,16 +463,30 @@ class Hooks():
 
             await self.ranch.client.send_public_message(message, channel)
             
-    async def start_session(self, user:str, channel:str, parameters:str=None):
+    async def start_session(self, user:str, input_string:str=None):
+        if self.ranch.client.has_admin_rights(user) and input_string:
+            parameters = input_string.split(",")
+            if len(parameters) == 1:
+                channel = parameters[0]
+                session_duration = 2 * 30  # min * tic_size
+                ep = 1
+            
+            elif len(parameters) == 2:
+                channel = parameters[0]
+                session_duration = int(parameters[1])
+                ep = 1
+                
+            else:
+                channel = parameters[0]
+                session_duration, ep = int(parameters[1]), int(parameters[2])           
+                
+            await self.__start_session(channel, session_duration, ep)
+    
+    async def __start_session(self, channel_name:str, session_duration:int, ep:int):
         # get channel_id for channel
-        channel = self.ranch.client.channel_manager.find_channel(channel)
+        channel = self.ranch.client.channel_manager.find_channel(channel_name)
         if channel:
             channel_id = channel.code
-        
-            print("Start Session!")
-            #print(parameters)
-            
-            session_duration = 2 * 30  # min * tic_size
             
             if channel_id:
                 # create session
@@ -483,6 +497,7 @@ class Hooks():
                 
                 # add set as data storage
                 session.storage = set()
+                session.reward = ep
                 
                 # prompt to channel
                 await self.ranch.client.send_public_message(f"A Moo Session was started! Cows, show us your best Moo!", session.channel_id)

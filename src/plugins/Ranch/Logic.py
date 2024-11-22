@@ -475,10 +475,9 @@ class Logic():
             if self.is_moo(message):
                 session.storage.add(user)
             
-            print(session, session.storage)
+            print(session, session.storage, session.reward)
             
     async def moo_session_endpage(self, channel_id):
-        print("END PAGE")
         last_session = self.ranch.session_manager.last_session(channel_id)
         
         if last_session and last_session.storage:
@@ -491,7 +490,7 @@ class Logic():
                 lvlup_text = f" even leveled up!" if lvlup_cow else ""
                 
                 text += f" - {cow_name}{lvlup_text}"
-            
+                
         else:
             text = "Moo Session closed!"
             
