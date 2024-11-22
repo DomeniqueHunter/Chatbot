@@ -81,7 +81,7 @@ class Logic():
         worker_is_worker = self.is_worker(worker_name)
         worker_is_breeder = False  # self.ranch.database.get_breeder(worker_name)
 
-        if worker_is_worker or worker_is_breeder:      
+        if worker_is_worker or worker_is_breeder: 
 
             if worker_is_cow:
                 multiplier = 0.5
@@ -230,7 +230,8 @@ class Logic():
 
     def _level_up_cow(self, cow_name:str, milk:int, level:int, exp:int, add_exp:int=1) -> bool:
         exp += add_exp
-            
+        lvlup = False
+        
         while True:
             exp_needed = self.next_level_ep(level)
             
@@ -479,6 +480,8 @@ class Logic():
             
             if self.is_moo(message):
                 session.storage.add(user)
+                print("moo detected", message)
+            print("STR:", message)
             
             print(session, session.storage, session.reward)
             

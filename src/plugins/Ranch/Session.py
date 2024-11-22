@@ -71,7 +71,7 @@ class SessionManager:
                 # there are recently removed sessions
                 # there are NO open sessions left
                 if self.bot and any(recently_closed) and len(self.running_sessions) - len(recently_closed) == 0:
-                    print("remove function")
+                    # print("remove function")
                     self.bot.opcodes_handler.remove_action(opcode.CHANNEL_MESSAGE, self.running_sessions[channel_id].function)
                     
         for channel_id in recently_closed:
