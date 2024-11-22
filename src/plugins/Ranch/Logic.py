@@ -230,16 +230,21 @@ class Logic():
 
     def _level_up_cow(self, cow_name:str, milk:int, level:int, exp:int, add_exp:int=1) -> bool:
         exp += add_exp
-        
-        if exp >= self.next_level_ep(level):
-            level += 1
-            milk += 1
-            exp = 0
-            lvlup = True
-            self.ranch.database.update_cow_milk(cow_name, milk)
-        else:
-            lvlup = False
             
+        while True:
+            exp_needed = self.next_level_ep(level)
+            
+            if exp >= exp_needed:
+                level += 1
+                milk += 1
+                exp -= exp_needed
+                lvlup = True
+            else:
+                break
+        
+        if lvlup:
+            self.ranch.database.update_cow_milk(cow_name, milk)
+        
         self.ranch.database.update_experience(cow_name, level, exp, 'cow')
 
         return lvlup
@@ -481,12 +486,12 @@ class Logic():
         last_session = self.ranch.session_manager.last_session(channel_id)
         
         if last_session and last_session.storage:
-            # todo: reward
+            exp = last_session.reward
             text = f"Thank you for mooing, cows! Cows who participated:\n"            
             
             for cow_name in last_session.storage:
                 _, milk, level_cow, exp_cow, _ = self.ranch.database.get_cow(cow_name, True)
-                lvlup_cow = self._level_up_cow(cow_name, milk, level_cow, exp_cow)
+                lvlup_cow = self._level_up_cow(cow_name, milk, level_cow, exp_cow, add_exp=exp)
                 lvlup_text = f" even leveled up!" if lvlup_cow else ""
                 
                 text += f" - {cow_name}{lvlup_text}"
