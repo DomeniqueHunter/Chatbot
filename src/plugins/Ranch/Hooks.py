@@ -469,7 +469,7 @@ class Hooks():
             parameters = input_string.split(",")
             if len(parameters) == 1:
                 channel = parameters[0]
-                session_duration = 2 * 30 * 10
+                session_duration = 60 * 10
                 ep = 1
             
             elif len(parameters) == 2:
@@ -479,7 +479,8 @@ class Hooks():
                 
             else:
                 channel = parameters[0]
-                session_duration, ep = int(parameters[1]), int(parameters[2])           
+                session_duration = int(parameters[1]) * 60
+                ep = int(parameters[2])           
                 
             await self.__start_session(channel, session_duration, ep)
     
