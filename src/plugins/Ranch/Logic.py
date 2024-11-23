@@ -464,10 +464,14 @@ class Logic():
             month_stats[month] = self.ranch.database.get_total_milk(year, month) or 0
 
         return year, total, month_stats
+
+    def __remove_bbcode(self, text:str) -> str:
+        bbcode_pattern = re.compile(f"\[.*?\]")
+        return bbcode_pattern.sub('', text)
     
     def is_moo(self, text:str):
         pattern = re.compile(r"(?:m[oO0]{2,})+[.!?~]*", re.IGNORECASE)
-        return bool(pattern.search(text))
+        return bool(pattern.search(self.__remove_bbcode(text)))
     
     async def moo_function(self, json_object):
         data = json.loads(json_object)
@@ -480,10 +484,9 @@ class Logic():
             
             if self.is_moo(message):
                 session.storage.add(user)
-                print("moo detected", message)
-            print("STR:", message)
+                # print("moo detected", message)
             
-            print(session, session.storage, session.reward)
+            # print(session, session.storage, session.reward)
             
     async def moo_session_endpage(self, channel_id):
         last_session = self.ranch.session_manager.last_session(channel_id)
@@ -495,9 +498,8 @@ class Logic():
             for cow_name in last_session.storage:
                 _, milk, level_cow, exp_cow, _ = self.ranch.database.get_cow(cow_name, True)
                 lvlup_cow = self._level_up_cow(cow_name, milk, level_cow, exp_cow, add_exp=exp)
-                lvlup_text = f" even leveled up!" if lvlup_cow else ""
-                
-                text += f" - {cow_name}{lvlup_text}"
+                lvlup_text = f" even leveled up!" if lvlup_cow else ""                
+                text += f" - {cow_name}{lvlup_text}\n"
                 
         else:
             text = "Moo Session closed!"

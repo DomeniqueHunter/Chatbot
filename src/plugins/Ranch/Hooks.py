@@ -4,6 +4,7 @@ from lib.Time.Time import time_until_tomorrow
 from lib.BBCode.BBCode import BBCode
 import calendar
 from datetime import datetime
+import random
 
 
 class Hooks():
@@ -468,12 +469,12 @@ class Hooks():
             parameters = input_string.split(",")
             if len(parameters) == 1:
                 channel = parameters[0]
-                session_duration = 2 * 30  # min * tic_size
+                session_duration = 2 * 30 * 10
                 ep = 1
             
             elif len(parameters) == 2:
                 channel = parameters[0]
-                session_duration = int(parameters[1])
+                session_duration = int(parameters[1]) * 60
                 ep = 1
                 
             else:
@@ -488,6 +489,9 @@ class Hooks():
         if channel:
             channel_id = channel.code
             
+            if session_duration > 15 * 60:
+                session_duration = 15 * 60
+            
             if channel_id:
                 # create session
                 self.ranch.session_manager.start_session(session_duration, channel_id, self.ranch.logic.moo_function)
@@ -500,5 +504,11 @@ class Hooks():
                 session.reward = ep
                 
                 # prompt to channel
-                await self.ranch.client.send_public_message(f"A Moo Session was started! Cows, show us your best Moo!", session.channel_id)
+                prompts = [
+                    f"A Moo Session was started! Cows, show us your best Moo!",
+                    f"Announcement: All cows, please show us your best Moo!"
+                    ]
+                info = f"\n[i]The Session will run for {session_duration//60} min.\nAll participating cows will be rewarded with {ep} exp.\nPlease [b]moo[/b] as clear as possible so the system can register your moo![/i]"
+                
+                await self.ranch.client.send_public_message(random.choice(prompts) + info, session.channel_id)
 

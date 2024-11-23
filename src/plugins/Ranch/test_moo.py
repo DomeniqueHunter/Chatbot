@@ -2,7 +2,7 @@
 from plugins.Ranch.Logic import Logic
 
 
-def test():
+def test_is_moo():
     L = Logic(None)
     
     moos = [
@@ -20,6 +20,7 @@ def test():
         "moomoo",
         "moomoo!",
         "MooMooooMoo!?!",
+        "[sub]M[/sub]o[sup]OᴼO[/sup]o[sub]Oₒo[/sub]O[sup]oᴼO[/sup]o[sub]Oₒo[/sub]O[sup]oᴼO[/sup]o",
         ]
     
     for moo in moos:
@@ -27,4 +28,5 @@ def test():
     
     
 if __name__ == "__main__":
-    test()
+    test_is_moo()
+    
