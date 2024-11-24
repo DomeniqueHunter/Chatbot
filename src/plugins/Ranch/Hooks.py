@@ -482,12 +482,12 @@ class Hooks():
                 session_duration = int(parameters[1]) * 60
                 ep = int(parameters[2])           
                 
-            await self.__start_session(channel, session_duration, ep)
+            await self.__start_session(user, channel, session_duration, ep)
     
-    async def __start_session(self, channel_name:str, session_duration:int, ep:int):
+    async def __start_session(self, user, channel_name:str, session_duration:int, ep:int):
         # get channel_id for channel
         channel = self.ranch.client.channel_manager.find_channel(channel_name)
-        if channel:
+        if channel and self.ranch.is_milking_channel(channel):
             channel_id = channel.code
             
             if session_duration > 15 * 60:
@@ -512,4 +512,8 @@ class Hooks():
                 info = f"\n[i]The Session will run for {session_duration//60} min.\nAll participating cows will be rewarded with {ep} exp.\nPlease [b]moo[/b] as clear as possible so the system can register your moo![/i]"
                 
                 await self.ranch.client.send_public_message(random.choice(prompts) + info, session.channel_id)
+        
+        else:
+            await self.ranch.client.send_private_message("This is no milking channel!", user)
+        
 

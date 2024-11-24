@@ -71,6 +71,10 @@ class ChannelManager(object):
             return None
 
     def find_channel_by_id(self, code:str) -> Channel:
+        for channel in self.joined_channels.values():
+            if channel.code.lower() == code.lower():
+                return channel
+        
         if code in self.open_private_channels:
             return self.open_private_channels[code]
 

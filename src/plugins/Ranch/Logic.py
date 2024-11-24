@@ -399,7 +399,8 @@ class Logic():
         message = "\n"
 
         for index, channel_id in enumerate(self.ranch.milking_channels):
-            message += f"({index}) - {channel_id}\n"
+            channel = self.ranch.client.channel_manager.find_channel_by_id(channel_id)
+            message += f"({index}) - [b]{channel.name}[/b] ({channel_id})\n"
 
         return message
 
