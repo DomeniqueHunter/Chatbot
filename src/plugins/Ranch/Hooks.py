@@ -492,6 +492,9 @@ class Hooks():
             
             if session_duration > 30 * 60:
                 session_duration = 30 * 60
+                
+            if ep > 10:
+                ep = 10 # still insane..
             
             if channel_id:
                 # create session
