@@ -469,7 +469,7 @@ class Hooks():
             parameters = input_string.split(",")
             if len(parameters) == 1:
                 channel = parameters[0]
-                session_duration = 60 * 10
+                session_duration = 60 * 15
                 ep = 1
             
             elif len(parameters) == 2:
@@ -490,8 +490,8 @@ class Hooks():
         if channel and self.ranch.is_milking_channel(channel):
             channel_id = channel.code
             
-            if session_duration > 15 * 60:
-                session_duration = 15 * 60
+            if session_duration > 30 * 60:
+                session_duration = 30 * 60
             
             if channel_id:
                 # create session
