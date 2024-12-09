@@ -197,7 +197,7 @@ class Hooks():
                 exp = int(input[1])
                 
             cow_name = BBCode.get_name(cow)
-            is_worker = await self.ranch.logic.is_worker(user)
+            is_worker = self.ranch.logic.is_worker(user)
             is_cow = self.ranch.logic.is_cow(cow_name, False)
             is_online = True  # todo: find a better way
 
