@@ -1,7 +1,7 @@
 from plugins.Ranch.Logic import Logic
 from lib.Time.Time import time_until_tomorrow
 
-from lib.BBCode.BBCode import BBCode
+from lib.BBCode import bbcode
 import calendar
 from datetime import datetime
 import random
@@ -17,7 +17,7 @@ class Hooks():
 
     async def get_cow(self, user, channel, name=None):
         if self.ranch.is_milking_channel(channel):
-            name = BBCode.get_name(name)
+            name = bbcode.get_name(name)
             is_cow = self.ranch.logic.is_cow(name)
             message = "ERROR"
             if is_cow:
@@ -42,7 +42,7 @@ class Hooks():
 
     async def get_cow_stats(self, user, name):
         if self.ranch.client.is_priviliged(user):
-            name = BBCode.get_name(name)
+            name = bbcode.get_name(name)
             is_cow = self.ranch.logic.is_cow(name, False)
             message = ""
             if is_cow:
@@ -50,7 +50,7 @@ class Hooks():
                 message = f"[user]{name}[/user] is lvl {lvl} and yields {amount}l and has {exp} ep - active: {active}"
 
             else:
-                message = "[user]{}[/user] is not a cow!".format(name)
+                message = f"[user]{name}[/user] is not a cow!"
 
             await self.ranch.client.send_private_message(message, user)
 
@@ -109,7 +109,7 @@ class Hooks():
 
     async def get_worker(self, user, channel, name=None):
         if self.ranch.is_milking_channel(channel):
-            name = BBCode.get_name(name)
+            name = bbcode.get_name(name)
 
             is_worker = self.ranch.logic.is_worker(name)
             message = "ERROR"
@@ -144,7 +144,7 @@ class Hooks():
 
         """
         if self.ranch.is_milking_channel(channel):
-            cow_name = BBCode.get_name(cow_name)
+            cow_name = bbcode.get_name(cow_name)
             is_worker = self.ranch.logic.is_worker(worker)
             is_cow = self.ranch.logic.is_cow(cow_name)
             is_online = self.ranch.client.channels[channel].is_online(cow_name)
@@ -196,7 +196,7 @@ class Hooks():
                 cow = input[0]
                 exp = int(input[1])
                 
-            cow_name = BBCode.get_name(cow)
+            cow_name = bbcode.get_name(cow)
             is_worker = self.ranch.logic.is_worker(user)
             is_cow = self.ranch.logic.is_cow(cow_name, False)
             is_online = True  # todo: find a better way
@@ -337,7 +337,7 @@ class Hooks():
             name = input_string.strip()
             milk = 10
 
-        name = BBCode.get_name(name)
+        name = bbcode.get_name(name)
 
         if self.ranch.client.is_priviliged(user.strip()):
 
@@ -357,8 +357,8 @@ class Hooks():
     async def rename_person(self, user, input_string=" , "):
         if self.ranch.client.is_priviliged(user.strip()):
             old_name, new_name = input_string.strip().split(',')
-            old_name = BBCode.get_name(old_name)
-            new_name = BBCode.get_name(new_name)
+            old_name = bbcode.get_name(old_name)
+            new_name = bbcode.get_name(new_name)
 
             if self.ranch.logic.rename_person(old_name, new_name):
                 message = f"renamed {old_name} to [user]{new_name}[/user]"
@@ -378,7 +378,7 @@ class Hooks():
         @param cow_name: name of the cow
         """
         if name:
-            name = BBCode.get_name(name)
+            name = bbcode.get_name(name)
 
             if self.ranch.client.is_priviliged(user.strip()):
                 status = await self.ranch.logic.disable_cow(name)
@@ -403,7 +403,7 @@ class Hooks():
         @param name: name of the cow
         """
         if name:
-            name = BBCode.get_name(name)
+            name = bbcode.get_name(name)
 
             if self.ranch.client.is_priviliged(user.strip()):
                 status = await self.ranch.logic.disable_worker(name)
@@ -429,7 +429,7 @@ class Hooks():
         """
         if self.ranch.client.is_priviliged(user):
             name, amount = input_string.strip().split(',')
-            name = BBCode.get_name(name)
+            name = bbcode.get_name(name)
 
             message = ""
 
@@ -512,9 +512,10 @@ class Hooks():
                     f"A Moo Session was started! Cows, show us your best Moo!",
                     f"Announcement: All cows, please show us your best Moo!"
                     ]
-                info = f"\n[i]The Session will run for {session_duration//60} min.\nAll participating cows will be rewarded with {ep} exp.\nPlease [b]moo[/b] as clear as possible so the system can register your moo![/i]"
+                info = f"\n[i]The Session will run for {bbcode.bold(str(session_duration//60))} min.\nAll participating cows will be rewarded with {bbcode.bold(str(ep))} exp.\nPlease [b]moo[/b] as clear as possible so the system can register your moo![/i]"
+                message = random.choice(prompts) + info
                 
-                await self.ranch.client.send_public_message(random.choice(prompts) + info, session.channel_id)
+                await self.ranch.client.send_public_message(message, session.channel_id)
         
         else:
             await self.ranch.client.send_private_message("This is no milking channel!", user)
