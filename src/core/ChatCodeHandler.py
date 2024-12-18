@@ -158,13 +158,13 @@ class ChatCodeHandler(Core):
             if not channel in self.channels:
                 await self.join(channel, channel)
 
-    async def _hook_leave(self, user=None, channel_to_leave=None):
-        if (channel_to_leave and self.has_admin_rights(user)):
+    async def _hook_leave(self, user:str, channel_to_leave:str):
+        if channel_to_leave and self.has_admin_rights(user):
             for _, channel in self.channels.items():
-                if channel_to_leave.lower() == channel.name.lower():
+                if channel_to_leave.lower() == channel.name.lower() or channel.code.lower() == channel_to_leave.lower():
                     await self._leave(channel.code)
-                    await self.send_private_message("left: " + channel_to_leave, user)
-                    self.remove_channel_from_list_by_name(channel_to_leave)
+                    await self.send_private_message(f"left: {channel.name} ({channel.code})", user)
+                    self.remove_channel_from_list_by_code(channel.code)
                     break  # stop after finding the first one
             else:
                 await self.send_private_message(f"channel {channel_to_leave} not found", user)

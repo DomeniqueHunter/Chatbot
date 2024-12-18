@@ -124,10 +124,16 @@ class Core():
     def remove_channel_from_list(self, code):
         self.channels.pop(code)
 
-    def remove_channel_from_list_by_name(self, name):
+    def remove_channel_from_list_by_name(self, name:str):
         for channel in self.channels:
             if (name.lower() == self.channels[channel].name.lower()):
                 self.remove_channel_from_list(self.channels[channel].code)
+                break  # stop after finding the first one
+            
+    def remove_channel_from_list_by_code(self, code:str):
+        for _, channel in self.channels.items():
+            if (code.lower() == channel.code.lower()):
+                self.remove_channel_from_list(channel.code)
                 break  # stop after finding the first one
 
     def _rename_channel(self, channel, name):
