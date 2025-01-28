@@ -158,6 +158,8 @@ class Hooks():
 
                 if success:
                     message = f"[user]{worker}[/user] milked [user]{cow_name}[/user] and got {amount}l of milk!"
+                    
+                    if amount == 69: message += " - nice!"
 
                     if lvlup:
                         message += f"\n[user]{cow_name}[/user] had a boobgasm through milking and is now more productive!"
@@ -239,7 +241,9 @@ class Hooks():
 
             for cow, amount, lvlup in milked_cows:
                 message += f"\n[user]{user}[/user] milked [user]{cow}[/user] and got {amount} liters of Milk"
-
+                
+                if amount == 69: message += " - nice!"
+                
                 if lvlup:
                     message += f"\n[user]{cow}[/user] has leveled up!"
 
@@ -494,7 +498,7 @@ class Hooks():
                 session_duration = 30 * 60
                 
             if ep > 10:
-                ep = 10 # still insane..
+                ep = 10  # still insane..
             
             if channel_id:
                 # create session
@@ -519,5 +523,4 @@ class Hooks():
         
         else:
             await self.ranch.client.send_private_message("This is no milking channel!", user)
-        
 
