@@ -494,13 +494,17 @@ class Logic():
         
         if last_session and last_session.storage:
             exp = last_session.reward
-            text = f"Thank you for mooing, cows! Cows who participated:\n"            
+            text = f"Thank you for mooing, cows! Cows who participated:\n" 
+            extra_exp = len(last_session.storage) // 10
             
             for cow_name in last_session.storage:
                 _, milk, level_cow, exp_cow, _ = self.ranch.database.get_cow(cow_name, True)
-                lvlup_cow = self._level_up_cow(cow_name, milk, level_cow, exp_cow, add_exp=exp)
+                lvlup_cow = self._level_up_cow(cow_name, milk, level_cow, exp_cow, add_exp=exp + extra_exp)
                 lvlup_text = f" even leveled up!" if lvlup_cow else ""                
                 text += f" - {cow_name}{lvlup_text}\n"
+                
+            
+            text += f"\n{len(last_session.storage)} cows mooed and gained +{extra_exp+exp} bonus xp each!\n"
                 
         else:
             text = "Moo Session closed!"
