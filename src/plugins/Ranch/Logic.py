@@ -495,7 +495,7 @@ class Logic():
         if last_session and last_session.storage:
             exp = last_session.reward
             text = f"Thank you for mooing, cows! Cows who participated:\n" 
-            extra_exp = len(last_session.storage) // 10
+            extra_exp = len(last_session.storage) // 4
             
             for cow_name in last_session.storage:
                 _, milk, level_cow, exp_cow, _ = self.ranch.database.get_cow(cow_name, True)
