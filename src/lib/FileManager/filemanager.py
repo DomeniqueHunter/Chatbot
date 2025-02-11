@@ -52,7 +52,9 @@ class FileManager:
     def save(self, handle:str, content=None):
         try:
             m_file = self.managed_files[handle]
-            content = content or m_file.get_function()
+            if content == None:
+                m_file.get_function()
+                
             self.save_functions[m_file.type](m_file.file_location, content)
             
         except Exception as e:

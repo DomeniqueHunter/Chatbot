@@ -256,11 +256,9 @@ class ChatCodeHandler(Core):
 
     async def _hook_save_channels(self, user=None):
         if self.is_owner(user):
-            if any(self.channels):
-                channels = self.channel_manager.json()
-                self.file_manager.save('channels', channels)
-            else:
-                await self.send_private_message("Error on saving Channels", user)
+            channels = self.channel_manager.json()
+            self.file_manager.save('channels', channels)
+            
         else:
             await self.send_private_message("Permission denied!", user)
 
