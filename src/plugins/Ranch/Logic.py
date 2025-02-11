@@ -393,14 +393,24 @@ class Logic():
 
     def set_milking_channel(self, channel_id):
         if not channel_id in self.ranch.milking_channels:
-                self.ranch.milking_channels.append(channel_id)
+            self.ranch.milking_channels.append(channel_id)
 
     def show_milking_channels(self):
         message = "\n"
+        garbage = []
 
         for index, channel_id in enumerate(self.ranch.milking_channels):
             channel = self.ranch.client.channel_manager.find_channel_by_id(channel_id)
-            message += f"({index}) - [b]{channel.name}[/b] ({channel_id})\n"
+            if channel: 
+                message += f"({index}) - [b]{channel.name}[/b] ({channel_id})\n"
+            else:
+                message += f"({index}) - {channel_id} not found, removed!\n"
+                garbage.append(channel_id)
+        
+        if any(garbage):
+            for channel_id in garbage:
+                print(f"remove: {channel_id}")
+                self.remove_milking_channel_by_id(channel_id)
 
         return message
 
