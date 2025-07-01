@@ -1,6 +1,7 @@
 import random
 from datetime import datetime
 from collections import deque
+import calendar
 import json
 import re
 
@@ -464,6 +465,20 @@ class Logic():
             return self.ranch.database.update_cow_milk(name, milk)
         else:
             return False
+        
+    def __get_days_until_end_of_month(self, year:int, month:int) -> int:
+        today = datetime.today()
+        
+        # we are in the current month return days until today
+        if year == today.year and month == today.month:
+            return today.day
+            
+        # future months return 0
+        elif year == today.year and month > today.month:
+            return 0
+        
+        # past months return their length
+        return calendar.monthrange(year, month)[1]
 
     async def get_buisines_year(self, year=None):
         year = year or datetime.today().year
@@ -472,7 +487,13 @@ class Logic():
         total = self.ranch.database.get_total_milk(year)
         month_stats = {}
         for month in range(1, 13):
-            month_stats[month] = self.ranch.database.get_total_milk(year, month) or 0
+            milk = self.ranch.database.get_total_milk(year, month) or 0
+            days = self.__get_days_until_end_of_month(year, month)
+            
+            # 0 can happen for future months only
+            milk_per_day = milk // days if days else 0                
+            
+            month_stats[month] = (milk, milk_per_day)
 
         return year, total, month_stats
 
@@ -512,7 +533,6 @@ class Logic():
                 lvlup_cow = self._level_up_cow(cow_name, milk, level_cow, exp_cow, add_exp=exp + extra_exp)
                 lvlup_text = f" even leveled up!" if lvlup_cow else ""                
                 text += f" - {cow_name}{lvlup_text}\n"
-                
             
             text += f"\n{len(last_session.storage)} cows mooed and gained +{extra_exp+exp} bonus xp each!\n"
                 
