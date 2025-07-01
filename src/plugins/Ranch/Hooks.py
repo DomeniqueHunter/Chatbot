@@ -462,6 +462,7 @@ class Hooks():
         if year <= datetime.today().year:
             year, total, month_stats = await self.ranch.logic.get_buisines_year(year)
             message = f"In year {year} we produced {total} l of milk:\n"
+            message += f"Month: milk amount in l [milk per day in l]\n"
             for month, (amount, mpd) in month_stats.items(): 
                 message += f" - {calendar.month_name[month]}: {amount}l [{mpd}l]\n"
 
