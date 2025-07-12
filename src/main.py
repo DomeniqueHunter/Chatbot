@@ -15,8 +15,7 @@ config = Config(PROJECT_ROOT + '/config.json')
 client = Client(config, PROJECT_ROOT + '/data')
 client.set_plugin_loader(Plugin_Loader(PROJECT_ROOT + '/plugins/'))
 client.load_plugins()
-# client._set_save_path(PROJECT_ROOT+'/data/')
-# client.add_config(config)!
+
 # start webserver in thread
 # Webserver(client)
 

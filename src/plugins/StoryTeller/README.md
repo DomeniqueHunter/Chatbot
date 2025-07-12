@@ -2,6 +2,22 @@
 The idea for a new f-list plugin. 
 
 
+## Flow
+1. user talks to bot
+2. user starts session
+2.1. if no daily session exists create a new one
+2.2. if session exists use it
+3. play
+3.1. when session is over, wrtie points etc to db and inform user
+
+
+## what commands do we need?
+!play - start session
+!me - my stats
+!leaderboard - leaderboard over all users (with nicknames)
+!choice or !c <nr> to make a choice?
+
+
 ## 0. Initial Stage
 - insert 100%
 - go away 100%
