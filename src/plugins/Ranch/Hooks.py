@@ -359,7 +359,7 @@ class Hooks():
         await self.ranch.client.send_private_message(message, user)
 
     async def rename_person(self, user, input_string=" , "):
-        if self.ranch.client.is_priviliged(user.strip()):
+        if self.ranch.client.has_admin_rights(user.strip()):
             old_name, new_name = input_string.strip().split(',')
             old_name = bbcode.get_name(old_name)
             new_name = bbcode.get_name(new_name)
@@ -373,7 +373,7 @@ class Hooks():
         else:
             message = "you don't have the permission for this."
 
-        await self.client.send_private_message(message, user)
+        await self.ranch.client.send_private_message(message, user)
 
     async def remove_cow(self, user, name):
         """
@@ -467,6 +467,25 @@ class Hooks():
                 message += f" - {calendar.month_name[month]}: {amount}l [{mpd}l]\n"
 
             await self.ranch.client.send_public_message(message, channel)
+    
+    async def moo_show_Sessions(self, user:str, input_string:str=None):
+        if self.ranch.client.has_admin_rights(user):
+            
+            running_sessions = ""
+            for channel, session in self.ranch.session_manager.running_sessions.items():
+                print(channel, session)
+                running_sessions += f"- {channel}: {session}\n"
+            
+            closed_sessions = ""
+            for channel, session in self.ranch.session_manager.closed_sessions.items():
+                print(channel, session)
+                closed_sessions += f"- {channel}: {session}\n"
+            
+            message = f"Running Sessions:\n{running_sessions}\nClosed Sessions:\n{closed_sessions}"
+            await self.ranch.client.send_private_message(message, user)
+            
+        await self.ranch.client.send_private_message(user, f"you have no permissions for this!")
+
             
     async def start_session(self, user:str, input_string:str=None):
         if self.ranch.client.has_admin_rights(user) and input_string:
@@ -485,7 +504,9 @@ class Hooks():
                 channel = parameters[0]
                 session_duration = int(parameters[1]) * 60
                 ep = int(parameters[2])           
-                
+            
+            
+            
             await self.__start_session(user, channel, session_duration, ep)
     
     async def __start_session(self, user, channel_name:str, session_duration:int, ep:int):
@@ -494,15 +515,20 @@ class Hooks():
         if channel and self.ranch.is_milking_channel(channel):
             channel_id = channel.code
             
+            if self.ranch.session_manager.has_session(channel_id):
+                message = f"A session is alreay running in the channel {channel}"
+                await self.ranch.client.send_private_message(message, user)
+                return
+            
             if session_duration > 30 * 60:
                 session_duration = 30 * 60
                 
             if ep > 10:
                 ep = 10  # still insane..
             
-            if channel_id:
-                # create session
-                self.ranch.session_manager.start_session(session_duration, channel_id, self.ranch.logic.moo_function)
+            
+            # create session
+            self.ranch.session_manager.start_session(session_duration, channel_id, self.ranch.logic.moo_function)
             
             if self.ranch.session_manager.has_session(channel_id):
                 session = self.ranch.session_manager.get_session(channel_id)

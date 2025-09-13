@@ -1,8 +1,8 @@
 import requests
 import json
+import time
 
 from lib.HTTPClient.HTTPClient import HTTPClient
-import asyncio
 
 class Api():
     
@@ -12,14 +12,22 @@ class Api():
         
         try:
             request = await HTTPClient.post('https://www.f-list.net/json/getApiTicket.php', data)
-            return request['ticket']
+            
+            if "error" in request:
+                print(request["error"])
+                
+            if "ticket" in request:
+                return request['ticket']
+            
+            exit(0)
         
         except Exception as e:
             if try_nr <= max_trys:
+                time.sleep(1)
                 return await Api.get_ticket(account, password, try_nr=try_nr+1)
             else:
                 print(f"ERROR: Too many reconnect trys failed ({try_nr})")
-                print(e)
+                print(f"ERROR: {e} [{type(e).__name__}]")
                 exit(0)   
     
     @staticmethod    

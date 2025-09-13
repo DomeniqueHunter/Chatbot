@@ -498,7 +498,7 @@ class Logic():
         return year, total, month_stats
 
     def __remove_bbcode(self, text:str) -> str:
-        bbcode_pattern = re.compile(f"\[.*?\]")
+        bbcode_pattern = re.compile(r"\[.*?\]")
         return bbcode_pattern.sub('', text)
     
     def is_moo(self, text:str):
