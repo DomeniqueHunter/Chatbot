@@ -25,7 +25,7 @@ class Core():
     def __init__(self, config, root_path="./"):
         self.account = config.account
         self.password = config.password
-        self.version = "0.8.5"
+        self.version = "0.8.7"
 
         self.channel_manager = ChannelManager(self.join)
         self.channels = self.channel_manager.joined_channels  # is this good?
@@ -58,12 +58,13 @@ class Core():
 
         uri = self.config.protocol + self.server + self.config.endpoint
 
-        print("CONNECT:", uri)
         try:
             self.connection = await websockets.client.connect(uri)
+            print(f"connected to: {uri}")
 
         except Exception as e:
-            print(e)
+            print(f"could not connect to: {uri}")
+            print(f"error: {e}")
             self.connection = None
 
     async def get_api_ticket(self):
