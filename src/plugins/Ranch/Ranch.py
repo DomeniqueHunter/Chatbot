@@ -15,7 +15,7 @@ class Ranch(Plugin_Prototype):
 
     def __init__(self):
         self.module_name = "Ranch"
-        self.module_version = "2.7.3"
+        self.module_version = "2.7.5"
 
         self.logic = Logic(self)
         self.hooks = Hooks(self)
@@ -71,7 +71,7 @@ class Ranch(Plugin_Prototype):
             self.client.public_msg_handler.add_action("!dontmilkhere", self.hooks.remove_milking_channel_by_id, "Disable milking in the Channel", "admin", f"{self.module_name} (Admin)")
 
             self.client.private_msg_handler.add_action("!new_moo <channel>, <duration in min (int): optional>, <exp (int): optional>", self.hooks.start_session, 'starts a moo sessions', 'admin', f"{self.module_name} (Admin)")
-            self.client.private_msg_handler.add_action("!view_moo", self.hooks.moo_show_Sessions, "shows moo sessions", "admin", f"{self.module_name} (Admin)")
+            self.client.private_msg_handler.add_action("!view_moo", self.hooks.moo_show_sessions, "shows moo sessions", "admin", f"{self.module_name} (Admin)")
 
             # self.client.private_msg_handler.add_action("!ranch_save",       self.hook_debug_save)
             # self.client.private_msg_handler.add_action("!ranch_fix_worker", self.hook_fix_workers)

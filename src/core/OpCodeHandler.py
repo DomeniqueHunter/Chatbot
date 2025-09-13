@@ -112,7 +112,7 @@ class OpCodeHandler(ChatCodeHandler):
         message = message.split(' ', 1)
         handler = message.pop(0)
 
-        print (f"user: {user}\nmessage: {message}")
+        # print (f"user: {user}\nmessage: {message}")
 
         await self.private_msg_handler.react(handler, user, *message)
 

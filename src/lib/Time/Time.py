@@ -28,6 +28,10 @@ def time_until_tomorrow():
     return f"{hours}h {minutes}m"
 
 
+def int_to_datetime_string(timestamp: int) -> str:
+    dt = datetime.fromtimestamp(timestamp)
+    return dt.strftime("%Y-%m-%d %H:%M:%S")
+
 
 def test():
     print(time_until_tomorrow())

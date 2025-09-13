@@ -29,6 +29,9 @@ class Channel(object):
 
     def toJSON(self):
         return  json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+    
+    def bbcode(self):
+        return f"[session={self.name}]{self.code}[/session]"
 
     def add_character(self, name):
         if name.lower() not in self.characters.get():

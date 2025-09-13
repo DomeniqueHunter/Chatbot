@@ -1,5 +1,5 @@
 from plugins.Ranch.Logic import Logic
-from lib.Time.Time import time_until_tomorrow
+from lib.Time.Time import time_until_tomorrow, int_to_datetime_string
 
 from lib.BBCode import bbcode
 import calendar
@@ -468,18 +468,23 @@ class Hooks():
 
             await self.ranch.client.send_public_message(message, channel)
     
-    async def moo_show_Sessions(self, user:str, input_string:str=None):
+    async def moo_show_sessions(self, user:str, input_string:str=None):
         if self.ranch.client.has_admin_rights(user):
             
             running_sessions = ""
-            for channel, session in self.ranch.session_manager.running_sessions.items():
-                print(channel, session)
-                running_sessions += f"- {channel}: {session}\n"
+            for channel_id, session in self.ranch.session_manager.running_sessions.items():
+                channel = self.ranch.client.channel_manager.find_channel_by_id(channel_id)
+                
+                started_dt = int_to_datetime_string(session.started)
+                running_sessions += f"- {channel.bbcode()}: {started_dt}\n"
             
             closed_sessions = ""
-            for channel, session in self.ranch.session_manager.closed_sessions.items():
-                print(channel, session)
-                closed_sessions += f"- {channel}: {session}\n"
+            for channel_id, session in self.ranch.session_manager.closed_sessions.items():
+                channel = self.ranch.client.channel_manager.find_channel_by_id(channel_id)
+                
+                started_dt = int_to_datetime_string(session.started)
+                ended_dt = int_to_datetime_string(session.started + session.duration)
+                closed_sessions += f"- {channel.bbcode()}: {started_dt} - {ended_dt}\n"
             
             message = f"Running Sessions:\n{running_sessions}\nClosed Sessions:\n{closed_sessions}"
             await self.ranch.client.send_private_message(message, user)
@@ -516,7 +521,7 @@ class Hooks():
             channel_id = channel.code
             
             if self.ranch.session_manager.has_session(channel_id):
-                message = f"A session is alreay running in the channel {channel}"
+                message = f"A session is alreay running in the channel {channel.bbcode()}"
                 await self.ranch.client.send_private_message(message, user)
                 return
             

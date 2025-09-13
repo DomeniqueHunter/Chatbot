@@ -2,7 +2,6 @@ from core.Core      import Core
 from core           import Opcodes as opcode
 
 from lib.Channel.Channel import Channel
-from lib.Reaction.Reaction  import Reaction
 from lib.CommandManager.CommandManager import CommandManager
 
 from time          import sleep, time
