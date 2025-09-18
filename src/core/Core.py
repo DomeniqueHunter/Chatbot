@@ -3,7 +3,7 @@ from core import Opcodes as opcode
 
 from core.lib.manpage import Manpage
 from core.lib.filemanager import FileManager
-from core.lib.Time.AdvTime import AdvTime
+from core.lib.time import AdvTime
 
 from core.lib.channel import Channel, ChannelManager, ChannelCreationQueue
 

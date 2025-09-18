@@ -1,5 +1,5 @@
 from plugins.Ranch.Logic import Logic
-from core.lib.Time.Time import time_until_tomorrow, int_to_datetime_string
+from core.lib.time.time_helper import time_until_tomorrow, int_to_datetime_string
 
 from core.lib.bbcode import bbcode
 import calendar
