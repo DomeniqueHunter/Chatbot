@@ -1,7 +1,7 @@
 from core.Core import Core
 from core import Opcodes as opcode
 
-from core.lib.Channel.Channel import Channel
+from core.lib.channel import Channel
 from core.lib.CommandManager.CommandManager import CommandManager
 
 from time import sleep, time

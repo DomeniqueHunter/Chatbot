@@ -2,7 +2,7 @@
 import json
 import time
 
-from core.lib.Channel.Channel import Channel
+from core.lib.channel import Channel
 from core.lib.Counter.Counter import Counter
 
 

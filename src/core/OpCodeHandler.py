@@ -6,7 +6,7 @@ from core import Opcodes as opcode
 from core.lib.Counter.Counter import Counter as Counter
 
 import json, asyncio, time
-from core.lib.Channel.Channel import Channel
+from core.lib.channel import Channel
 
 
 class OpCodeHandler(ChatCodeHandler):

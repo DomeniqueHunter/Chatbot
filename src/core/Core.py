@@ -5,9 +5,7 @@ from core.lib.Manpage.Manpage import Manpage
 from core.lib.FileManager import FileManager
 from core.lib.Time.AdvTime import AdvTime
 
-from core.lib.Channel.Channel import Channel
-from core.lib.Channel.Channels import ChannelManager
-from core.lib.Channel.ChannelCreationQueue import ChannelCreationQueue
+from core.lib.channel import Channel, ChannelManager, ChannelCreationQueue
 
 from time import sleep
 
