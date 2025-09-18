@@ -1,5 +1,5 @@
 from plugins.Plugin_Prototype import Plugin_Prototype
-from framework.Api import Api
+from framework.api import Api
 
 class Simple_Public_Messages(Plugin_Prototype):
     def __init__(self):
@@ -16,4 +16,4 @@ class Simple_Public_Messages(Plugin_Prototype):
         await self.client.send_public_message("Hello {user}!",channel)
 
     #async def info (self):
-    #    Api.get_gender_of_character(Api.get_ticket(self.client.account, self.client.password), self.client.account, 'katharina_')
+    #    Api.get_gender_of_character(api.get_ticket(self.client.account, self.client.password), self.client.account, 'katharina_')

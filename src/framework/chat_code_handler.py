@@ -1,4 +1,4 @@
-from framework.Core import Core
+from framework.core import Core
 from framework import opcode
 
 from framework.lib.channel import Channel

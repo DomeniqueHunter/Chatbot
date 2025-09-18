@@ -1,4 +1,6 @@
-from framework import *
+from framework.core import Core
+from framework.chat_code_handler import ChatCodeHandler
+from framework.op_code_handler import OpCodeHandler
 from framework.lib.reaction import Reaction, Multi_Reaction
 
 class Bot():

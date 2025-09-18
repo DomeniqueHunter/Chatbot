@@ -2,7 +2,7 @@
 
 import os
 
-from framework.OpCodeHandler import OpCodeHandler as Client
+from framework.op_code_handler import OpCodeHandler as Client
 from framework.Plugin_Loader import Plugin_Loader
 from framework.lib.config import Config
 

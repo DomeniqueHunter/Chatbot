@@ -6,7 +6,7 @@ sys.path.append('../core')
 
 import asyncio
 
-from framework.Api import Api
+from framework.api import Api
 from framework.lib.config import Config
 from framework.lib.httpclient import HTTPClient
 

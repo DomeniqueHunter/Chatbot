@@ -1,4 +1,4 @@
-from framework.ChatCodeHandler import ChatCodeHandler as ChatCodeHandler
+from framework.chat_code_handler import ChatCodeHandler
 from framework.lib.command_manager import CommandManager
 from framework.lib.reaction import Multi_Reaction as Reactions
 from framework import opcode
