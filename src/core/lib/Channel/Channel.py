@@ -1,4 +1,4 @@
-from lib.List.List import List
+from core.lib.List.List import List
 
 import json
 

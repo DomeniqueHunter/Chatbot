@@ -1,10 +1,10 @@
-from core.Core      import Core
-from core           import Opcodes as opcode
+from core.Core import Core
+from core import Opcodes as opcode
 
-from lib.Channel.Channel import Channel
-from lib.CommandManager.CommandManager import CommandManager
+from core.lib.Channel.Channel import Channel
+from core.lib.CommandManager.CommandManager import CommandManager
 
-from time          import sleep, time
+from time import sleep, time
 
 
 class ChatCodeHandler(Core):

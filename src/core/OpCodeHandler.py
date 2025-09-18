@@ -1,12 +1,12 @@
-from core.ChatCodeHandler   import ChatCodeHandler   as ChatCodeHandler
-from lib.CommandManager.CommandManager import CommandManager
-from lib.Reaction.Reactions import Multi_Reaction as Reactions
-from core                   import Opcodes  as opcode
+from core.ChatCodeHandler import ChatCodeHandler as ChatCodeHandler
+from core.lib.CommandManager.CommandManager import CommandManager
+from core.lib.Reaction.Reactions import Multi_Reaction as Reactions
+from core import Opcodes as opcode
 
-from lib.Counter.Counter    import Counter as Counter
+from core.lib.Counter.Counter import Counter as Counter
 
 import json, asyncio, time
-from lib.Channel.Channel import Channel
+from core.lib.Channel.Channel import Channel
 
 
 class OpCodeHandler(ChatCodeHandler):

@@ -2,7 +2,7 @@ import requests
 import json
 import time
 
-from lib.HTTPClient.HTTPClient import HTTPClient
+from core.lib.HTTPClient.HTTPClient import HTTPClient
 
 class Api():
     

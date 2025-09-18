@@ -1,7 +1,7 @@
 from plugins.Ranch.Logic import Logic
-from lib.Time.Time import time_until_tomorrow, int_to_datetime_string
+from core.lib.Time.Time import time_until_tomorrow, int_to_datetime_string
 
-from lib.BBCode import bbcode
+from core.lib.BBCode import bbcode
 import calendar
 from datetime import datetime
 import random
