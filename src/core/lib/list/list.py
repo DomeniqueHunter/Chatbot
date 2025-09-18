@@ -1,6 +1,6 @@
 import random
 
-class List():
+class AdvList():
     
     def __init__(self, list = None):
         if list and type(list) == type([]):
@@ -29,7 +29,7 @@ class List():
     
     def extend(self, list):
         if type(list) == type([]):
-            self.items = List.merge(self.items, list, doubles = self.doubles)
+            self.items = AdvList.merge(self.items, list, doubles = self.doubles)
             return self.items
         else:
             return False
@@ -51,7 +51,7 @@ class List():
         
     @staticmethod
     def merge(*args, **kwargs):
-        final_list = List()
+        final_list = AdvList()
         if 'doubles' in kwargs:
             doubles = kwargs['doubles']
             if doubles == True:

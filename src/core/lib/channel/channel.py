@@ -1,4 +1,4 @@
-from core.lib.List.List import List
+from core.lib.list import AdvList
 
 import json
 
@@ -9,8 +9,8 @@ class Channel(object):
         self.name = name
         self.code = code
         self.description = description
-        self.characters = List()
-        self.admins = List()
+        self.characters = AdvList()
+        self.admins = AdvList()
         self.persistent = True
 
     def change_name(self, name):
