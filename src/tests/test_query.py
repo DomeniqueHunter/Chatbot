@@ -7,7 +7,7 @@ sys.path.append('../core')
 import asyncio
 
 from core.Api import Api
-from core.lib.Config.Config import Config
+from core.lib.config import Config
 from core.lib.HTTPClient.HTTPClient import HTTPClient
 
 def async_test(coro):

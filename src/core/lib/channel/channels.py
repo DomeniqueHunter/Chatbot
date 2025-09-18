@@ -3,7 +3,7 @@ import json
 import time
 
 from core.lib.channel import Channel
-from core.lib.Counter.Counter import Counter
+from core.lib.counter import Counter
 
 
 class ChannelManager(object):

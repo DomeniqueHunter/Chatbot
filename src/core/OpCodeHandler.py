@@ -3,7 +3,7 @@ from core.lib.command_manager import CommandManager
 from core.lib.Reaction.Reactions import Multi_Reaction as Reactions
 from core import Opcodes as opcode
 
-from core.lib.Counter.Counter import Counter as Counter
+from core.lib.counter import Counter
 
 import json, asyncio, time
 from core.lib.channel import Channel
