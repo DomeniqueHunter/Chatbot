@@ -6,8 +6,8 @@ import requests
 import aiohttp
 import json
 
-from core.Config import Config as Config
-from core.HTTPClient import HTTPClient
+from core.lib.Config import Config as Config
+from core.lib.HTTPClient import HTTPClient
 
 import binascii
 
