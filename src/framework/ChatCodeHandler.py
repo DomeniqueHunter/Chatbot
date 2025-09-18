@@ -1,8 +1,8 @@
-from core.Core import Core
-from core import Opcodes as opcode
+from framework.Core import Core
+from framework import Opcodes as opcode
 
-from core.lib.channel import Channel
-from core.lib.command_manager import CommandManager
+from framework.lib.channel import Channel
+from framework.lib.command_manager import CommandManager
 
 from time import sleep, time
 

@@ -2,7 +2,7 @@ import requests
 import json
 import time
 
-from core.lib.httpclient import HTTPClient
+from framework.lib.httpclient import HTTPClient
 
 class Api():
     

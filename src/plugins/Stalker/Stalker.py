@@ -1,7 +1,7 @@
 from plugins.Plugin_Prototype import Plugin_Prototype
-from core import Opcodes as opcode
+from framework import Opcodes as opcode
 
-from core.lib.channel import Channel
+from framework.lib.channel import Channel
 
 import json
 

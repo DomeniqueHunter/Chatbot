@@ -2,8 +2,8 @@
 import json
 import time
 
-from core.lib.channel import Channel
-from core.lib.counter import Counter
+from framework.lib.channel import Channel
+from framework.lib.counter import Counter
 
 
 class ChannelManager(object):

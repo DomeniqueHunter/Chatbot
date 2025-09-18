@@ -1,11 +1,11 @@
-from core.Api import Api as Api
-from core import Opcodes as opcode
+from framework.Api import Api as Api
+from framework import Opcodes as opcode
 
-from core.lib.manpage import Manpage
-from core.lib.filemanager import FileManager
-from core.lib.time import AdvTime
+from framework.lib.manpage import Manpage
+from framework.lib.filemanager import FileManager
+from framework.lib.time import AdvTime
 
-from core.lib.channel import Channel, ChannelManager, ChannelCreationQueue
+from framework.lib.channel import Channel, ChannelManager, ChannelCreationQueue
 
 from time import sleep
 

@@ -2,9 +2,9 @@
 
 import os
 
-from core.OpCodeHandler import OpCodeHandler as Client
-from core.Plugin_Loader import Plugin_Loader
-from core.lib.config import Config
+from framework.OpCodeHandler import OpCodeHandler as Client
+from framework.Plugin_Loader import Plugin_Loader
+from framework.lib.config import Config
 
 # from webserver.Webserver import Webserver
 

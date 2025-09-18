@@ -6,7 +6,7 @@ from plugins.Ranch.Logic import Logic
 from plugins.Ranch.MySQL_Wrapper import RANCH_DB
 from plugins.Ranch.Session import SessionManager
 
-from core.lib.counter import Counter
+from framework.lib.counter import Counter
 
 import asyncio
 

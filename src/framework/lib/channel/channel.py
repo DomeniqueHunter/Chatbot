@@ -1,4 +1,4 @@
-from core.lib.list import AdvList
+from framework.lib.list import AdvList
 
 import json
 

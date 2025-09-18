@@ -1,5 +1,5 @@
 from plugins.Plugin_Prototype import Plugin_Prototype
-from core.Api import Api
+from framework.Api import Api
 
 class Simple_Public_Messages(Plugin_Prototype):
     def __init__(self):
