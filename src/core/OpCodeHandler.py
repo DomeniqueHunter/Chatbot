@@ -1,6 +1,6 @@
 from core.ChatCodeHandler import ChatCodeHandler as ChatCodeHandler
 from core.lib.command_manager import CommandManager
-from core.lib.Reaction.Reactions import Multi_Reaction as Reactions
+from core.lib.reaction import Multi_Reaction as Reactions
 from core import Opcodes as opcode
 
 from core.lib.counter import Counter

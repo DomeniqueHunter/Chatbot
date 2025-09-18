@@ -1,6 +1,5 @@
 from core import *
-from core.lib.Reaction.Reaction import Reaction
-from core.lib.Reaction.Reactions import Multi_Reaction
+from core.lib.reaction import Reaction, Multi_Reaction
 
 class Bot():
     

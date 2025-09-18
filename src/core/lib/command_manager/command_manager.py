@@ -1,4 +1,4 @@
-from core.lib.Reaction.Reaction import Reaction
+from core.lib.reaction import Reaction
 
 class CommandManager(Reaction):
     
