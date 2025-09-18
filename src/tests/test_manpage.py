@@ -4,8 +4,8 @@ import unittest, sys
 sys.path.append('..')
 sys.path.append('../core')
 
-from lib.Manpage.Manpage import Manpage
-from lib.Manpage.BotMock import BotMock
+from core.lib.Manpage.Manpage import Manpage
+from core.lib.Manpage.BotMock import BotMock
 
 
 class TestCase(unittest.TestCase):    
