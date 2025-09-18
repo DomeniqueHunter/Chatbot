@@ -2,7 +2,7 @@ from core.Api import Api as Api
 from core import Opcodes as opcode
 
 from core.lib.Manpage.Manpage import Manpage
-from core.lib.FileManager import FileManager
+from core.lib.filemanager import FileManager
 from core.lib.Time.AdvTime import AdvTime
 
 from core.lib.channel import Channel, ChannelManager, ChannelCreationQueue
