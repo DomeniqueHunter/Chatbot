@@ -1,5 +1,5 @@
 from framework.Core import Core
-from framework import Opcodes as opcode
+from framework import opcode
 
 from framework.lib.channel import Channel
 from framework.lib.command_manager import CommandManager

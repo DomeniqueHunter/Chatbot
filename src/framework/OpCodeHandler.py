@@ -1,7 +1,7 @@
 from framework.ChatCodeHandler import ChatCodeHandler as ChatCodeHandler
 from framework.lib.command_manager import CommandManager
 from framework.lib.reaction import Multi_Reaction as Reactions
-from framework import Opcodes as opcode
+from framework import opcode
 
 from framework.lib.counter import Counter
 

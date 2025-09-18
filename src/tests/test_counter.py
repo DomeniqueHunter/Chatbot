@@ -2,7 +2,7 @@
 import unittest, sys
 sys.path.append('..')
 
-from core.lib.counter import Counter
+from framework.lib.counter import Counter
 
 class TestCase(unittest.TestCase):    
     def setUp(self):

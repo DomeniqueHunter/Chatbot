@@ -3,7 +3,7 @@ import unittest, sys
 sys.path.append('..')
 sys.path.append('../core')
 
-from core.lib.config import Config
+from framework.lib.config import Config
 
 class TestCase(unittest.TestCase):    
     def setUp(self):

@@ -1,6 +1,6 @@
 
 import time
-from framework import Opcodes as opcode
+from framework import opcode
 
 
 class Session:

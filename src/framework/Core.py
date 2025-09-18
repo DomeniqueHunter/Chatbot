@@ -1,5 +1,5 @@
 from framework.Api import Api as Api
-from framework import Opcodes as opcode
+from framework import opcode
 
 from framework.lib.manpage import Manpage
 from framework.lib.filemanager import FileManager

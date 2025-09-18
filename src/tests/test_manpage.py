@@ -4,10 +4,10 @@ import unittest, sys
 sys.path.append('..')
 sys.path.append('../core')
 
-from core.lib.manpage import Manpage
+from framework.lib.manpage import Manpage
 
 # TODO: repait BotMock
-from core.lib.Manpage.BotMock import BotMock
+from framework.lib.Manpage.BotMock import BotMock
 
 
 class TestCase(unittest.TestCase):    
