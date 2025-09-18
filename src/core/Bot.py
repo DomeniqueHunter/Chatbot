@@ -1,4 +1,6 @@
 from core import *
+from core.lib.Reaction.Reaction import Reaction
+from core.lib.Reaction.Reactions import Multi_Reaction
 
 class Bot():
     
@@ -20,7 +22,7 @@ class Bot():
         self.public_message_handler = Reaction()
         
     def _create_opcode_handler(self):
-        self.opcode_handler = Reactions()
+        self.opcode_handler = Multi_Reaction()
             
     def run(self):
         pass

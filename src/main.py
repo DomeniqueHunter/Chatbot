@@ -4,7 +4,7 @@ import os
 
 from core.OpCodeHandler import OpCodeHandler as Client
 from core.Plugin_Loader import Plugin_Loader
-from core.lib.Config.Config import Config
+from core.lib.config import Config
 
 # from webserver.Webserver import Webserver
 
