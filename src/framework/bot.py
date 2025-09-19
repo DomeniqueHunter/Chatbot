@@ -1,31 +1,26 @@
-from framework.core import Core
-from framework.chat_code_handler import ChatCodeHandler
-from framework.op_code_handler import OpCodeHandler
-from framework.lib.reaction import Reaction, Multi_Reaction
+from .core import Core
+from .chat_code_handler import ChatCodeHandler
+from .op_code_handler import OpCodeHandler
+
+from .plugin_loader import Plugin_Loader
+
 
 class Bot():
     
-    def __init__(self, config, root_path = "./"):
-        self.core = Core(config, root_path)
-        self.op_code_handler = OpCodeHandler(config, root_path)
-        self.chat_code_hander = ChatCodeHandler(config, root_path)
-    
-    
-    def create_message_handler(self):
-        self._create_private_message_handler()
-        self._create_public_message_handler()
-        self._create_opcode_handler()
-    
-    def _create_private_message_handler(self):
-        self.private_message_hadler = Reaction()
-    
-    def _create_public_message_handler(self):
-        self.public_message_handler = Reaction()
+    def __init__(self, config, root_path="./", plugins_path="./plugins"):
+        self.config = config
+        self.root_path = root_path
         
-    def _create_opcode_handler(self):
-        self.opcode_handler = Multi_Reaction()
-            
-    def run(self):
+        self.core = Core(self)
+        self.chat_code_handler = ChatCodeHandler(self)
+        self.op_code_handler = OpCodeHandler(self)
+        
+        self.plugin_loader = Plugin_Loader(f"{plugins_path}")
+        
+    def load_plugins(self):
         pass
+            
+    def start(self):
+        self.op_code_handler.start()
     
     

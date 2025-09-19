@@ -21,10 +21,16 @@ class Core():
         Connection
     """
 
-    def __init__(self, config, root_path="./"):
-        self.account = config.account
-        self.password = config.password
-        self.version = "0.8.7"
+    def __init__(self, bot):
+        self.bot = bot
+        self.config = self.bot.config
+        
+        self.account = self.config.account
+        self.password = self.config.password
+        self.charactername = self.config.character
+        self.owner = self.bot.config.owner
+        
+        self.version = "0.8.7"    
 
         self.channel_manager = ChannelManager(self.join)
         self.channels = self.channel_manager.joined_channels  # is this good?
@@ -39,8 +45,7 @@ class Core():
 
         self.manpage = Manpage(self)
 
-        self.config = config
-        self.root_path = root_path
+        self.root_path = self.bot.root_path
         self.data_path = self.root_path + "/" + self.config.server + self.config.endpoint
         if not os.path.exists(self.data_path):
             os.makedirs(self.data_path, exist_ok=True)
@@ -266,21 +271,24 @@ class Core():
             print ("no plugin loader")
 
     def trigger_plugins_load(self):
-        for key in self.plugin_loader.plugins:
-            print (f"autoload: {key}.load()")
-            self.plugin_loader.plugins[key].load()
+        if self.plugin_loader:
+            for key in self.plugin_loader.plugins:
+                print (f"autoload: {key}.load()")
+                self.plugin_loader.plugins[key].load()
 
     def trigger_plugins_save(self):
-        for key in self.plugin_loader.plugins:
-            print (f"autosave: {key}.save()")
-            self.plugin_loader.plugins[key].save()
+        if self.plugin_loader:
+            for key in self.plugin_loader.plugins:
+                print (f"autosave: {key}.save()")
+                self.plugin_loader.plugins[key].save()
 
     async def trigger_clock(self):
-        for key in self.plugin_loader.plugins:
-            try:
-                await self.plugin_loader.plugins[key].clock()
-            except:
-                pass
+        if self.plugin_loader:
+            for key in self.plugin_loader.plugins:
+                try:
+                    await self.plugin_loader.plugins[key].clock()
+                except:
+                    pass
 
     def _sysinfo(self):
         _now = AdvTime()
