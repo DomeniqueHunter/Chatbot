@@ -31,7 +31,8 @@ class Core():
         self.owner = self.bot.config.owner
         
         self.version = "0.8.7"    
-
+        
+        self.connection = None
         self.channel_manager = ChannelManager(self.join)
         self.channels = self.channel_manager.joined_channels  # is this good?
 

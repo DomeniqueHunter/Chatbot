@@ -189,7 +189,7 @@ class ChatCodeHandler():
     async def _hook_admins(self, user=None, message=None):
         string = "\nOwner: [user]" + self.bot.core.owner + "[/user]\n"
         string += "Admins:\n"
-        for admin in self.admins:
+        for admin in self.bot.core.admins:
             string += "[user]" + admin + "[/user]\n"
         await self.send_private_message(string, user)
 

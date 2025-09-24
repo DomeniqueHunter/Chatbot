@@ -86,6 +86,7 @@ class OpCodeHandler():
             if self.bot.core.connection != None and str(self.bot.core.connection.state.name) == "OPEN":
                 message = await self.bot.core._read()
                 if message:
+                    print(message)
                     data = message.split(" ", 1)
 
                     await self.dispatcher(*data)
