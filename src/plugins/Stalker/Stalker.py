@@ -1,9 +1,10 @@
 from plugins.Plugin_Prototype import Plugin_Prototype
-from framework import opcode
 
 from framework.lib.channel import Channel
 
 import json
+from typing import Optional, Union
+from framework.lib.paginate import paginate
 
 
 class Stalker(Plugin_Prototype):
@@ -28,14 +29,19 @@ class Stalker(Plugin_Prototype):
         client = data['character']['identity']
         self._add_client_to_list(channel, client)
 
-    async def _get_full_client_list(self, user, channel=None):
+    async def _get_full_client_list(self, user, channel:str=None, page:Optional[Union[int, str]]=1):
         if self.client.is_owner(user) and channel:
             channel_code = Channel.find_channel_by_name(self.client.channels, channel)
             channel = self.client.channels[channel_code]
+            
+            # parse page parameter
+            page_nr = paginate.page_parameter(page)
+            
+            # get total pages
+            pages = paginate.get_pages(channel.characters.get(), 10)
 
-            message = "\nAll Clients\n"
-            for char in channel.characters.get():
-                message += f' - {char}\n'
+            # get message for page
+            message = paginate.get_page(channel.characters.get(), page_nr, f"All Clients in {channel.name} ({channel.code}) [{page_nr+1}/{pages}]\n", 10)
             
             await self.client.send_private_message(message, user)
 
