@@ -34,12 +34,12 @@ class Stalker(Plugin_Prototype):
             channel_code = Channel.find_channel_by_name(self.client.channels, channel)
             channel = self.client.channels[channel_code]
             
-            # parse page parameter
-            page_nr = paginate.page_parameter(page)
-            
             # get total pages
             pages = paginate.get_pages(channel.characters.get(), 10)
 
+            # parse page parameter
+            page_nr = paginate.page_parameter(pages, page)
+            
             # get message for page
             message = paginate.get_page(channel.characters.get(), page_nr, f"All Clients in {channel.name} ({channel.code}) [{page_nr+1}/{pages}]\n", 10)
             
