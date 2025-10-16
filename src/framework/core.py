@@ -91,7 +91,10 @@ class Core():
         await self._message(opcode.CREATE_PRIVATE_CHANNEL, data)
 
     async def open_room(self, room):
-        channel_code = Channel.find_channel_by_name(self.channels, room)
+        # channel_code = Channel.find_channel_by_name(self.channels, room)
+        channel = self.channel_manager.find_channel(room)
+        channel_code = channel.code
+        
         data = {"channel": channel_code, "message": "/openroom"}
         await self._message(opcode.CHANNEL_MESSAGE, data)
 
@@ -200,7 +203,9 @@ class Core():
         await self._message(opcode.STATUS, data)
 
     async def _invite_user_to_channel(self, user, channel_name):
-        channel_code = Channel.find_channel_by_name(self.channels, channel_name)
+        # channel_code = Channel.find_channel_by_name(self.channels, channel_name)
+        channel = self.channel_manager.find_channel(channel_name)
+        channel_code = channel.code
         if channel_code:
             data = {"character": user, "channel": channel_code}
             await self._message(opcode.INVITE, data)
