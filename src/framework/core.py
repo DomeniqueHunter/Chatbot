@@ -203,7 +203,6 @@ class Core():
         await self._message(opcode.STATUS, data)
 
     async def _invite_user_to_channel(self, user, channel_name):
-        # channel_code = Channel.find_channel_by_name(self.channels, channel_name)
         channel = self.channel_manager.find_channel(channel_name)
         channel_code = channel.code
         if channel_code:

@@ -237,7 +237,6 @@ class ChatCodeHandler(Core):
             await self.send_public_message(message, channel_code)
 
     async def _hook_get_users_in_channel(self, user=None, channel=None):
-        # code = Channel.find_channel_by_name(self.channels, channel)
         channel = self.channel_manager.find_channel(channel)
         code = channel.code
         
