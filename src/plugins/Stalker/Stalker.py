@@ -1,15 +1,14 @@
 from plugins.Plugin_Prototype import Plugin_Prototype
 
-from framework.lib.channel import Channel
-
 import json
-from typing import Optional, Union
+
+from framework.lib.argument import parse
 from framework.lib.paginate import paginate
 
 
 class Stalker(Plugin_Prototype):
 
-    def __init__(self, client=None):
+    def __init__(self, client=None) -> None:
         self.module_name = "Stalker"
         self.module_version = "0.2.0"
         self.client = client
@@ -23,14 +22,16 @@ class Stalker(Plugin_Prototype):
             if not client in self.all_clients[channel]:
                 self.all_clients[channel].append(client)
 
-    async def _opcode_handler_user_joined_channel(self, json_object):
+    async def _opcode_handler_user_joined_channel(self, json_object) -> None:
         data = json.loads(json_object)
         channel = data['channel']
         client = data['character']['identity']
         self._add_client_to_list(channel, client)
 
-    async def _get_full_client_list(self, user, channel_name:str=None, page:Optional[Union[int, str]]=1):
-        if self.client.is_owner(user) and channel_name:
+    async def _get_full_client_list(self, user, input_string:str) -> None:
+        if self.client.is_owner(user):            
+            channel_name, page = parse(input_string, str, int)
+            
             channel = self.client.channel_manager.find_channel(channel_name)
             
             # get total pages
@@ -44,7 +45,7 @@ class Stalker(Plugin_Prototype):
             
             await self.client.send_private_message(message, user)
 
-    async def get_joined_channels(self, user):
+    async def get_joined_channels(self, user) -> None:
         if self.client.is_owner(user):
             channels = self.client.channels
             message = "\nChannels:\n"
@@ -53,7 +54,7 @@ class Stalker(Plugin_Prototype):
 
             await self.client.send_private_message(message, user)
 
-    def register_actions(self):
+    def register_actions(self) -> None:
         if self.client:
             # self.client.opcodes_handler.add_action(opcode.JOIN_CHANNEL , self._opcode_handler_user_joined_channel)
 
