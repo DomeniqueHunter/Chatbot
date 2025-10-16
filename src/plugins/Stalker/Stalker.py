@@ -11,7 +11,7 @@ class Stalker(Plugin_Prototype):
 
     def __init__(self, client=None):
         self.module_name = "Stalker"
-        self.module_version = "0.0.3"
+        self.module_version = "0.2.0"
         self.client = client
         self.all_clients = {}
 
@@ -29,10 +29,9 @@ class Stalker(Plugin_Prototype):
         client = data['character']['identity']
         self._add_client_to_list(channel, client)
 
-    async def _get_full_client_list(self, user, channel:str=None, page:Optional[Union[int, str]]=1):
-        if self.client.is_owner(user) and channel:
-            channel_code = Channel.find_channel_by_name(self.client.channels, channel)
-            channel = self.client.channels[channel_code]
+    async def _get_full_client_list(self, user, channel_name:str=None, page:Optional[Union[int, str]]=1):
+        if self.client.is_owner(user) and channel_name:
+            channel = self.client.channel_manager.find_channel(channel_name)
             
             # get total pages
             pages = paginate.get_pages(channel.characters.get(), 10)
