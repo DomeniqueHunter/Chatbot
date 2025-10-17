@@ -126,33 +126,14 @@ class ChatCodeHandler(Core):
     async def _hook_permission_denied(self, user):
         await self.send_private_message("Permission denied!", user)
 
-    async def _hook_join_old(self, user=None, channel=None):
-        if (channel and self.has_admin_rights(user)):
-            await self.join(channel, channel)
-            await self.send_private_message("joined: " + channel, user)
-
-    async def _hook_join_channel(self, user:str=None, channel:str=None):
+    async def _hook_join_by_name(self, user:str=None, channel_name:str=None):
         if self.has_admin_rights(user):
-            if channel.find("c:") or channel.find("C:"):
-                # join by channel code
-                code = channel.split(":")[1]
-                channel_name = await self.channel_manager.join_by_id(code)
-            else:
-                # join by channel name
-                channel_name = await self.channel_manager.join(channel)
-
+            channel_name = await self.channel_manager.join(channel_name)
             await self.send_private_message(f"joined: {channel_name}", user)
         else:
-            await self.send_private_message(f"didn't find the channel {channel}", user)
+            await self.send_private_message(f"didn't find the channel {channel_name}", user)
 
-    async def _hook_join_by_name(self, user=None, channel=None):
-        if self.has_admin_rights(user):
-            channel_name = await self.channel_manager.join(channel)
-            await self.send_private_message(f"joined: {channel_name}", user)
-        else:
-            await self.send_private_message(f"didn't find the channel {channel}", user)
-
-    async def _hook_join_by_id(self, user=None, channel=None):
+    async def _hook_join_by_id(self, user:str=None, channel:str=None):
         if self.has_admin_rights(user) and channel:
             if not channel in self.channels:
                 await self.join(channel, channel)
