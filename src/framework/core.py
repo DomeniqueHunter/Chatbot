@@ -6,7 +6,7 @@ from framework.lib.manpage import Manpage
 from framework.lib.filemanager import FileManager
 from framework.lib.time import AdvTime
 
-from framework.lib.channel import Channel, ChannelManager, ChannelCreationQueue
+from framework.lib.channel import ChannelManager, ChannelCreationQueue
 
 from time import sleep
 
@@ -14,6 +14,7 @@ import os
 import websockets.client
 
 import json
+from framework.lib.config.config import Config
 
 
 class Core():
@@ -21,7 +22,7 @@ class Core():
         Connection
     """
 
-    def __init__(self, config, root_path="./"):
+    def __init__(self, config:Config, root_path:str="./"):
         self.account = config.account
         self.password = config.password
         self.version = "0.8.7"

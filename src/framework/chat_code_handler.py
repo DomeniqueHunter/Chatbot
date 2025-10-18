@@ -1,10 +1,10 @@
 from framework.core import Core
 from framework import opcode
 
-from framework.lib.channel import Channel
 from framework.lib.command_manager import CommandManager
 
 from time import sleep, time
+from framework.lib.config.config import Config
 
 
 class ChatCodeHandler(Core):
@@ -12,7 +12,7 @@ class ChatCodeHandler(Core):
         Handler
     """
 
-    def __init__(self, config, root_path):
+    def __init__(self, config:Config, root_path:str) -> None:
         Core.__init__(self, config, root_path)
 
         # 4 the future
@@ -62,33 +62,33 @@ class ChatCodeHandler(Core):
         # deop channel, user
         # set_description room, desc
 
-    async def _ping(self):
+    async def _ping(self) -> None:
         # print("ping back")
         self.ping_time = int(time())
         await self._message(opcode.PING)
 
     # TODO: sleep decorator, put sleep in _message
-    async def send_private_message(self, message, user):
+    async def send_private_message(self, message:str, user:str) -> None:
         data = {"character": self.charactername,
                 "message": message,
                 "recipient": user}
         sleep(1)
         await self._message(opcode.PRIVATE_MESSAGE, data)
 
-    async def send_public_message(self, message, channel):
+    async def send_public_message(self, message:str, channel:str) -> None:
         data = {"channel": channel,
                 "message": message}
         sleep(1)
         await self._message(opcode.CHANNEL_MESSAGE, data)
 
-    async def _get_channel_description(self, data):
+    async def _get_channel_description(self, data:dict) -> None:
         channel = data['channel']
         description = data['description']
 
         if channel in self.channels:
             self.channels[channel].change_desciption(description)
 
-    async def _save_all_settings(self, user=None):
+    async def _save_all_settings(self, user:str="") -> None:
         await self._hook_save_admins(user)
         await self._hook_save_channels(user)
         await self._hook_save_status(user)
@@ -96,7 +96,7 @@ class ChatCodeHandler(Core):
 
         self.trigger_plugins_save()
 
-    async def _load_all_settings(self, user=None):
+    async def _load_all_settings(self, user:str="") -> None:
         await self._hook_load_admins(user)
         await self._hook_load_channels(user)
         await self._hook_load_status(user)
@@ -108,37 +108,37 @@ class ChatCodeHandler(Core):
         HOOKS
     '''
 
-    async def _hook_save_all(self, user=None):
+    async def _hook_save_all(self, user:str="") -> None:
         if self.is_owner(user):
             print ("save settings")
             await self._save_all_settings(user)
             # await self.send_private_message("settings saved!", user)
 
-    async def _hook_load_all(self, user=None):
+    async def _hook_load_all(self, user:str="") -> None:
         if self.is_owner(user):
             await self._load_all_settings(user)
 
-    async def _hook_exception_handler(self, handler, *args):
+    async def _hook_exception_handler(self, handler, *args) -> None:
         print("HOOK EXCEPTION")
         print("handler:", handler, "\nargs:", *args)
         # await self.send_private_message("don't understand: "+handler)
 
-    async def _hook_permission_denied(self, user):
+    async def _hook_permission_denied(self, user) -> None:
         await self.send_private_message("Permission denied!", user)
 
-    async def _hook_join_by_name(self, user:str=None, channel_name:str=None):
+    async def _hook_join_by_name(self, user:str="", channel_name:str="") -> None:
         if self.has_admin_rights(user):
             channel_name = await self.channel_manager.join(channel_name)
             await self.send_private_message(f"joined: {channel_name}", user)
         else:
             await self.send_private_message(f"didn't find the channel {channel_name}", user)
 
-    async def _hook_join_by_id(self, user:str=None, channel:str=None):
+    async def _hook_join_by_id(self, user:str="", channel:str="") -> None:
         if self.has_admin_rights(user) and channel:
             if not channel in self.channels:
                 await self.join(channel, channel)
 
-    async def _hook_leave(self, user:str, channel_to_leave:str):
+    async def _hook_leave(self, user:str, channel_to_leave:str) -> None:
         if channel_to_leave and self.has_admin_rights(user):
             for _, channel in self.channels.items():
                 if channel_to_leave.lower() == channel.name.lower() or channel.code.lower() == channel_to_leave.lower():
@@ -150,23 +150,23 @@ class ChatCodeHandler(Core):
                 await self.send_private_message(f"channel {channel_to_leave} not found", user)
 
     # ADMIN HANDLING
-    async def _hook_add_admin(self, user=None, new_admin=None):
+    async def _hook_add_admin(self, user:str="", new_admin:str=""):
         if (self.has_admin_rights(user)):
             self._add_bot_admin(new_admin.lower())
             await self.send_private_message(new_admin + " can now use this bot!", user)
             await self.send_private_message("you can use this bot now!", new_admin)
 
-    async def _hook_remove_admin(self, user=None, admin=None):
+    async def _hook_remove_admin(self, user:str="", admin:str="") -> None:
         if (self.has_admin_rights(user)):
             self.admins.remove(admin.lower())
             await self.send_private_message(admin + " is no longer admin", user)
 
-    async def _hook_save_admins(self, user=None):
+    async def _hook_save_admins(self, user:str="") -> None:
         if (self.is_owner(user)):
             if len(self.admins) > 0:
                 self.file_manager.save('admins', self.admins)
 
-    async def _hook_load_admins(self, user=None):
+    async def _hook_load_admins(self, user:str="") -> None:
         if (self.is_owner(user)):
             try:
                 self.admins = self.file_manager.load('admins') or []
@@ -174,7 +174,7 @@ class ChatCodeHandler(Core):
             except:
                 pass
 
-    async def _hook_admins(self, user=None, message=None):
+    async def _hook_admins(self, user:str="", message:str="") -> None:
         string = "\nOwner: [user]" + self.owner + "[/user]\n"
         string += "Admins:\n"
         for admin in self.admins:
@@ -183,20 +183,20 @@ class ChatCodeHandler(Core):
 
     # CHANNEL HANDLING
 
-    async def _hook_create_private_channel(self, user=None, channel_name:str=""):
+    async def _hook_create_private_channel(self, user:str="", channel_name:str=""):
         if self.has_admin_rights(user):
             await self.create_private_channel(channel_name)
             self.channel_creation_queue.add(channel_name, user)
             await self.send_private_message(f"created channel: {channel_name}", user)
 
-    async def _hook_channels(self, user=None, message=None):
+    async def _hook_channels(self, user:str="", message:str=""):
         message = "\nChannel: Code\n"
         for channel in self.channels.values():
             message += f"[session={channel.name}]{channel.code}[/session]: {channel.code} - {channel.persistent}\n"
 
         await self.send_private_message(message, user)
 
-    async def _debug_channels(self, user=None):
+    async def _debug_channels(self, user:str="") -> None:
         message = "\nChannel: Code\n"
         for channel in self.channels:
             message += "[session=" + self.channels[channel].name + "]" + self.channels[channel].code + "[/session]: " + self.channels[channel].code + "\n"
@@ -207,7 +207,7 @@ class ChatCodeHandler(Core):
 
         await self.send_private_message(message, user)
 
-    async def _debug_users(self, user=None, channel_code=None):
+    async def _debug_users(self, user:str="", channel_code:str="") -> None:
         if self.is_owner(user):
             message = "\nUsers in Channel:\n"
             for name in self.channel_manager.joined_channels[channel_code].characters:
@@ -217,7 +217,7 @@ class ChatCodeHandler(Core):
 
             await self.send_public_message(message, channel_code)
 
-    async def _hook_get_users_in_channel(self, user=None, channel=None):
+    async def _hook_get_users_in_channel(self, user:str="", channel:str="") -> None:
         channel = self.channel_manager.find_channel(channel)
         code = channel.code
         
@@ -228,7 +228,7 @@ class ChatCodeHandler(Core):
 
             await self.send_private_message(message, user)
 
-    async def _hook_channel_name(self, user=None, message=None):
+    async def _hook_channel_name(self, user:str="", message:str="") -> None:
         data = message.split(" ", 1)
 
         if len(data) >= 2 and self.is_owner(user) or (user.lower() in self.admins):
@@ -236,7 +236,7 @@ class ChatCodeHandler(Core):
             _message = "changed name of channel " + data[0] + " to " + data[1]
             await self.send_private_message(_message, user)
 
-    async def _hook_save_channels(self, user=None):
+    async def _hook_save_channels(self, user:str="") -> None:
         if self.is_owner(user):
             channels = self.channel_manager.json()
             self.file_manager.save('channels', channels)
@@ -244,7 +244,7 @@ class ChatCodeHandler(Core):
         else:
             await self.send_private_message("Permission denied!", user)
 
-    async def _hook_load_channels(self, user=None):
+    async def _hook_load_channels(self, user:str="") -> None:
         if self.is_owner(user):
             try:
                 # await self._load_channels_from_file('channels.json') or {}
@@ -253,7 +253,7 @@ class ChatCodeHandler(Core):
             except:
                 await self.send_private_message("can not open channels file", user)
 
-    async def _hook_save_all_users(self, user=None):
+    async def _hook_save_all_users(self, user:str="") -> None:
         if self.is_owner(user):
             if self.all_users:
                 self.file_manager.save('all_users', self.all_users)
@@ -262,14 +262,14 @@ class ChatCodeHandler(Core):
         else:
             await self.send_private_message("Permission denied!", user)
 
-    async def _hook_load_all_users(self, user=None):
+    async def _hook_load_all_users(self, user:str="") -> None:
         if self.is_owner(user):
             all_users = self.file_manager.load('all_users') or {}
             if all_users:
                 self.all_users = all_users
                 await self.send_private_message("loaded all users", user)
 
-    async def _hook_list_all_users(self, user_in=None, page=1):
+    async def _hook_list_all_users(self, user_in:str="", page=1) -> None:
         if self.is_owner(user_in):
 
             try:
@@ -294,20 +294,20 @@ class ChatCodeHandler(Core):
 
             await self.send_private_message(msg, user_in)
 
-    async def _hook_die(self, user=None):
+    async def _hook_die(self, user:str="") -> None:
         if self.is_owner(user):
             await self._save_all_settings(user)
             await self.send_private_message("I'm out, Bye!", user)
             self.stop_impulse = True
             exit()
 
-    def _hook_start_loggin(self, user=None, channel=None):
+    def _hook_start_loggin(self, user:str="", channel:str="") -> None:
         # log channel to file -> logs/channelname
         pass
 
     # STATUS HANDLING
 
-    async def _hook_set_status(self, user=None, status=None):
+    async def _hook_set_status(self, user:str="", status:str="") -> None:
         if self.has_admin_rights(user):
             if status:
                 self.status = status
@@ -318,11 +318,11 @@ class ChatCodeHandler(Core):
         else:
             self._hook_permission_denied(user)
 
-    async def _hook_save_status(self, user=None):
+    async def _hook_save_status(self, user:str="") -> None:
         if (self.is_owner(user) and self.status):
             self.file_manager.save('status', self.status)
 
-    async def _hook_load_status(self, user=None):
+    async def _hook_load_status(self, user:str="") -> None:
         if self.is_owner(user):
             try:
                 self.status = self.file_manager.load('status')
@@ -330,7 +330,7 @@ class ChatCodeHandler(Core):
             except:
                 pass
 
-    async def _hook_invite_to_channel(self, user, data=None):
+    async def _hook_invite_to_channel(self, user:str="", data:str="") -> None:
         # data example
         # CHANNELNAME USER NAME
         try:
@@ -343,7 +343,7 @@ class ChatCodeHandler(Core):
         except:
             print("ERROR: probably missing ,")
 
-    async def _hook_kick(self, user, message):
+    async def _hook_kick(self, user:str="", message:str="") -> None:
         message = message.split(" ", 1)
         channel = message[0]
         other_user = message[1]
@@ -354,15 +354,13 @@ class ChatCodeHandler(Core):
                     'character':other_user}
 
             await self._message(opcode.KICK, data)
-        pass
 
-    async def _hook_op_user(self, user, other_user):
+    async def _hook_op_user(self, user:str="", other_user:str="") -> None:
         if (self.is_owner(user) and other_user):
             data = {}
             await self._message(opcode.PROMOTE_OP, data)
-        pass
 
-    async def _hook_help_page(self, user):
+    async def _hook_help_page(self, user:str="") -> None:
         help_string = "\nHELP PAGE:\n"
         help_string += "SYNOPSIS: DESCRIPTION\n"
 
@@ -370,6 +368,6 @@ class ChatCodeHandler(Core):
 
         await self.send_private_message(help_string, user)
 
-    async def _hook_sysinfo(self, user):
+    async def _hook_sysinfo(self, user:str="") -> None:
         if self.is_owner(user):
             await self.send_private_message(self._sysinfo(), user)

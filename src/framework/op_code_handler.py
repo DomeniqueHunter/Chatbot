@@ -7,6 +7,7 @@ from framework.lib.counter import Counter
 
 import json, asyncio, time
 from framework.lib.channel import Channel
+from framework.lib.config.config import Config
 
 
 class OpCodeHandler(ChatCodeHandler):
@@ -14,7 +15,7 @@ class OpCodeHandler(ChatCodeHandler):
         Control
     """
 
-    def __init__(self, config, root_path):
+    def __init__(self, config:Config, root_path:str):
         ChatCodeHandler.__init__(self, config, root_path)
 
         # for the future
@@ -52,7 +53,7 @@ class OpCodeHandler(ChatCodeHandler):
 
         self.all_users = {}
 
-    async def dispatcher(self, op, json_object=None):
+    async def dispatcher(self, op:str, json_object:str=None):
         if op:
             await self.opcodes_handler.react(op, json_object)
 
@@ -84,14 +85,13 @@ class OpCodeHandler(ChatCodeHandler):
     def get_user_gender(self, user:str) -> str:
         return self.all_users[user.lower()]['gender']
 
-    async def _run (self):
+    async def _run (self) -> None:
 
         while True:
             if self.connection != None and str(self.connection.state.name) == "OPEN":
                 message = await self._read()
                 if message:
                     data = message.split(" ", 1)
-
                     await self.dispatcher(*data)
 
                 if self.stop_impulse:
@@ -104,7 +104,7 @@ class OpCodeHandler(ChatCodeHandler):
                 await self._restart()
                 await self._load_all_settings(self.owner)
 
-    async def _opcode_handler_private_message(self, json_object):
+    async def _opcode_handler_private_message(self, json_object:str):
         data = json.loads(json_object)
         user = data['character']
         message = data['message'].strip()
@@ -116,7 +116,7 @@ class OpCodeHandler(ChatCodeHandler):
 
         await self.private_msg_handler.react(handler, user, *message)
 
-    async def _opcode_handler_channel_message(self, json_object):
+    async def _opcode_handler_channel_message(self, json_object:str):
         '''
             Channel Message Dispatcher
         '''
