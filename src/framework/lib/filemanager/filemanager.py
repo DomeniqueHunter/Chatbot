@@ -11,7 +11,7 @@ class ManagedFile:
     
     def __init__(self, handle:str, file_location:str, type:str, 
                         get_function:Union[FunctionType, MethodType],
-                        set_function:Union[FunctionType, MethodType]):
+                        set_function:Union[FunctionType, MethodType]) -> None:
         self.handle = handle
         self.file_location = file_location
         self.get_function = get_function
@@ -21,7 +21,7 @@ class ManagedFile:
 
 class FileManager:
     
-    def __init__(self, file_root:str):
+    def __init__(self, file_root:str) -> None:
         self.file_root = file_root
         
         # ensure dirs
@@ -45,11 +45,11 @@ class FileManager:
     
     def add(self, handle:str, file:str, type:str='json', 
                     get_func:Union[FunctionType, MethodType]=None,
-                    set_func:Union[FunctionType, MethodType]=None):
+                    set_func:Union[FunctionType, MethodType]=None) -> None:
         if handle not in self.managed_files:
             self.managed_files[handle] = ManagedFile(handle, os.path.join(self.file_root, file), type, get_func, set_func)
             
-    def save(self, handle:str, content=None):
+    def save(self, handle:str, content=None) -> None:
         try:
             m_file = self.managed_files[handle]
             if content == None:
@@ -60,7 +60,7 @@ class FileManager:
         except Exception as e:
             print(e)
         
-    def load(self, handle:str):  
+    def load(self, handle:str) -> any:  
         try:
             m_file = self.managed_files[handle]
             loaded_data = self.load_functions[m_file.type](m_file.file_location)
@@ -73,35 +73,35 @@ class FileManager:
             
         return None
         
-    def save_all(self):
+    def save_all(self) -> None:
         for handle in self.managed_files.keys():
             self.save(handle)
             
-    def load_all(self):
+    def load_all(self) -> None:
         for handle in self.managed_files.keys():
             self.load(handle)
            
-    def __save_plain(self, f_location, content):
+    def __save_plain(self, f_location, content) -> None:
         with open(f_location, 'w') as fp:
             fp.write(content)
     
-    def __save_binary(self, f_location, content):
+    def __save_binary(self, f_location, content) -> None:
         with open(f_location, 'wb') as fp:
             pickle.dump(content, fp)
         
-    def __save_json(self, f_location, content):
+    def __save_json(self, f_location, content) -> None:
         with open(f_location, 'w') as fp:
             json.dump(content, fp)
         
-    def __load_plain(self, f_location):
+    def __load_plain(self, f_location) -> str:
         with open(f_location, 'r') as fp:
             return fp.read()
     
-    def __load_binary(self, f_location):
+    def __load_binary(self, f_location) -> any:
         with open(f_location, 'rb') as fp:
             return pickle.load(fp)
         
-    def __load_json(self, f_location):
+    def __load_json(self, f_location) -> any:
         with open(f_location, 'r') as fp:
             return json.load(fp)
             

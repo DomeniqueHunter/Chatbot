@@ -1,7 +1,7 @@
 from typing import Union
 
 
-def page_parameter(pages: int, page:Union[int, str]=1):
+def page_parameter(pages: int, page:Union[int, str]=1) -> int:
     if type(page) == str:
         try:
             page = int(page)
@@ -19,7 +19,7 @@ def page_parameter(pages: int, page:Union[int, str]=1):
     return page
 
 
-def get_pages(iterable:Union[list, dict], entries_per_page:int=10):
+def get_pages(iterable:Union[list, dict], entries_per_page:int=10) -> int:
     return (len(iterable) // entries_per_page) + 1
 
 
@@ -28,7 +28,7 @@ def get_page(iterable:Union[list, dict],
              message_header:str="Default Message Header\n",
              entries_per_page:int=10,
              iterator:str=" - ",
-             linebreaker:str="\n"):
+             linebreaker:str="\n") -> str:
     
     if type(iterable) == list:
         return __get_page_list(iterable, page_nr, message_header, entries_per_page, iterator, linebreaker)
@@ -44,7 +44,7 @@ def __get_page_list(iterable:list,
              message_header:str="Default Message Header\n",
              entries_per_page:int=10,
              iterator:str=" - ",
-             linebreaker:str="\n"):
+             linebreaker:str="\n") -> str:
     
     message = message_header
     start = page_nr * entries_per_page
@@ -59,7 +59,7 @@ def __get_page_dict(iterable:dict,
              message_header:str="Default Message Header\n",
              entries_per_page:int=10,
              iterator:str=" - ",
-             linebreaker:str="\n"):
+             linebreaker:str="\n") -> str:
     
     message = message_header
     start = page_nr * entries_per_page
