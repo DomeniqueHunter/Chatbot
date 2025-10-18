@@ -15,7 +15,7 @@ class OpCodeHandler(ChatCodeHandler):
         Control
     """
 
-    def __init__(self, config:Config, root_path:str):
+    def __init__(self, config:Config, root_path:str) -> None:
         ChatCodeHandler.__init__(self, config, root_path)
 
         # for the future
@@ -53,21 +53,21 @@ class OpCodeHandler(ChatCodeHandler):
 
         self.all_users = {}
 
-    async def dispatcher(self, op:str, json_object:str=None):
+    async def dispatcher(self, op:str, json_object:str="") -> None:
         if op:
             await self.opcodes_handler.react(op, json_object)
 
-    async def _connect(self):
+    async def _connect(self) -> None:
         await self.connect(self.config.server, self.config.port)
         await self.identify()
 
-    async def _restart(self):
+    async def _restart(self) -> None:
         print("MSG: restart chatbot")
         await self._connect()
         await self.channel_manager.rejoin_channels()
         self.restarts += 1
 
-    async def _prepare(self):
+    async def _prepare(self) -> None:
         await self._load_all_settings(self.owner)
 
         await self._order_list_of_open_private_channels()
@@ -75,7 +75,7 @@ class OpCodeHandler(ChatCodeHandler):
 
         await self.join_default_channels(self.config.default_channels)
 
-    def start(self):
+    def start(self) -> None:
         self.loop.run_until_complete(self._connect())
         self.loop.run_until_complete(self._prepare())
         self.loop.run_until_complete(self._run())
@@ -104,7 +104,7 @@ class OpCodeHandler(ChatCodeHandler):
                 await self._restart()
                 await self._load_all_settings(self.owner)
 
-    async def _opcode_handler_private_message(self, json_object:str):
+    async def _opcode_handler_private_message(self, json_object:str) -> None:
         data = json.loads(json_object)
         user = data['character']
         message = data['message'].strip()
@@ -116,7 +116,7 @@ class OpCodeHandler(ChatCodeHandler):
 
         await self.private_msg_handler.react(handler, user, *message)
 
-    async def _opcode_handler_channel_message(self, json_object:str):
+    async def _opcode_handler_channel_message(self, json_object:str) -> None:
         '''
             Channel Message Dispatcher
         '''
@@ -130,7 +130,7 @@ class OpCodeHandler(ChatCodeHandler):
 
         await self.public_msg_handler.react(handler, user, channel, *message)
 
-    async def _opcode_handler_ping(self, nothing=None):
+    async def _opcode_handler_ping(self, empty:None=None) -> None:
         # print ("PING ... .. .. ...")
         await self._ping()
         await self.trigger_clock()
@@ -142,7 +142,7 @@ class OpCodeHandler(ChatCodeHandler):
         if self.counter_save_all.tick():
             await self._hook_save_all(self.owner)
 
-    async def _opcode_handler_channeldescription(self, json_object):
+    async def _opcode_handler_channeldescription(self, json_object:str) -> None:
         data = json.loads(json_object)
         channel = data['channel']
         channel = channel[:3].upper() + channel[3:]
@@ -150,11 +150,11 @@ class OpCodeHandler(ChatCodeHandler):
         
         await self._get_channel_description(data)
 
-    async def _opcode_handler_except(self, json_object):
+    async def _opcode_handler_except(self, json_object:str) -> None:
         # silent
         pass
 
-    async def _opcode_handler_invite(self, json_object):
+    async def _opcode_handler_invite(self, json_object:str) -> None:
         data = json.loads(json_object)
         user = data['sender']
         title = data['title']
@@ -164,7 +164,7 @@ class OpCodeHandler(ChatCodeHandler):
             await self._hook_join_by_id(user, channel)
             await self._hook_channel_name(user, channel + " " + title)
 
-    async def _opcode_handler_user_joined_channel(self, json_object):
+    async def _opcode_handler_user_joined_channel(self, json_object:str) -> None:
         data = json.loads(json_object)
         code = data['channel']
         title = data['title']
@@ -187,7 +187,7 @@ class OpCodeHandler(ChatCodeHandler):
 
         self.channels[code].add_character(user.lower())
 
-    async def _opcode_hander_user_left_channel(self, json_object):
+    async def _opcode_hander_user_left_channel(self, json_object:str) -> None:
         data = json.loads(json_object)
         code = data['channel']
         user = data['character']
@@ -199,7 +199,7 @@ class OpCodeHandler(ChatCodeHandler):
         except:
             print (f"channel {code} not found")
 
-    async def _opcode_handler_kicked(self, json_object):
+    async def _opcode_handler_kicked(self, json_object:str) -> None:
         data = json.loads(json_object)
         operator = data['operator']
         channel = data['channel']
@@ -209,20 +209,20 @@ class OpCodeHandler(ChatCodeHandler):
         if (character.lower() == self.charactername.lower()):
             self.channels.pop(channel)
 
-    async def _opcoce_user_disconnected(self, json_object):
+    async def _opcoce_user_disconnected(self, json_object:str) -> None:
         # removes User from channels, managed by bot, the user is in
         data = json.loads(json_object)
         for ch_key in self.channels:
             self.channels[ch_key].remove_character(data['character'].lower())
 
-    async def _opcode_user_changed_status(self, json_object):
+    async def _opcode_user_changed_status(self, json_object) -> None:
         pass
 
-    async def _opcode_user_connected(self, json_object):
+    async def _opcode_user_connected(self, json_object) -> None:
         data = json.loads(json_object)
         self.all_users[data['identity'].lower()] = data
 
-    async def _opcode_handler_inital_channel_data(self, json_object):
+    async def _opcode_handler_inital_channel_data(self, json_object:str) -> None:
         data = json.loads(json_object)
         # print (data)
         channel = data['channel']
