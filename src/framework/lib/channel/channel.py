@@ -5,7 +5,7 @@ import json
 
 class Channel(object):
 
-    def __init__(self, name, code, description=''):
+    def __init__(self, name:str, code:str, description='') -> None:
         self.name = name
         self.code = code
         self.description = description
@@ -13,10 +13,10 @@ class Channel(object):
         self.admins = AdvList()
         self.persistent = True
 
-    def change_name(self, name):
+    def change_name(self, name:str) -> None:
         self.name = name
 
-    def change_desciption(self, description):
+    def change_desciption(self, description:str) -> None:
         self.description = description
 
     def json(self):
@@ -27,22 +27,22 @@ class Channel(object):
             }
         return data
 
-    def toJSON(self):
-        return  json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+    def toJSON(self) -> str:
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
     
-    def bbcode(self):
+    def bbcode(self) -> str:
         return f"[session={self.name}]{self.code}[/session]"
 
-    def add_character(self, name):
+    def add_character(self, name:str) -> None:
         if name.lower() not in self.characters.get():
             self.characters.append(name.lower())
         else:
             print("CHARACTER ALREADY IN CHANNEL")
 
-    def add_admin(self, user:str):
+    def add_admin(self, user:str) -> None:
         self.admins.append(user)
 
-    def remove_character(self, name) -> bool:
+    def remove_character(self, name:str) -> bool:
         if name.lower() in self.characters.get():
             self.characters.drop(name.lower())
 
@@ -52,23 +52,23 @@ class Channel(object):
 
         return False
 
-    def is_online(self, name):
+    def is_online(self, name:str):
         return self.characters.contains(name.lower())
 
     def is_admin(self, user:str) -> bool:
         return self.admins.contains(user)
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         return other.lower() == self.code.lower()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.code
     
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.name
 
     @staticmethod
-    def find_channel_by_name(dict_of_channels=None, channel_name=None):
+    def find_channel_by_name(dict_of_channels=None, channel_name=None) -> str | bool:
         if type(dict_of_channels) == type ({}) and channel_name:
             for key in dict_of_channels:
                 if dict_of_channels[key].name == channel_name:

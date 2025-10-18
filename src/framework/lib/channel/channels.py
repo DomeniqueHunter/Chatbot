@@ -8,7 +8,7 @@ from framework.lib.counter import Counter
 
 class ChannelManager(object):
 
-    def __init__(self, join_method=None):
+    def __init__(self, join_method=None) -> None:
         self.open_private_channels = {}
         self.official_channels = {}
 
@@ -17,7 +17,7 @@ class ChannelManager(object):
         self.join_method = join_method
         self.counter = Counter(2)
 
-    def add_open_private_channels(self, json_object):
+    def add_open_private_channels(self, json_object:str) -> None:
         start = time.time()
         data = json.loads(json_object)
 
@@ -31,7 +31,7 @@ class ChannelManager(object):
         elapsed = time.time() - start
         print(f"open private channels ({len(self.open_private_channels)}) in {elapsed}s")
 
-    def add_official_channels(self, json_object):
+    def add_official_channels(self, json_object:str) -> None:
         start = time.time()
         data = json.loads(json_object)
 
@@ -48,10 +48,10 @@ class ChannelManager(object):
         self.joined_channels[channel.code] = channel
         return self.joined_channels[channel.code]
 
-    def reset_joined_channels(self):
+    def reset_joined_channels(self) -> None:
         self.joined_channels = {}
 
-    def reset_open_private(self):
+    def reset_open_private(self) -> None:
         del self.open_private_channels
         self.open_private_channels = {}
 
@@ -84,7 +84,7 @@ class ChannelManager(object):
         else:
             return None
         
-    def get_channels_list(self):
+    def get_channels_list(self) -> list:
         channels = []
         
         for _, channel in self.joined_channels.items():
@@ -92,14 +92,14 @@ class ChannelManager(object):
         
         return channels
     
-    def json(self):
+    def json(self) -> dict:
         channels = dict()
         for k, v in self.joined_channels.items():
             channels[k] = v.json()
             
         return channels
 
-    async def join(self, name:str, code:str=None):
+    async def join(self, name:str, code:str=None) -> str:
         if name and code:
             channel = Channel(name, code)
             await self.join_method(channel.code, channel.name)
@@ -124,7 +124,7 @@ class ChannelManager(object):
 
         return None
 
-    async def join_by_id(self, code:str):
+    async def join_by_id(self, code:str) -> str:
         channel = self.find_channel_by_id(code)
         if self.join_method:
             await self.join_method(channel.code, channel.name)
@@ -134,7 +134,7 @@ class ChannelManager(object):
             return None
 
     # TODO: test rejoin
-    async def rejoin(self, channel:Channel):
+    async def rejoin(self, channel:Channel) -> str:
         if isinstance(channel, Channel) and channel.code in self.joined_channels:
             await self.join_method(channel.code, channel.name, force=True)
             return channel.code
@@ -147,11 +147,11 @@ class ChannelManager(object):
         else:
             return None
 
-    async def rejoin_channels(self):
+    async def rejoin_channels(self) -> None:
         for channel in self.joined_channels.values():
             await self.rejoin(channel)
 
-    def clock(self):
+    def clock(self) -> None:
         if self.counter.tick():
             for channel in self.joined_channels.values():
                 # trigger a clock method if channel is not persistant

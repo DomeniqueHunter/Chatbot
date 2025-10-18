@@ -1,11 +1,11 @@
 
 class Counter:
     
-    def __init__(self, target = 20):
+    def __init__(self, target:str=20):
         self.counter = 0
         self.target = target
         
-    def tick (self, *args):
+    def tick (self, *args:any) -> bool:
         self.counter = (self.counter +1) % self.target
         
         if self.counter == 0:
