@@ -1,6 +1,7 @@
 
 from framework import opcode
 from framework.api import Api
+from framework.plugin_loader import Plugin_Loader
 
 from framework.lib.manpage import Manpage
 from framework.lib.filemanager import FileManager
@@ -255,13 +256,24 @@ class Core():
 
         else:
             return False
+        
+    def enable_plugin_loader(self, plugins_dir:str='plugins') -> None:
+        """
+            Enable the plugin loader
+            Args:
+                plugins_dir (str): Directory where plugins are located,
+                relative to main.py
+        """
+        self.plugin_loader = Plugin_Loader(plugins_dir, self)
 
-    def set_plugin_loader(self, loader=None) -> None:
+    def set_plugin_loader(self, loader:Plugin_Loader=None) -> None:
+        # Deprecated function, can be removed later
         if loader:
             self.plugin_loader = loader
             self.plugin_loader.set_client(self)
         else:
             print ("no plugin loader!")
+        print("Deprecated: use 'enable_plugin_loader' instead")
 
     def load_plugins(self) -> None:
         if self.plugin_loader:

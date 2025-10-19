@@ -12,7 +12,8 @@ PROJECT_ROOT = os.path.dirname(__file__)
 config = Config(PROJECT_ROOT + '/config.json')
 
 client = Client(config, PROJECT_ROOT + '/data')
-client.set_plugin_loader(Plugin_Loader(PROJECT_ROOT + '/plugins/'))
+
+client.enable_plugin_loader(plugins_dir="plugins")
 client.load_plugins()
 
 # start webserver in thread

@@ -5,7 +5,7 @@ import importlib
 
 class Plugin_Loader():
     
-    def __init__(self, plugins_dir='', client=None):
+    def __init__(self, plugins_dir:str='plugins', client=None):
         self.plugins_dir = plugins_dir
         self.plugins = {}
         self.client = client
@@ -24,7 +24,7 @@ class Plugin_Loader():
                 continue
 
             try:
-                module_path = f"plugins.{plugin_name}.{plugin_name}"
+                module_path = f"{self.plugins_dir}.{plugin_name}.{plugin_name}"
                 module: ModuleType = importlib.import_module(module_path)
 
                 plugin_class = getattr(module, plugin_name)
