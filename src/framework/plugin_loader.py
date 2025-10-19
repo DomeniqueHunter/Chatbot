@@ -28,7 +28,7 @@ class Plugin_Loader():
                 module: ModuleType = importlib.import_module(module_path)
 
                 plugin_class = getattr(module, plugin_name)
-                plugin_instance = plugin_class(self.client)
+                plugin_instance = plugin_class()
 
                 self.plugins[plugin_name] = plugin_instance
                 plugin_instance.set_client(self.client)

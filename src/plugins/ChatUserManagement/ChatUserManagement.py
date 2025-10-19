@@ -4,7 +4,7 @@ import json
 
 class ChatUserManagement(Plugin_Prototype):
 
-    def __init__(self, client = None):
+    def __init__(self, client=None):
         self.module_name = "ChatUserManagement"
         self.module_version = "0.0.2"
         self.client = client

@@ -13,7 +13,7 @@ import asyncio
 
 class Ranch(Plugin_Prototype):
 
-    def __init__(self):
+    def __init__(self, client=None):
         self.module_name = "Ranch"
         self.module_version = "2.7.5"
 
