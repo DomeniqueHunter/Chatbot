@@ -1,8 +1,11 @@
 import os, sys
+from types import ModuleType
+import importlib
+
 
 class Plugin_Loader():
     
-    def __init__(self, plugins_dir = '', client  = None):
+    def __init__(self, plugins_dir='', client=None):
         self.plugins_dir = plugins_dir
         self.plugins = {}
         self.client = client
@@ -10,31 +13,37 @@ class Plugin_Loader():
     def set_client(self, client):
         self.client = client
         
-    def load_plugins(self):
+    def load_plugins(self) -> None:
+        """Load all plugins from the given directory."""
         self._extend_path()
-        self._load_plugins()
-        try:
-            pass
-        except:
-            e = sys.exc_info()[0]
-            print (f"critial error {e}")
-        
-    def _load_plugins(self):
-        for plugin in os.listdir(self.plugins_dir):
-            if (not plugin.startswith("_") and not '.py' in plugin):
-                #plugin_path = self.plugins_dir+'/'+plugin+'/'
-                exec (f"from plugins.{plugin}.{plugin} import {plugin}")
-                exec (f"self.plugins['{plugin}'] = {plugin}()")
-                self.plugins[plugin].set_client(self.client)
-                self.plugins[plugin].setup()
-                self.plugins[plugin].register_actions()                
-                print(f"Plugin: plugins.{plugin}.{plugin} import {plugin}")
-        
+
+        for plugin_name in os.listdir(self.plugins_dir):
+            if plugin_name.startswith("_") or not os.path.isdir(
+                os.path.join(self.plugins_dir, plugin_name)
+            ):
+                continue
+
+            try:
+                module_path = f"plugins.{plugin_name}.{plugin_name}"
+                module: ModuleType = importlib.import_module(module_path)
+
+                plugin_class = getattr(module, plugin_name)
+                plugin_instance = plugin_class(self.client)
+
+                self.plugins[plugin_name] = plugin_instance
+                plugin_instance.set_client(self.client)
+                plugin_instance.setup()
+                plugin_instance.register_actions()
+
+                print(f"Loaded plugin: {module_path}")
+
+            except Exception as e:
+                print(f"Failed to load plugin '{plugin_name}': {e}")
                 
     def _extend_path(self):
         for module in os.listdir(self.plugins_dir):
             if (not module.startswith("_")):
-                plugin = self.plugins_dir+'/'+module+'/'
+                plugin = self.plugins_dir + '/' + module + '/'
                 sys.path.append(plugin)
                 
     def get_plugin(self, plugin):
