@@ -3,7 +3,6 @@
 import os
 
 from framework.op_code_handler import OpCodeHandler as Client
-from framework.plugin_loader import Plugin_Loader
 from framework.lib.config import Config
 
 # from webserver.Webserver import Webserver
@@ -13,7 +12,7 @@ config = Config(PROJECT_ROOT + '/config.json')
 
 client = Client(config, PROJECT_ROOT + '/data')
 
-client.enable_plugin_loader(plugins_dir="plugins")
+client.enable_plugin_loader(plugins_dir=f"{PROJECT_ROOT}/plugins/")
 client.load_plugins()
 
 # start webserver in thread

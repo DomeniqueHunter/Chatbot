@@ -24,7 +24,7 @@ class Plugin_Loader():
                 continue
 
             try:
-                module_path = f"{self.plugins_dir}.{plugin_name}.{plugin_name}"
+                module_path = f"plugins.{plugin_name}.{plugin_name}"
                 module: ModuleType = importlib.import_module(module_path)
 
                 plugin_class = getattr(module, plugin_name)
@@ -35,7 +35,7 @@ class Plugin_Loader():
                 plugin_instance.setup()
                 plugin_instance.register_actions()
 
-                print(f"Loaded plugin: {module_path}")
+                print(f"Loaded plugin: {plugin_name} [{module_path}]")
 
             except Exception as e:
                 print(f"Failed to load plugin '{plugin_name}': {e}")
