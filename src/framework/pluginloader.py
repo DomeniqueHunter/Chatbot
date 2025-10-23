@@ -3,7 +3,7 @@ from types import ModuleType
 import importlib
 
 
-class Plugin_Loader():
+class PluginLoader():
     
     def __init__(self, plugins_dir:str='plugins', client=None):
         self.plugins_dir = plugins_dir

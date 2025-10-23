@@ -2,8 +2,8 @@
 
 import os
 
-from framework.op_code_handler import OpCodeHandler as Client
-from framework.lib.config import Config
+from framework import Client
+from framework import Config
 
 # from webserver.Webserver import Webserver
 

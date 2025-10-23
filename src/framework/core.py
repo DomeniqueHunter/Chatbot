@@ -1,7 +1,7 @@
 
 from framework import opcode
-from framework.api import Api
-from framework.plugin_loader import Plugin_Loader
+from framework import PluginLoader
+from framework import Api
 
 from framework.lib.manpage import Manpage
 from framework.lib.filemanager import FileManager
@@ -35,7 +35,7 @@ class Core():
 
         self.admins = []
 
-        self.plugin_loader = None
+        self.plugin_loader:PluginLoader = None
         self.restarts = 0
         self.start_time = AdvTime()
 
@@ -264,9 +264,9 @@ class Core():
                 plugins_dir (str): Directory where plugins are located,
                 relative to main.py
         """
-        self.plugin_loader = Plugin_Loader(plugins_dir, self)
+        self.plugin_loader = PluginLoader(plugins_dir, self)
 
-    def set_plugin_loader(self, loader:Plugin_Loader=None) -> None:
+    def set_plugin_loader(self, loader:PluginLoader=None) -> None:
         # Deprecated function, can be removed later
         if loader:
             self.plugin_loader = loader
