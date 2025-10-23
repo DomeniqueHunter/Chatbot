@@ -23,7 +23,7 @@ class Core():
     def __init__(self, config:Config, root_path:str="./") -> None:
         self.account = config.account
         self.password = config.password
-        self.version = "0.9.1"
+        self.version = "0.9.6"
 
         self.channel_manager = ChannelManager(self.join)
         self.channels = self.channel_manager.joined_channels  # is this good?
@@ -123,12 +123,8 @@ class Core():
             await self.join(channel)
 
     # TODO: sleep decorator from ChatCodeHandler, here
-    # TODO: rename to message
     async def message(self, opcode:str, data=None) -> None:
         await self.comm.message(opcode, data)
-        
-    # async def message(self, opcode:str, data=None) -> None:
-    #     await self.message(opcode, data)
 
     def _set_save_path(self, path:str) -> None:
         self.save_path = path + "/"
