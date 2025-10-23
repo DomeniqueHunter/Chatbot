@@ -1,7 +1,7 @@
 
 from framework import opcode
 from framework import PluginLoader
-from framework import Api
+
 
 from framework.lib.manpage import Manpage
 from framework.lib.filemanager import FileManager
@@ -12,10 +12,10 @@ from framework.lib.channel import ChannelManager, ChannelCreationQueue
 from time import sleep
 
 import os
-import websockets.client
 
 import json
 from framework.lib.config.config import Config
+from framework.communicaton import Communication
 
 
 class Core():
@@ -27,9 +27,6 @@ class Core():
         self.account = config.account
         self.password = config.password
         self.version = "0.9.1"
-        
-        # TODO: communication interface here
-        # self.comm = Comm(self)
 
         self.channel_manager = ChannelManager(self.join)
         self.channels = self.channel_manager.joined_channels  # is this good?
@@ -49,45 +46,15 @@ class Core():
         self.data_path = self.root_path + "/" + self.config.server + self.config.endpoint
         if not os.path.exists(self.data_path):
             os.makedirs(self.data_path, exist_ok=True)
+            
+        # TODO: communication interface here
+        self.comm = Communication(self)
 
         self.file_manager = FileManager(self.data_path)
         self.file_manager.add('status', 'status.txt', 'plain')
         self.file_manager.add('admins', 'admins.json', 'json')
         self.file_manager.add('all_users', 'all_users.bin', 'binary')
         self.file_manager.add('channels', 'channels2.json', 'json')
-
-    async def connect(self, server:str, port:int) -> None:
-        # now down in comm
-        self.server = server
-        self.port = port
-
-        uri = self.config.protocol + self.server + self.config.endpoint
-
-        try:
-            self.connection = await websockets.client.connect(uri)
-            print(f"connected to: {uri}")
-
-        except Exception as e:
-            print(f"could not connect to: {uri}")
-            print(f"error: {e}")
-            self.connection = None
-
-    async def get_api_ticket(self) -> str:
-        # now down in comm
-        return await Api.get_ticket(self.account, self.password)
-
-    async def identify(self) -> None:
-        # now down in comm
-        data = {
-            'method': 'ticket',
-            'ticket': await self.get_api_ticket(),
-            'account': str(self.account),
-            'character': str(self.charactername),
-            'cname': "Python Client",
-            'cversion': self.version,
-        }
-        await self._message(opcode.IDENTIFY, data)
-        await self._read()
 
     async def join(self, channel_code:str, channel_name:str="", force:bool=False) -> None:
         data = {'channel': channel_code}
@@ -162,29 +129,10 @@ class Core():
     # TODO: sleep decorator from ChatCodeHandler, here
     # TODO: rename to message
     async def message(self, opcode:str, data=None) -> None:
-        await self._message(opcode, data)
-
+        await self.comm.message(opcode, data)
+        
     async def _message(self, opcode:str, data=None) -> None:
-        try:
-            if data:
-                await self.connection.send(f"{opcode} {json.dumps(data)}")
-
-            else:
-                await self.connection.send(opcode)
-
-        except Exception as e:
-            print("could not send data to server")
-            print(e)
-            exit()
-
-    async def _read(self) -> str:
-        try:
-            msg = await self.connection.recv()
-            return msg
-
-        except Exception as e:
-            print("could not read from stream ...")
-            print(e)
+        await self.message(opcode, data)
 
     def _set_save_path(self, path:str) -> None:
         self.save_path = path + "/"
