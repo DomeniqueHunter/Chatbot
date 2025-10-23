@@ -55,11 +55,11 @@ class Core():
     async def join(self, channel_code:str, channel_name:str="", force:bool=False) -> None:
         data = {'channel': channel_code}
         if channel_code not in self.channels and channel_code or (channel_code and force):
-            await self._message(opcode.JOIN_CHANNEL, data)
+            await self.message(opcode.JOIN_CHANNEL, data)
 
     async def create_private_channel(self, channel_name:str) -> None:
         data = {"channel": channel_name}
-        await self._message(opcode.CREATE_PRIVATE_CHANNEL, data)
+        await self.message(opcode.CREATE_PRIVATE_CHANNEL, data)
 
     async def open_room(self, room:str) -> None:
         # channel_code = Channel.find_channel_by_name(self.channels, room)
@@ -67,33 +67,33 @@ class Core():
         channel_code = channel.code
         
         data = {"channel": channel_code, "message": "/openroom"}
-        await self._message(opcode.CHANNEL_MESSAGE, data)
+        await self.message(opcode.CHANNEL_MESSAGE, data)
 
     async def close_room(self, room:str) -> None:
         pass
 
     async def channel_operator(self, user:str, channel_code:str) -> None:
         data = {"character": user, "channel": channel_code}
-        await self._message(opcode.PROMOTE_OP, data)
+        await self.message(opcode.PROMOTE_OP, data)
 
     async def set_channel_description(self, channel_name:str, description:str) -> None:
         channel = self.channel_manager.find_channel(channel_name)
         data = {"channel": channel.code, "description": description}
-        await self._message(opcode.CHANNEL_DESCRIPTION, data)
+        await self.message(opcode.CHANNEL_DESCRIPTION, data)
 
     async def _join_by_name (self, channel_name=None) -> None:
         pass
 
     async def _leave(self, channel:str) -> None:
         data = {'channel': channel}
-        await self._message(opcode.LEAVE_CHANNEL, data)
+        await self.message(opcode.LEAVE_CHANNEL, data)
         self.channels.pop(channel)
 
     async def _order_list_of_official_channels(self) -> None:
-        await self._message(opcode.LIST_OFFICAL_CHANNELS)
+        await self.message(opcode.LIST_OFFICAL_CHANNELS)
 
     async def _order_list_of_open_private_channels(self) -> None:
-        await self._message(opcode.LIST_PRIVATE_CHANNELS)
+        await self.message(opcode.LIST_PRIVATE_CHANNELS)
 
     def remove_channel_from_list(self, code:str) -> None:
         self.channels.pop(code)
@@ -127,8 +127,8 @@ class Core():
     async def message(self, opcode:str, data=None) -> None:
         await self.comm.message(opcode, data)
         
-    async def _message(self, opcode:str, data=None) -> None:
-        await self.message(opcode, data)
+    # async def message(self, opcode:str, data=None) -> None:
+    #     await self.message(opcode, data)
 
     def _set_save_path(self, path:str) -> None:
         self.save_path = path + "/"
@@ -152,21 +152,21 @@ class Core():
         data = {"status":"online",
                 "statusmsg":status}
         sleep(1)
-        await self._message(opcode.STATUS, data)
+        await self.message(opcode.STATUS, data)
 
     async def _invite_user_to_channel(self, user:str, channel_name:str) -> None:
         channel = self.channel_manager.find_channel(channel_name)
         channel_code = channel.code
         if channel_code:
             data = {"character": user, "channel": channel_code}
-            await self._message(opcode.INVITE, data)
+            await self.message(opcode.INVITE, data)
 
     async def _invite_user_to_channel_by_name(self, user:str, channel_name:str) -> None:
         await self._invite_user_to_channel(user, channel_name)
 
     async def _invite_user_to_channel_by_code(self, user:str, channel_code:str) -> None:
         data = {"character": user, "channel": channel_code}
-        await self._message(opcode.INVITE, data)
+        await self.message(opcode.INVITE, data)
 
     def is_admin(self, user:str) -> bool:
         return user.lower() in self.admins

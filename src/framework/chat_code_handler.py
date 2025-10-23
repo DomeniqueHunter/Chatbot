@@ -65,21 +65,21 @@ class ChatCodeHandler(Core):
     async def _ping(self) -> None:
         # print("ping back")
         self.ping_time = int(time())
-        await self._message(opcode.PING)
+        await self.message(opcode.PING)
 
-    # TODO: sleep decorator, put sleep in _message
+    # TODO: sleep decorator, put sleep in message
     async def send_private_message(self, message:str, user:str) -> None:
         data = {"character": self.charactername,
                 "message": message,
                 "recipient": user}
         sleep(1)
-        await self._message(opcode.PRIVATE_MESSAGE, data)
+        await self.message(opcode.PRIVATE_MESSAGE, data)
 
     async def send_public_message(self, message:str, channel:str) -> None:
         data = {"channel": channel,
                 "message": message}
         sleep(1)
-        await self._message(opcode.CHANNEL_MESSAGE, data)
+        await self.message(opcode.CHANNEL_MESSAGE, data)
 
     async def _get_channel_description(self, data:dict) -> None:
         channel = data['channel']
@@ -233,8 +233,8 @@ class ChatCodeHandler(Core):
 
         if len(data) >= 2 and self.is_owner(user) or (user.lower() in self.admins):
             self._rename_channel(data[0], data[1])
-            _message = "changed name of channel " + data[0] + " to " + data[1]
-            await self.send_private_message(_message, user)
+            message = "changed name of channel " + data[0] + " to " + data[1]
+            await self.send_private_message(message, user)
 
     async def _hook_save_channels(self, user:str="") -> None:
         if self.is_owner(user):
@@ -353,12 +353,12 @@ class ChatCodeHandler(Core):
             data = {'channel':channel,
                     'character':other_user}
 
-            await self._message(opcode.KICK, data)
+            await self.message(opcode.KICK, data)
 
     async def _hook_op_user(self, user:str="", other_user:str="") -> None:
         if (self.is_owner(user) and other_user):
             data = {}
-            await self._message(opcode.PROMOTE_OP, data)
+            await self.message(opcode.PROMOTE_OP, data)
 
     async def _hook_help_page(self, user:str="") -> None:
         help_string = "\nHELP PAGE:\n"

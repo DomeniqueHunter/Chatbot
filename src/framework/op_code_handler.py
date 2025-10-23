@@ -86,7 +86,6 @@ class OpCodeHandler(ChatCodeHandler):
         return self.all_users[user.lower()]['gender']
 
     async def _run (self) -> None:
-
         while True:
             if self.comm.connection != None and self.comm.status() == "OPEN":
                 message = await self.comm.read() # comm
