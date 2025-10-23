@@ -1,4 +1,5 @@
-from framework import Api
+from framework.api import get_ticket
+from framework.lib.config import Config
 from framework import opcode
 import json
 import websockets.client
@@ -8,7 +9,7 @@ class Communication:
     
     def __init__(self, bot) -> None:
         self.bot = bot
-        self.config = self.bot.config
+        self.config:Config = self.bot.config
         self.connection = None
         
     async def identify(self) -> None:
@@ -56,7 +57,7 @@ class Communication:
             print(e)
             
     async def get_api_ticket(self) -> str:
-        return await Api.get_ticket(self.bot.config.account, self.bot.config.password)
+        return await get_ticket(self.bot.config.account, self.bot.config.password)
     
     def status(self) -> str:
         return self.connection.state.name

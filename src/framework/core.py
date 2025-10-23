@@ -2,7 +2,7 @@
 from framework import opcode
 from framework import PluginLoader
 
-
+from framework.lib.config import Config
 from framework.lib.manpage import Manpage
 from framework.lib.filemanager import FileManager
 from framework.lib.time import AdvTime
@@ -12,9 +12,6 @@ from framework.lib.channel import ChannelManager, ChannelCreationQueue
 from time import sleep
 
 import os
-
-import json
-from framework.lib.config.config import Config
 from framework.communicaton import Communication
 
 
@@ -46,8 +43,7 @@ class Core():
         self.data_path = self.root_path + "/" + self.config.server + self.config.endpoint
         if not os.path.exists(self.data_path):
             os.makedirs(self.data_path, exist_ok=True)
-            
-        # TODO: communication interface here
+        
         self.comm = Communication(self)
 
         self.file_manager = FileManager(self.data_path)

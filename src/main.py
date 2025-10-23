@@ -3,7 +3,7 @@
 import os
 
 from framework import Client
-from framework import Config
+from framework.lib.config import Config
 
 # from webserver.Webserver import Webserver
 
