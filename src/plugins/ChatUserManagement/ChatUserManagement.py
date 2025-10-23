@@ -1,8 +1,8 @@
-from plugins.Plugin_Prototype import Plugin_Prototype
-
+from plugins import PluginPrototype
 import json
 
-class ChatUserManagement(Plugin_Prototype):
+
+class ChatUserManagement(PluginPrototype):
 
     def __init__(self, client=None):
         self.module_name = "ChatUserManagement"
@@ -14,7 +14,7 @@ class ChatUserManagement(Plugin_Prototype):
     def set_client (self, client):
         self.client = client
               
-    async def choose_tool(self, user, input_string = "list all 1"):
+    async def choose_tool(self, user, input_string="list all 1"):
         if (self.client.is_owner(user)):
             input_string = input_string.strip()
             parameter = input_string.split()
@@ -29,7 +29,7 @@ class ChatUserManagement(Plugin_Prototype):
             else:
                 await self.client.send_private_message(f"{tool} is no valid tool!", user)
            
-    async def tool_list(self, user, parameter = 'all 1'):
+    async def tool_list(self, user, parameter='all 1'):
         parameter = parameter.strip()
         parameter = parameter.split(" ")
         
@@ -51,7 +51,7 @@ class ChatUserManagement(Plugin_Prototype):
             items = self.gender_based_dict(gender, self.client.all_users)
             
         entries_per_page = 10
-        pages = int (len(items) / entries_per_page) + 1   # number of pages
+        pages = int (len(items) / entries_per_page) + 1  # number of pages
         counter = 0
         page -= 1
         
@@ -60,17 +60,17 @@ class ChatUserManagement(Plugin_Prototype):
         msg = f"\n[{gender}][ {page+1} / {pages} ][users: {len(items)}]:\n"
         
         for key, value in sorted(items.items()):
-            if (counter >= start_at and counter <= start_at+entries_per_page-1) or page == -1:
+            if (counter >= start_at and counter <= start_at + entries_per_page - 1) or page == -1:
                 msg += f"[user]{value['identity']}[/user] : {value['gender']}\n"      
             counter += 1
             
-            #if counter > start_at+entries_per_page:
+            # if counter > start_at+entries_per_page:
             #   break
             
         await self.client.send_private_message(msg, user)
     
     async def tool_find(self, user, name):
-        try:           
+        try: 
             character = self.client.all_users[name.lower()]
             await self.client.send_private_message(f"[user]{character['identity']}[/user] : {character['gender']}", user)
         except:
@@ -82,34 +82,29 @@ class ChatUserManagement(Plugin_Prototype):
             msg = f"\nAll: 100% - {len(all)}\n"
             genders = ['female', 'male', 'shemale', 'transgender', 'herm', 'male-herm', 'cunt-boy', 'none']
             sall = len(all)
-            for gender in genders:     
+            for gender in genders: 
                 amount = len(self.gender_based_dict(gender, all))
                 msg += f"{gender}: {round(amount/sall*100,2)}% - {amount}\n"
                 
             await self.client.send_private_message(msg, user)
 
     def gender_based_dict(self, gender, all_elements):
-        return {k:v for (k,v) in all_elements.items() if v['gender'].lower() == gender.lower()}
-        
+        return {k:v for (k, v) in all_elements.items() if v['gender'].lower() == gender.lower()}
     
     async def _opcode_user_connected(self, json_object):
         data = json.loads(json_object)
-        self.client.all_users[data['identity'].lower()] =  data   
-    
+        self.client.all_users[data['identity'].lower()] = data   
         
     def register_actions(self):
         if self.client:
             print ("CUM register actions")
             self.client.opcodes_handler.add_action('NLN', self._opcode_user_connected)
             
-            self.client.private_msg_handler.add_action("!users <tool>", 
-                                                       self.choose_tool, 
-                                                       "list <gender:all> <page:1>| find <name>", 
-                                                       "owner", 
+            self.client.private_msg_handler.add_action("!users <tool>",
+                                                       self.choose_tool,
+                                                       "list <gender:all> <page:1>| find <name>",
+                                                       "owner",
                                                        "Bot (Admin)")
             self.client.private_msg_handler.add_action("!userstats", self.gender_stats, "show gender stats of known users", "owner", "Bot (Admin)")
-            
-            
-            
             
             

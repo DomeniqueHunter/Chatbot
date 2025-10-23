@@ -1,12 +1,11 @@
-from plugins.Plugin_Prototype import Plugin_Prototype
-from framework import opcode
-
+from plugins import PluginPrototype
 import json
 
-class Greetings(Plugin_Prototype):
+
+class Greetings(PluginPrototype):
 
     def __init__(self):
-        self.module_name    = "Greetings List"
+        self.module_name = "Greetings List"
         self.module_version = "2.0.1"
         self.greetings_list = {}
 
@@ -17,7 +16,7 @@ class Greetings(Plugin_Prototype):
         self._info()
         self.client.file_manager.add("greetings", "greetings.json", 'json')
 
-    def _register_greeting(self, user, title = None):
+    def _register_greeting(self, user, title=None):
         if (title):
             greeting = f'{title} {user}'
         else:
@@ -44,7 +43,7 @@ class Greetings(Plugin_Prototype):
             print(e)
             
     def _get_pages(self, n=10):
-        return (len(self.greetings_list) // n) +1
+        return (len(self.greetings_list) // n) + 1
 
     async def _opcode_user_connected(self, json_object):
         data = json.loads(json_object)
@@ -73,17 +72,16 @@ class Greetings(Plugin_Prototype):
             n = 10
             pages = self._get_pages(n)
             if page > pages:
-                page = pages-1
+                page = pages - 1
                 
             greetings = f"Greetings List: [{page+1}/{pages}]\n"
-            
             
             keys = list(self.greetings_list.keys())
             values = list(self.greetings_list.values())
             
             start = page * n
             print(f"page: {page+1}")
-            for k,v in zip(keys[start:start+n], values[start:start+n]):
+            for k, v in zip(keys[start:start + n], values[start:start + n]):
                 print(f"{k}: {v}")
                 greetings += f"- {k} as {v}\n" if v else f" - {k}\n"
 
@@ -91,7 +89,7 @@ class Greetings(Plugin_Prototype):
         else:
             await self.client.send_private_message("fuck you", user)
 
-    async def register_greeting(self, user, title = None):
+    async def register_greeting(self, user, title=None):
         greeting = self._register_greeting(user, title)
         await self.client.send_private_message(f"I will greet you as {greeting}", user)
 
@@ -107,15 +105,13 @@ class Greetings(Plugin_Prototype):
                 await self.client.send_private_message(f"removed [user]{target}[/user] from greetings list", user)
             else:
                 await self.client.send_private_message(f"could not remove [user]{target}[/user] from greetings list", user)
-                
             
     def register_actions(self):
         if self.client:
             print ("register actions")
             self.client.opcodes_handler.add_action('NLN', self._opcode_user_connected)
-            self.client.private_msg_handler.add_action("!greetings",self.get_greetings_list, "Show Greetings List", "admin", f"{self.module_name} (Admin)")
-            self.client.private_msg_handler.add_action("!rm_greeting <user>",self.rm_greeting, "remove user from Greetings List","admin", f"{self.module_name} (Admin)")
-            self.client.private_msg_handler.add_action("!greetme <title:optional>",self.register_greeting, "bot will greet you, when you log in with the title","user",self.module_name)
-            self.client.private_msg_handler.add_action("!dontgreetme",self.unsubscribe_greeting, "bot will no longer greet you","user", self.module_name)
-            
+            self.client.private_msg_handler.add_action("!greetings", self.get_greetings_list, "Show Greetings List", "admin", f"{self.module_name} (Admin)")
+            self.client.private_msg_handler.add_action("!rm_greeting <user>", self.rm_greeting, "remove user from Greetings List", "admin", f"{self.module_name} (Admin)")
+            self.client.private_msg_handler.add_action("!greetme <title:optional>", self.register_greeting, "bot will greet you, when you log in with the title", "user", self.module_name)
+            self.client.private_msg_handler.add_action("!dontgreetme", self.unsubscribe_greeting, "bot will no longer greet you", "user", self.module_name)
 

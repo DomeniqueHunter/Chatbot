@@ -1,8 +1,8 @@
-from plugins.Plugin_Prototype import Plugin_Prototype
+from plugins import PluginPrototype
 from plugins.Flop.flop_session import FlopSession
 
 
-class Flop(Plugin_Prototype):
+class Flop(PluginPrototype):
 
     def __init__(self, client=None):
         self.module_name = "Flop Game"

@@ -1,8 +1,9 @@
-from plugins.Plugin_Prototype import Plugin_Prototype
+from plugins import PluginPrototype
 
-class Test_Plugin(Plugin_Prototype):
 
-    def __init__(self, client = None):
+class Test_Plugin(PluginPrototype):
+
+    def __init__(self, client=None):
         self.module_name = "Test_Plugin"
         self.module_version = "1.0"
         self.client = client
@@ -12,7 +13,7 @@ class Test_Plugin(Plugin_Prototype):
     def set_client (self, client):
         self.client = client
 
-    def put(self, key = "key", item = ""):
+    def put(self, key="key", item=""):
         print(f"put: {key} -> {item}")
         self.store[key] = item
 
@@ -31,7 +32,7 @@ class Test_Plugin(Plugin_Prototype):
         value = self.get(key)
         await self.client.send_private_message(value, user)
 
-    async def _hook_reply_message(self, user = None, message = ""):
+    async def _hook_reply_message(self, user=None, message=""):
         print(f"ACTION: {message}\n\n")
         print("AAAAAAA")
         print("AAAAAAA")
@@ -43,8 +44,7 @@ class Test_Plugin(Plugin_Prototype):
     def register_actions(self):
         if self.client:
             self.client.private_msg_handler.add_action("!test_function <message>", self._hook_reply_message, "EXAMPLE reply", "admin", f"{self.module_name} (Admin)")
-            self.client.private_msg_handler.add_action("!test_put <key,value>",      self._hook_put_var, "EXAMPLE put", "admin", f"{self.module_name} (Admin)")
-            self.client.private_msg_handler.add_action("!test_get <key>",      self._hook_get_var, "EXAMPLE get", "admin", f"{self.module_name} (Admin)")
-    
+            self.client.private_msg_handler.add_action("!test_put <key,value>", self._hook_put_var, "EXAMPLE put", "admin", f"{self.module_name} (Admin)")
+            self.client.private_msg_handler.add_action("!test_get <key>", self._hook_get_var, "EXAMPLE get", "admin", f"{self.module_name} (Admin)")
     
         

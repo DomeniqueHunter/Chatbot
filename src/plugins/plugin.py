@@ -1,8 +1,8 @@
 # kind of an interface
-class Plugin_Prototype():
+class PluginPrototype():
 
     def __init__(self):
-        self.module_name = "Plugin_Prototype"
+        self.module_name = "PluginPrototype"
         self.module_version = "1.0"
 
     def set_client(self, client):

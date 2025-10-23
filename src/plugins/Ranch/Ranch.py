@@ -1,4 +1,4 @@
-from plugins.Plugin_Prototype import Plugin_Prototype
+from plugins import PluginPrototype
 
 from plugins.Ranch.Hooks import Hooks
 from plugins.Ranch.Logic import Logic
@@ -11,7 +11,7 @@ from framework.lib.counter import Counter
 import asyncio
 
 
-class Ranch(Plugin_Prototype):
+class Ranch(PluginPrototype):
 
     def __init__(self, client=None):
         self.module_name = "Ranch"

@@ -1,8 +1,8 @@
-from plugins.Plugin_Prototype import Plugin_Prototype
+from plugins.plugin import PluginPrototype
 from plugins.StoryTeller.hooks import Hooks
 
 
-class StoryTeller(Plugin_Prototype):
+class StoryTeller(PluginPrototype):
 
     def __init__(self, client=None):
         self.module_name = "StoryTeller"

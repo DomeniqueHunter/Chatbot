@@ -1,12 +1,10 @@
-from plugins.Plugin_Prototype import Plugin_Prototype
-
+from plugins import PluginPrototype
 import json
-
 from framework.lib.argument import parse
 from framework.lib.paginate import paginate
 
 
-class Stalker(Plugin_Prototype):
+class Stalker(PluginPrototype):
 
     def __init__(self, client=None) -> None:
         self.module_name = "Stalker"
@@ -29,7 +27,7 @@ class Stalker(Plugin_Prototype):
         self._add_client_to_list(channel, client)
 
     async def _get_full_client_list(self, user, input_string:str) -> None:
-        if self.client.is_owner(user):            
+        if self.client.is_owner(user): 
             channel_name, page = parse(input_string, str, int)
             
             channel = self.client.channel_manager.find_channel(channel_name)

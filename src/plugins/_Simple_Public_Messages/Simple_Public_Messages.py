@@ -1,7 +1,8 @@
-from plugins.Plugin_Prototype import Plugin_Prototype
-from framework.api import Api
+from plugins import PluginPrototype
 
-class Simple_Public_Messages(Plugin_Prototype):
+
+class Simple_Public_Messages(PluginPrototype):
+
     def __init__(self):
         self.module_name = "SPM"
         self.module_version = "1.0"
@@ -11,9 +12,9 @@ class Simple_Public_Messages(Plugin_Prototype):
             self.client.public_msg_handler.add_action("!hello", self.answer_hello)
             self.client.public_msg_handler.add_action("!debug_charinfo", self.info)
 
-    async def answer_hello (self, user, channel, message = ""):
+    async def answer_hello (self, user, channel, message=""):
         print (f"User '{user}' wrote in '{channel}' the message '{message}")
-        await self.client.send_public_message("Hello {user}!",channel)
+        await self.client.send_public_message("Hello {user}!", channel)
 
-    #async def info (self):
+    # async def info (self):
     #    Api.get_gender_of_character(api.get_ticket(self.client.account, self.client.password), self.client.account, 'katharina_')
