@@ -15,7 +15,7 @@ class Plugin_Loader():
         
     def load_plugins(self) -> None:
         """Load all plugins from the given directory."""
-        self._extend_path()
+        # self._extend_path()
 
         for plugin_name in os.listdir(self.plugins_dir):
             if plugin_name.startswith("_") or not os.path.isdir(
