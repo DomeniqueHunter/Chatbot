@@ -27,6 +27,9 @@ class Core():
         self.account = config.account
         self.password = config.password
         self.version = "0.9.1"
+        
+        # TODO: communication interface here
+        # self.comm = Comm(self)
 
         self.channel_manager = ChannelManager(self.join)
         self.channels = self.channel_manager.joined_channels  # is this good?
@@ -54,6 +57,7 @@ class Core():
         self.file_manager.add('channels', 'channels2.json', 'json')
 
     async def connect(self, server:str, port:int) -> None:
+        # now down in comm
         self.server = server
         self.port = port
 
@@ -69,9 +73,11 @@ class Core():
             self.connection = None
 
     async def get_api_ticket(self) -> str:
+        # now down in comm
         return await Api.get_ticket(self.account, self.password)
 
     async def identify(self) -> None:
+        # now down in comm
         data = {
             'method': 'ticket',
             'ticket': await self.get_api_ticket(),

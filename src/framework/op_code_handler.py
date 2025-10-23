@@ -58,12 +58,12 @@ class OpCodeHandler(ChatCodeHandler):
             await self.opcodes_handler.react(op, json_object)
 
     async def _connect(self) -> None:
-        await self.connect(self.config.server, self.config.port)
-        await self.identify()
+        await self.connect(self.config.server, self.config.port) # comm
+        await self.identify() # comm
 
     async def _restart(self) -> None:
         print("MSG: restart chatbot")
-        await self._connect()
+        await self._connect() # comm
         await self.channel_manager.rejoin_channels()
         self.restarts += 1
 
@@ -76,7 +76,7 @@ class OpCodeHandler(ChatCodeHandler):
         await self.join_default_channels(self.config.default_channels)
 
     def start(self) -> None:
-        self.loop.run_until_complete(self._connect())
+        self.loop.run_until_complete(self._connect()) # comm
         self.loop.run_until_complete(self._prepare())
         self.loop.run_until_complete(self._run())
 
@@ -89,7 +89,7 @@ class OpCodeHandler(ChatCodeHandler):
 
         while True:
             if self.connection != None and str(self.connection.state.name) == "OPEN":
-                message = await self._read()
+                message = await self._read() # comm
                 if message:
                     data = message.split(" ", 1)
                     await self.dispatcher(*data)

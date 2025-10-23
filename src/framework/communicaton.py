@@ -1,6 +1,7 @@
 from framework import Api
 from framework import opcode
 import json
+import websockets
 
 
 class Comm:
@@ -21,15 +22,20 @@ class Comm:
         await self._message(opcode.IDENTIFY, data)
         await self.read()
         
-    async def connect(self) -> None:
-        await self.connect(self.config.server, self.config.port)
-        await self.identify()
+    async def connect(self, server:str, port:int) -> None:
+        self.server = server
+        self.port = port
 
-    async def _restart(self) -> None:
-        print("MSG: restart chatbot")
-        await self.connect()
-        await self.bot.channel_manager.rejoin_channels()
-        self.restarts += 1
+        uri = self.config.protocol + self.server + self.config.endpoint
+
+        try:
+            self.connection = await websockets.client.connect(uri)
+            print(f"connected to: {uri}")
+
+        except Exception as e:
+            print(f"could not connect to: {uri}")
+            print(f"error: {e}")
+            self.connection = None
 
     async def message(self, opcode:str, data=None) -> None:
         try:
@@ -55,5 +61,4 @@ class Comm:
             
     async def get_api_ticket(self) -> str:
         return await Api.get_ticket(self.account, self.password)
-
     
