@@ -14,7 +14,7 @@ class WebSocketError(Exception):
 
 
 class WSState:
-    def __init__(self, name: str):
+    def __init__(self, name:str):
         self._name = name
 
     @property
@@ -26,12 +26,12 @@ class WSState:
 
 
 class WSConnectionInfo:
-    def __init__(self, state: WSState):
+    def __init__(self, state:WSState):
         self.state = state
 
 
 class AsyncWebSocketConnection:
-    def __init__(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter, addr: Tuple[str, int]):
+    def __init__(self, reader:asyncio.StreamReader, writer:asyncio.StreamWriter, addr:Tuple[str, int]):
         self.reader = reader
         self.writer = writer
         self.addr = addr
@@ -39,11 +39,11 @@ class AsyncWebSocketConnection:
         self.connection = WSConnectionInfo(self.state)
         self.closed = False
 
-    def _set_state(self, new_state: str) -> None:
+    def _set_state(self, new_state:str) -> None:
         self.state = WSState(new_state)
         self.connection.state = WSState(new_state)
 
-    async def _recv_exact(self, n: int) -> bytes:
+    async def _recv_exact(self, n:int) -> bytes:
         data = b""
         while len(data) < n:
             chunk = await self.reader.read(n - len(data))
@@ -53,7 +53,7 @@ class AsyncWebSocketConnection:
             data += chunk
         return data
 
-    async def send_frame(self, opcode: int, payload: bytes = b"") -> None:
+    async def send_frame(self, opcode:int, payload:bytes=b"") -> None:
         if self.state.name in {"CLOSING", "CLOSED"}:
             return
         fin_and_opcode = 0x80 | (opcode & 0x0F)
@@ -97,19 +97,19 @@ class AsyncWebSocketConnection:
 
         return opcode, payload
 
-    async def send_text(self, text: str) -> None:
+    async def send_text(self, text:str) -> None:
         await self.send_frame(0x1, text.encode("utf-8"))
 
-    async def send_binary(self, data: bytes) -> None:
+    async def send_binary(self, data:bytes) -> None:
         await self.send_frame(0x2, data)
 
-    async def send_ping(self, payload: bytes = b"") -> None:
+    async def send_ping(self, payload:bytes=b"") -> None:
         await self.send_frame(0x9, payload)
 
-    async def send_pong(self, payload: bytes = b"") -> None:
+    async def send_pong(self, payload:bytes=b"") -> None:
         await self.send_frame(0xA, payload)
 
-    async def send(self, data: Union[str, bytes]) -> None:
+    async def send(self, data:Union[str, bytes]) -> None:
         if isinstance(data, str):
             await self.send_text(data)
         elif isinstance(data, (bytes, bytearray)):
@@ -141,7 +141,7 @@ class AsyncWebSocketConnection:
             return b""
         return b""
 
-    async def close(self, code: int = 1000, reason: str = "") -> None:
+    async def close(self, code:int=1000, reason:str="") -> None:
         if self.state.name in {"CLOSING", "CLOSED"}:
             return
         self._set_state("CLOSING")
@@ -168,7 +168,7 @@ class AsyncWebSocketConnection:
         await self.close()
 
 
-async def connect(uri: str) -> AsyncWebSocketConnection:
+async def connect(uri:str) -> AsyncWebSocketConnection:
     parsed = urlparse(uri)
     scheme = parsed.scheme.lower()
     host = parsed.hostname
@@ -207,15 +207,3 @@ async def connect(uri: str) -> AsyncWebSocketConnection:
     ws._set_state("OPEN")
     return ws
 
-
-async def main() -> None:
-    async with await connect("ws://127.0.0.1:8765") as ws:
-        print("State:", ws.connection.state.name)
-        await ws.send("Hello world")
-        msg = await ws.recv()
-        print("Received:", msg)
-        print("State:", ws.connection.state.name)
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
