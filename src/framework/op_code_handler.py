@@ -111,8 +111,6 @@ class OpCodeHandler(ChatCodeHandler):
         message = message.split(' ', 1)
         handler = message.pop(0)
 
-        # print (f"user: {user}\nmessage: {message}")
-
         await self.private_msg_handler.react(handler, user, *message)
 
     async def _opcode_handler_channel_message(self, json_object:str) -> None:
@@ -182,9 +180,9 @@ class OpCodeHandler(ChatCodeHandler):
                         await self.channel_operator(channel_object["user"], code)
 
                         self.channels[code].add_admin(channel_object["user"])
-                        self.channels[code].persistent = False
-
-        self.channels[code].add_character(user.lower())
+                        self.channels[code].persistent = channel_object["persistent"]
+        else:
+            self.channels[code].add_character(user.lower())
 
     async def _opcode_hander_user_left_channel(self, json_object:str) -> None:
         data = json.loads(json_object)

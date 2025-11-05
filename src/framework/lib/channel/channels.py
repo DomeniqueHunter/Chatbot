@@ -94,8 +94,9 @@ class ChannelManager(object):
     
     def json(self) -> dict:
         channels = dict()
-        for k, v in self.joined_channels.items():
-            channels[k] = v.json()
+        for code, channel in self.joined_channels.items():
+            if channel.persistent:
+                channels[code] = channel.json()
             
         return channels
 

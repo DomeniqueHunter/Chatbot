@@ -5,6 +5,7 @@ from framework.lib.command_manager import CommandManager
 
 from time import sleep, time
 from framework.lib.config.config import Config
+from framework.lib.argument.parser import parse
 
 
 class ChatCodeHandler(Core):
@@ -35,7 +36,7 @@ class ChatCodeHandler(Core):
         self.private_msg_handler.add_action("!remove_admin <name>", self._hook_remove_admin, "remove User from admins", "admin", "Bot (Admin)")
         self.private_msg_handler.add_action("!admins"       , self._hook_admins, "returns a list of admins", "user", "Bot")
         self.private_msg_handler.add_action("!channels"     , self._hook_channels, "returns a list of channels", "user", "Bot")
-        self.private_msg_handler.add_action("!create_channel <channelname>", self._hook_create_private_channel, "creates a channel", "admin", "Bot (Admin)")
+        self.private_msg_handler.add_action("!create_channel <channelname>, <presistent:bool (default 0)>", self._hook_create_private_channel, "creates a channel, can be persistent 0, 1", "admin", "Bot (Admin)")
 
         self.private_msg_handler.add_action("!status <text>", self._hook_set_status, "Set Bots Status to text", "admin", "Bot (Admin)")
 
@@ -44,6 +45,7 @@ class ChatCodeHandler(Core):
 
         self.private_msg_handler.add_action("!invite <channel>, <user>", self._hook_invite_to_channel, "invite user to channel", "admin", "Bot (Admin)")
         self.private_msg_handler.add_action("!kick <channel>, <user>", self._hook_kick, "kicks", "admin", "Bot (Admin)")
+        self.private_msg_handler.add_action("!op <channel>, <user>", self._hook_op_user, "add user to moderator list in channel", "admin", "Bot (Admin)")
         self.private_msg_handler.add_action("!help"         , self._hook_help_page, "Show help Page", "user", "Bot")
 
         self.private_msg_handler.add_action("!allusers"     , self._hook_list_all_users, "Lists all users", "owner", "Bot (Admin)")
@@ -183,10 +185,13 @@ class ChatCodeHandler(Core):
 
     # CHANNEL HANDLING
 
-    async def _hook_create_private_channel(self, user:str="", channel_name:str=""):
+    async def _hook_create_private_channel(self, user:str="", message:str=""):
+        
+        channel_name, persistent = parse(message, str, bool)
+        
         if self.has_admin_rights(user):
             await self.create_private_channel(channel_name)
-            self.channel_creation_queue.add(channel_name, user)
+            self.channel_creation_queue.add(channel_name, user, persistent)
             await self.send_private_message(f"created channel: {channel_name}", user)
 
     async def _hook_channels(self, user:str="", message:str=""):
@@ -230,6 +235,7 @@ class ChatCodeHandler(Core):
 
     async def _hook_channel_name(self, user:str="", message:str="") -> None:
         data = message.split(" ", 1)
+        old_channel_name, new_channel_name = parse(message, str, str)
 
         if len(data) >= 2 and self.is_owner(user) or (user.lower() in self.admins):
             self._rename_channel(data[0], data[1])
@@ -331,34 +337,43 @@ class ChatCodeHandler(Core):
                 pass
 
     async def _hook_invite_to_channel(self, user:str="", data:str="") -> None:
-        # data example
-        # CHANNELNAME USER NAME
         try:
-            (channel, other_user) = data.split(',', 1)
+            channel_name, other_user = parse(data, str, str)
 
-            print (f"invite USER {other_user.strip()} to {channel.strip()}")
-
-            if (self.has_admin_rights(user) and other_user):
-                await self._invite_user_to_channel(other_user.strip(), channel.strip())
+            if self.has_admin_rights(user) and other_user:
+                # print(f"invite user {other_user} to {channel_name}")
+                
+                await self._invite_user_to_channel(other_user, channel_name)
         except:
             print("ERROR: probably missing ,")
 
     async def _hook_kick(self, user:str="", message:str="") -> None:
-        message = message.split(" ", 1)
-        channel = message[0]
-        other_user = message[1]
-        if (self.has_admin_rights(user) and other_user):
-            print ('other user: ', other_user, ' channel: ', channel)
+        """
+        kick other_user from channel_name
+        Bot has to be Moderator in the channel
+        """
+        channel_name, other_user = parse(message, str, str)
+        
+        if self.has_admin_rights(user) and other_user:
+            channel = self.channel_manager.find_channel(channel_name)
+            # print(f"kick user {other_user} from channel {channel.name}")
 
-            data = {'channel':channel,
+            data = {'channel':channel.code,
                     'character':other_user}
 
             await self.message(opcode.KICK, data)
 
-    async def _hook_op_user(self, user:str="", other_user:str="") -> None:
-        if (self.is_owner(user) and other_user):
-            data = {}
-            await self.message(opcode.PROMOTE_OP, data)
+    async def _hook_op_user(self, user:str="", message:str="") -> None:
+        """
+        Add other_user to operator list in channel_name requires owner rights in channel_name
+        """
+        channel_name, other_user = parse(message, str, str)
+        
+        if self.is_owner(user) and other_user:
+            channel = self.channel_manager.find_channel(channel_name)
+            print(f"op user {other_user} in channel {channel.name}")
+            
+            await self.channel_operator(other_user, channel.code)
 
     async def _hook_help_page(self, user:str="") -> None:
         help_string = "\nHELP PAGE:\n"
