@@ -234,12 +234,12 @@ class ChatCodeHandler(Core):
             await self.send_private_message(message, user)
 
     async def _hook_channel_name(self, user:str="", message:str="") -> None:
-        data = message.split(" ", 1)
+        # TODO: is this even possible?
         old_channel_name, new_channel_name = parse(message, str, str)
 
-        if len(data) >= 2 and self.is_owner(user) or (user.lower() in self.admins):
-            self._rename_channel(data[0], data[1])
-            message = "changed name of channel " + data[0] + " to " + data[1]
+        if old_channel_name and new_channel_name and self.has_admin_rights(user):
+            self._rename_channel(old_channel_name, new_channel_name)
+            message = f"changed name of channel {old_channel_name} to {new_channel_name}"
             await self.send_private_message(message, user)
 
     async def _hook_save_channels(self, user:str="") -> None:
@@ -380,6 +380,8 @@ class ChatCodeHandler(Core):
         help_string += "SYNOPSIS: DESCRIPTION\n"
 
         help_string += self.manpage.show(user)
+        
+        # print(f"help page length: {len(help_string)}")
 
         await self.send_private_message(help_string, user)
 
