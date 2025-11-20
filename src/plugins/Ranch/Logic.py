@@ -1,9 +1,11 @@
 import random
+from plugins.Ranch.response import MilkJobResponse
 from datetime import datetime
-from collections import deque
+from collections import deque, defaultdict
 import calendar
 import json
 import re
+import time
 
 
 class Logic():
@@ -14,6 +16,8 @@ class Logic():
         # todo: Queues to remember cows and workers
         self.remember_cows = deque(maxlen=30)
         self.remember_workers = deque(maxlen=30)
+        
+        self.worker_interactions = defaultdict(dict)
         
     def is_person(self, name:str):
         person = self.ranch.database.get_person(name)
@@ -108,9 +112,14 @@ class Logic():
         return 1.2
     
     def worker_milkings(self, lvl):
-        if lvl >= 300: return 3
-        if lvl >= 200: return 2        
+        if lvl >= 200: return 3
+        if lvl >= 100: return 2        
         return 1
+    
+    def check_milking_delay(self, worker:str, cow:str, delay_s:int=3600) -> bool:
+        now = int(time.time())
+        last = self.worker_interactions[worker].get(cow, 0)
+        return (now - last) >= delay_s
 
     def _milk_that_meat_sack(self, worker_name:str, cow_name:str, multiplier:float=0, respect:bool=True):
         """
@@ -121,7 +130,7 @@ class Logic():
         @param respect: debug flag
         @return: (success, amount, lvlup_cow, milk)
         """
-        name, milk, level_cow, exp_cow, _ = self.ranch.database.get_cow(cow_name, respect)
+        name, max_milk, level_cow, exp_cow, _ = self.ranch.database.get_cow(cow_name, respect)
         _, wname, wlvl, _, _ = self.get_worker(worker_name)
 
         if not name.lower() == cow_name.lower():
@@ -132,23 +141,37 @@ class Logic():
 
         date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         count_milking = self.ranch.database.check_milking(cow_name, worker_name, date)[0]
-
-        if (count_milking < self.worker_milkings(wlvl) or not respect) and multiplier > 0:
-            max_milk = int(milk * multiplier)
+        
+        # 10 800 = 3 * 60 * 60
+        if (count_milking < self.worker_milkings(wlvl) or not respect) and multiplier > 0 and self.check_milking_delay(worker_name, cow_name, delay_s=10800):
+            # TODO
+            # we need to split this in 3 parts
+            # 1. fails if self.check_milking_delay(worker_name, cow_name, delay_s=10800) is false -> 2
+            # 2. okay if milking is okay -> 0
+            # 3. else -> 1
+            # we need better status returns to the Hooks part so we can decide how it failed or succeded.
+            # maybe class ReturnCodes: 0: success, 1: milkable_error, 2: milk_duration_error
+            
+            max_milk = int(max_milk * multiplier)
             amount = int(random.uniform(0.2 * max_milk, max_milk) * self.worker_multiplier(wlvl))
-            lvlup_cow = False
+            cow_lvl_up = False
+                        
             success = self.ranch.database.milk_cow(cow_name, worker_name, amount, date)
+            
             if success:
-                lvlup_cow = self._level_up_cow(cow_name, milk, level_cow, exp_cow)
+                cow_lvl_up = self._level_up_cow(cow_name, max_milk, level_cow, exp_cow)
+                self.worker_interactions[worker_name][cow_name] = int(time.time())
 
         else:
             success = False
             amount = 0
             lvlup_cow = False
             milk = 0
-
+        
+        return MilkJobResponse(worker_name, cow_name, milk, amount, success, cow_lvl_up)
+        
         # todo: lvlup_cow worker needs to be done
-        return (success, amount, lvlup_cow, milk)
+        return (success, amount, lvlup_cow, max_milk)
 
     async def milk_cow(self, worker_name:str, cow_name:str):
         """
@@ -164,12 +187,14 @@ class Logic():
         _, _, w_lvl, w_ep, _ = self.ranch.database.get_worker(worker_name)[0]
         multiplier = await self._get_milk_multiplier(worker_name)
         bonus = 0.4
-        lvlup_worker = False
-        success, amount, lvlup, milk = self._milk_that_meat_sack(worker_name, cow_name, multiplier + bonus)
-        if success:
-            lvlup_worker = self._level_up_worker(worker_name, w_lvl, w_ep)
+        # lvlup_worker = False
+        
+        response = self._milk_that_meat_sack(worker_name, cow_name, multiplier + bonus)
+        
+        if response.success:
+            response.worker_lvl_up = self._level_up_worker(worker_name, w_lvl, w_ep)
 
-        return (success, amount, lvlup, milk, lvlup_worker)
+        return (response.success, response.amount, response.cow_lvl_up, response.max_milk, response.worker_lvl_up)
 
     async def power_milk_cow(self, worker_name:str, cow_name:str, debug_exp=1):
         """
@@ -187,12 +212,12 @@ class Logic():
 
         _, _, w_lvl, w_ep, _ = self.ranch.database.get_worker(worker_name)[0]
 
-        success, amount, lvlup, milk = self._milk_that_meat_sack(worker_name, cow_name, multiplier + bonus, False)
-        lvlup_worker = False
-        if success:
-            lvlup_worker = self._level_up_worker(worker_name, w_lvl, w_ep, debug_exp)
+        response = self._milk_that_meat_sack(worker_name, cow_name, multiplier + bonus, False)
+        
+        if response.success:
+            response.worker_lvl_up = self._level_up_worker(worker_name, w_lvl, w_ep, debug_exp)
 
-        return (success, amount, lvlup, milk, lvlup_worker)
+        return (response.success, response.amount, response.cow_lvl_up, response.max_milk, response.worker_lvl_up)
 
     async def milk_all(self, user:str, channel:str) -> (list, int):
         '''
@@ -206,28 +231,29 @@ class Logic():
         not_milkable = 0
         milked_cows = []
         
-        lvlup_worker = False
+        # lvlup_worker = False
         new_worker_exp = 0
 
         if multiplier > 0:
             for character in self.ranch.client.channels[channel].characters.get():
 
                 if self.is_cow(character) and not user.lower() == character.lower():
-                    success, amount, lvlup, _ = self._milk_that_meat_sack(user, character, multiplier)
+                    # success, amount, lvlup, _ = self._milk_that_meat_sack(user, character, multiplier)
+                    response = self._milk_that_meat_sack(user, character, multiplier)
 
-                    if success:
-                        milked_cows.append((character, amount, lvlup))
+                    if response.success:
+                        milked_cows.append((response.cow, response.amount, response.cow_lvl_up))
                         new_worker_exp += 1
 
                     else:
                         not_milkable += 1
                     
         if new_worker_exp:
-            lvlup_worker = self._level_up_worker(user, w_lvl, w_ep, new_worker_exp)
+            response.worker_lvl_up = self._level_up_worker(user, w_lvl, w_ep, new_worker_exp)
 
         milked_cows.sort(key=lambda x: x[1], reverse=True)
 
-        return milked_cows, not_milkable, lvlup_worker
+        return milked_cows, not_milkable, response.worker_lvl_up
 
     def _level_up_cow(self, cow_name:str, milk:int, level:int, exp:int, add_exp:int=1) -> bool:
         exp += add_exp
