@@ -19,6 +19,8 @@ class Logic():
         
         self.worker_interactions = defaultdict(dict)
         
+        self.time_between_milkings = 10800
+        
     def is_person(self, name:str):
         person = self.ranch.database.get_person(name)
         if person:
@@ -121,7 +123,7 @@ class Logic():
         last = self.worker_interactions[worker].get(cow, 0)
         return (now - last) >= delay_s
 
-    def _milk_that_meat_sack(self, worker_name:str, cow_name:str, multiplier:float=0, respect:bool=True):
+    def _milk_that_meat_sack(self, worker_name:str, cow_name:str, multiplier:float=0, respect:bool=True) -> MilkJobResponse:
         """
         sends the milking request to the database,
         returns if the milking was a success, the amount of milk, if there was a lvl up and the new milking yield of the cow
@@ -138,12 +140,14 @@ class Logic():
 
         if worker_name.lower() == cow_name.lower():
             return None
+            
+        if (count_milking < self.worker_milkings(wlvl) or not respect) and multiplier > 0 and self.check_milking_delay(worker_name, cow_name, delay_s=self.time_between_milkings):
+            return None
 
         date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         count_milking = self.ranch.database.check_milking(cow_name, worker_name, date)[0]
         
         # 10 800 = 3 * 60 * 60
-        if (count_milking < self.worker_milkings(wlvl) or not respect) and multiplier > 0 and self.check_milking_delay(worker_name, cow_name, delay_s=10800):
             # TODO
             # we need to split this in 3 parts
             # 1. fails if self.check_milking_delay(worker_name, cow_name, delay_s=10800) is false -> 2
