@@ -19,7 +19,7 @@ class Logic():
         
         self.worker_interactions = defaultdict(dict)
         
-        self.time_between_milkings = 10800
+        self.time_between_milkings = 10800  # 10 800 = 3 * 60 * 60
         
     def is_person(self, name:str):
         person = self.ranch.database.get_person(name)
@@ -140,14 +140,11 @@ class Logic():
 
         if worker_name.lower() == cow_name.lower():
             return None
-            
-        if (count_milking < self.worker_milkings(wlvl) or not respect) and multiplier > 0 and self.check_milking_delay(worker_name, cow_name, delay_s=self.time_between_milkings):
-            return None
 
         date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         count_milking = self.ranch.database.check_milking(cow_name, worker_name, date)[0]
         
-        # 10 800 = 3 * 60 * 60
+        if (count_milking < self.worker_milkings(wlvl) or not respect) and multiplier > 0 and self.check_milking_delay(worker_name, cow_name, delay_s=self.time_between_milkings):
             # TODO
             # we need to split this in 3 parts
             # 1. fails if self.check_milking_delay(worker_name, cow_name, delay_s=10800) is false -> 2
