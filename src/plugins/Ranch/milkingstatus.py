@@ -5,16 +5,16 @@ class MilkingStatus(Enum):
     EMPTY = 0
     SUCCESS = 1
     FAILED = 2
-    MILKED_ALREADY = 3
-    MILKABLE_SOON = 4
+    MILKING_DONE_TODAY = 3
+    MILKING_ON_COOLDOWN = 4
 
 
 
 def test():
     print(MilkingStatus.SUCCESS)
     print(MilkingStatus.FAILED)
-    print(MilkingStatus.MILKED_ALREADY)
-    print(MilkingStatus.MILKABLE_SOON)
+    print(MilkingStatus.MILKING_DONE_TODAY)
+    print(MilkingStatus.MILKING_ON_COOLDOWN)
 
 
 
