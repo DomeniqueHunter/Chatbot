@@ -4,7 +4,7 @@ from plugins.Ranch.Hooks import Hooks
 from plugins.Ranch.Logic import Logic
 # from plugins.Ranch.DB_Wrapper import RANCH_DB
 from plugins.Ranch.MySQL_Wrapper import RANCH_DB
-from plugins.Ranch.Session import SessionManager
+from plugins.Ranch.session import SessionManager
 
 from framework.lib.counter import Counter
 
@@ -15,7 +15,7 @@ class Ranch(PluginPrototype):
 
     def __init__(self, client=None):
         self.module_name = "Ranch"
-        self.module_version = "2.7.5"
+        self.module_version = "2.7.7"
 
         self.logic = Logic(self)
         self.hooks = Hooks(self)
