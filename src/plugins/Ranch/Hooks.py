@@ -156,7 +156,7 @@ class Hooks():
                 # (success, amount, lvlup, _, lvlup_worker) = await self.ranch.logic.milk_cow(worker, cow_name)  # (success, amount, lvlup, milk)
                 response: MilkJobResponse = await self.ranch.logic.milk_cow(worker, cow_name)  # (success, amount, lvlup, milk)
                 
-                print(f"STATUS: {response.status}")
+                # print(f"STATUS: {response.status}")
                 
                 message = ""
 
@@ -351,7 +351,7 @@ class Hooks():
 
         name = bbcode.get_name(name)
 
-        if self.ranch.client.is_priviliged(user.strip()):
+        if self.ranch.client.has_admin_rights(user.strip()):
 
             status = await self.ranch.logic.add_cow(name, milk)
             if status == True:
