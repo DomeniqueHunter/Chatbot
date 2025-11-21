@@ -5,6 +5,8 @@ from plugins.Ranch.Logic import Logic
 from datetime import datetime
 import calendar
 import random
+from plugins.Ranch.milkingstatus import MilkingStatus
+from plugins.Ranch.response import MilkJobResponse
 
 
 class Hooks():
@@ -151,21 +153,26 @@ class Hooks():
             message = ""
 
             if worker.lower() != cow_name.lower() and is_cow and is_worker and is_online:
-                (success, amount, lvlup, _, lvlup_worker) = await self.ranch.logic.milk_cow(worker, cow_name)  # (success, amount, lvlup, milk)
-
-                # print ((success, amount, lvlup))
+                # (success, amount, lvlup, _, lvlup_worker) = await self.ranch.logic.milk_cow(worker, cow_name)  # (success, amount, lvlup, milk)
+                response: MilkJobResponse = await self.ranch.logic.milk_cow(worker, cow_name)  # (success, amount, lvlup, milk)
+                
+                print(f"STATUS: {response.status}")
+                
                 message = ""
 
-                if success:
-                    message = f"[user]{worker}[/user] milked [user]{cow_name}[/user] and got {amount}l of milk!"
+                if response.status == MilkingStatus.SUCCESS:
+                    message = f"[user]{worker}[/user] milked [user]{cow_name}[/user] and got {response.amount}l of milk!"
                     
-                    if amount == 69: message += " - nice!"
+                    if response.amount == 69: message += " - nice!"
 
-                    if lvlup:
+                    if response.cow_lvl_up:
                         message += f"\n[user]{cow_name}[/user] had a boobgasm through milking and is now more productive!"
 
-                    if lvlup_worker:
+                    if response.worker_lvl_up:
                         message += f"\n[user]{worker}[/user] is more skilled now!"
+                
+                elif response.status == MilkingStatus.MILKING_ON_COOLDOWN:
+                    message = f"You can milk [user]{cow_name}[/user] again later, [user]{worker}[/user]"
 
                 else:
                     message = f"You can milk [user]{cow_name}[/user] again on the next day, [user]{worker}[/user]"
@@ -210,15 +217,16 @@ class Hooks():
                 message = "this is not a cow"
 
             if worker.lower() != cow_name.lower() and is_worker and is_cow and is_online:
-                (success, amount, lvlup, _, lvlup_worker) = await self.ranch.logic.power_milk_cow(worker, cow_name, exp)
+                # (success, amount, lvlup, _, lvlup_worker) = await self.ranch.logic.power_milk_cow(worker, cow_name, exp)
+                response: MilkJobResponse = await self.ranch.logic.power_milk_cow(worker, cow_name, exp)
+                
+                if response.status == MilkingStatus.SUCCESS:
+                    message = f"You milked [user]{cow_name}[/user] against it's will and got {response.amount}l of milk!"
 
-                if success:
-                    message = f"You milked [user]{cow_name}[/user] against it's will and got {amount}l of milk!"
-
-                    if lvlup:
+                    if response.cow_lvl_up:
                         message += f"\n[user]{cow_name}[/user] had a boobgasm through milking and is now more productive!"
 
-                    if lvlup_worker:
+                    if response.worker_lvl_up:
                         message += f"\n[user]{worker}[/user] is more skilled now!"
 
                 else:
