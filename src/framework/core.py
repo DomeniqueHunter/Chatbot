@@ -170,11 +170,6 @@ class Core():
     def is_owner(self, user:str) -> bool:
         return user.lower() == self.owner.lower()
 
-    # depricated
-    def is_priviliged(self, user:str) -> bool:
-        print("the method 'is_priviliged' is depricated, please use has_admin_rights")
-        return (self.is_admin(user)  or self.is_owner(user))
-
     def has_owner_rights(self, user:str) -> bool:
         if self.is_owner(user):
             return True
