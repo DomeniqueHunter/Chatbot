@@ -43,7 +43,7 @@ class Hooks():
             await self.ranch.client.send_public_message(message, channel)
 
     async def get_cow_stats(self, user, name):
-        if self.ranch.client.is_priviliged(user):
+        if self.ranch.client.has_admin_rights(user):
             name = bbcode.get_name(name)
             is_cow = self.ranch.logic.is_cow(name, False)
             message = ""
@@ -417,7 +417,7 @@ class Hooks():
         if name:
             name = bbcode.get_name(name)
 
-            if self.ranch.client.is_priviliged(user.strip()):
+            if self.ranch.client.has_admin_rights(user.strip()):
                 status = await self.ranch.logic.disable_worker(name)
 
                 if status:
@@ -439,7 +439,7 @@ class Hooks():
         @param user: username
         @param input_string: cow name, milk (csv)
         """
-        if self.ranch.client.is_priviliged(user):
+        if self.ranch.client.has_admin_rights(user):
             name, amount = input_string.strip().split(',')
             name = bbcode.get_name(name)
 

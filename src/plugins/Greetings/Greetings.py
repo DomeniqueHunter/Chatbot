@@ -57,7 +57,7 @@ class Greetings(PluginPrototype):
             await self.client.send_private_message(message, user)
 
     async def get_greetings_list(self, user, page=1):
-        if (self.client.is_priviliged(user)):
+        if (self.client.has_admin_rights(user)):
             if type(page) == str:
                 try:
                     page = int(page)
@@ -99,7 +99,7 @@ class Greetings(PluginPrototype):
             await self.client.send_private_message("I will no longer greet you", user)
             
     async def rm_greeting(self, user, target):
-        if self.client.is_priviliged(user):
+        if self.client.has_admin_rights(user):
             removed = self._unsubscribe_greeting(target)
             if removed:
                 await self.client.send_private_message(f"removed [user]{target}[/user] from greetings list", user)
