@@ -392,7 +392,7 @@ class Hooks():
         if name:
             name = bbcode.get_name(name)
 
-            if self.ranch.client.is_priviliged(user.strip()):
+            if self.ranch.client.has_admin_rights(user.strip()):
                 status = await self.ranch.logic.disable_cow(name)
                 if status:
                     message = f"cow [user]{name}[/user] was disabled!"

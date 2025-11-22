@@ -93,10 +93,7 @@ class Logic():
         if worker_is_worker or worker_is_breeder: 
 
             if worker_is_cow:
-                multiplier = 0.5
-
-            elif worker_is_worker and worker_is_cow:
-                multiplier = 0.8
+                multiplier = 0.6
 
             elif worker_is_breeder:
                 multiplier = 2
