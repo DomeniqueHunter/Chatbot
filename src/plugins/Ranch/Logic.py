@@ -23,13 +23,13 @@ class Logic():
         
         self.time_between_milkings = 10800  # 10 800 = 3 * 60 * 60
         
-    def is_person(self, name:str):
+    def is_person(self, name:str) -> bool:
         person = self.ranch.database.get_person(name)
         if person:
             return True        
         return False        
 
-    def is_worker(self, name:str):
+    def is_worker(self, name:str) -> bool:
         if name in self.remember_workers:
             return True
 
@@ -41,7 +41,7 @@ class Logic():
         else:
             return False
     
-    def is_cow(self, name:str, respect=True):
+    def is_cow(self, name:str, respect=True) -> bool:
         if name in self.remember_cows:
             return True
 
@@ -53,14 +53,14 @@ class Logic():
         else:
             return False
 
-    def is_breeder(self, name:str):
+    def is_breeder(self, name:str) -> bool:
         data = self.ranch.get_breeder(name)
         if data:
             return True
         else:
             return False
 
-    async def add_cow(self, cow_name:str, milk_yield=10):
+    async def add_cow(self, cow_name:str, milk_yield=10) -> bool:
         is_cow = self.is_cow(cow_name)
 
         if not is_cow:
@@ -73,7 +73,7 @@ class Logic():
             return status
         return not is_cow
 
-    async def add_worker(self, name:str):
+    async def add_worker(self, name:str) -> bool:
         is_worker = self.is_worker(name)
 
         if not is_worker:
@@ -85,7 +85,7 @@ class Logic():
             return status
         return not is_worker
 
-    async def _get_milk_multiplier(self, worker_name:str):
+    async def _get_milk_multiplier(self, worker_name:str) -> float:
         worker_is_cow = self.is_cow(worker_name)
         worker_is_worker = self.is_worker(worker_name)
         worker_is_breeder = False  # self.ranch.database.get_breeder(worker_name)
@@ -96,23 +96,23 @@ class Logic():
                 multiplier = 0.6
 
             elif worker_is_breeder:
-                multiplier = 2
+                multiplier = 2.0
 
             else:
-                multiplier = 1
+                multiplier = 1.0
         else:
-            multiplier = 0  # error
+            multiplier = 0.0  # error
         # print(f"multiplier: {multiplier}")
         return multiplier
     
-    def worker_multiplier(self, lvl):
+    def worker_multiplier(self, lvl) -> float:
         if lvl < 200:
             m = lvl // 10
             return 1 + (m / 100)
         
         return 1.2
     
-    def worker_milkings(self, lvl):
+    def worker_milkings(self, lvl) -> int:
         if lvl >= 200: return 3
         if lvl >= 100: return 2        
         return 1
@@ -288,7 +288,7 @@ class Logic():
 
         return lvlup
 
-    async def milkmachine(self):
+    async def milkmachine(self) -> None:
         '''
         milk all cows for 1 l each day
         '''
@@ -308,13 +308,13 @@ class Logic():
                 if success:
                     self._level_up_cow(cow_name, milk, level, exp)
 
-    def _max_level(self, current_level):
+    def _max_level(self, current_level) -> bool:
         if current_level >= 100:
             return True
         else:
             return False
 
-    def next_level_ep(self, current_level):
+    def next_level_ep(self, current_level) -> int:
         if current_level >= 100:
             return 2 ** int(current_level / 10)
 
@@ -342,16 +342,16 @@ class Logic():
             
             return response
 
-    def get_worker(self, name):
+    def get_worker(self, name:str) -> tuple:
         """
         Returns the milkings of worker
 
         @param name: name of theworker
-        @return: list of Milkings
+        @return: list of Milkings: worker.id, person.name, level.level, level.experience, worker.active
         """
         return self.ranch.database.get_worker(name)[0]
 
-    def get_workers(self, page=1):
+    def get_workers(self, page:int=1) -> str:
         try:
             page = int (page)
         except:
@@ -372,22 +372,22 @@ class Logic():
 
         return message
 
-    def get_worker_stats(self, name):
+    def get_worker_stats(self, name:str):
         return self.ranch.database.get_worker_jobs(name)
 
-    def get_cow(self, name, respect=True):
+    def get_cow(self, name:str, respect:bool=True):
         try:
             return self.ranch.database.get_cow(name, respect)
         except:
             return None
 
-    def get_cow_stats(self, name):
+    def get_cow_stats(self, name:str):
         return self.ranch.database.get_cow_stats(name)
 
-    def get_cow_milkings(self, name):
+    def get_cow_milkings(self, name:str):
         return self.ranch.database.get_cow_milkings(name)
 
-    def get_cows(self, page=1):
+    def get_cows(self, page:int=1):
         """
             @param page: number of page
             @return: list of milkings of cows (name, level, exp, milk)
@@ -408,10 +408,10 @@ class Logic():
         """
         return self.ranch.database.get_all_workers()
 
-    def rename_person (self, old_name, new_name):
+    def rename_person (self, old_name:str, new_name:str):
         return self.ranch.database.rename_person(old_name, new_name)
 
-    def set_milking_channel(self, channel_id):
+    def set_milking_channel(self, channel_id:str):
         if not channel_id in self.ranch.milking_channels:
             self.ranch.milking_channels.append(channel_id)
 
@@ -434,7 +434,7 @@ class Logic():
 
         return message
 
-    def remove_milking_channel_by_index(self, channel_index):
+    def remove_milking_channel_by_index(self, channel_index:str):
         channel_index = int(channel_index)
         if len(self.ranch.milking_channels) >= channel_index + 1:
             try:
@@ -447,7 +447,7 @@ class Logic():
 
         return False
 
-    def remove_milking_channel_by_id(self, channel_id):
+    def remove_milking_channel_by_id(self, channel_id:str):
         if channel_id in self.ranch.milking_channels:
             self.ranch.milking_channels.remove(channel_id)
 
@@ -455,11 +455,11 @@ class Logic():
 
         return False
 
-    def remove_milking_channel(self, channel_id):
+    def remove_milking_channel(self, channel_id:str):
         if channel_id in self.ranch.milking_channels:
             self.ranch.milking_channels.remove(channel_id)
 
-    async def disable_cow(self, name):
+    async def disable_cow(self, name:str):
         if self.is_cow(name):
             try:
                 self.remember_cows.remove(name)
@@ -469,7 +469,7 @@ class Logic():
         else:
             return False
 
-    async def disable_worker(self, name):
+    async def disable_worker(self, name:str):
         if await self.is_worker(name):
             try:
                 self.remember_workers.remove(name)
@@ -479,7 +479,7 @@ class Logic():
         else:
             return False
 
-    async def cow_update_milk(self, name, milk):
+    async def cow_update_milk(self, name:str, milk:int):
         if self.is_cow(name):
             return self.ranch.database.update_cow_milk(name, milk)
         else:
@@ -499,7 +499,7 @@ class Logic():
         # past months return their length
         return calendar.monthrange(year, month)[1]
 
-    async def get_buisines_year(self, year=None):
+    async def get_buisines_year(self, year:int=None):
         year = year or datetime.today().year
         year = int(year)
 
@@ -524,7 +524,7 @@ class Logic():
         pattern = re.compile(r"(?:m[oO0]{2,})+[.!?~]*", re.IGNORECASE)
         return bool(pattern.search(self.__remove_bbcode(text)))
     
-    async def moo_function(self, json_object):
+    async def moo_function(self, json_object:str):
         data = json.loads(json_object)
         channel_id = data['channel']
         message = data['message'].strip()
@@ -539,7 +539,7 @@ class Logic():
             
             # print(session, session.storage, session.reward)
             
-    async def moo_session_endpage(self, channel_id):
+    async def moo_session_endpage(self, channel_id:str):
         last_session = self.ranch.session_manager.last_session(channel_id)
         
         if last_session and last_session.storage:
