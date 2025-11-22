@@ -7,6 +7,7 @@ import json
 import re
 import time
 from plugins.Ranch.milkingstatus import MilkingStatus
+from typing import Tuple
 
 
 class Logic():
@@ -104,7 +105,7 @@ class Logic():
                 multiplier = 1
         else:
             multiplier = 0  # error
-
+        # print(f"multiplier: {multiplier}")
         return multiplier
     
     def worker_multiplier(self, lvl):
@@ -147,7 +148,7 @@ class Logic():
         
         if (count_milking < self.worker_milkings(wlvl) or not force_milking) and multiplier > 0:
             
-            if self.check_milking_delay(worker_name, cow_name, delay_s=self.time_between_milkings) or not force_milking:            
+            if self.check_milking_delay(worker_name, cow_name, delay_s=self.time_between_milkings) or not force_milking: 
                 max_milk = int(max_milk * multiplier)
                 amount = int(random.uniform(0.2 * max_milk, max_milk) * self.worker_multiplier(wlvl))
                 cow_lvl_up = False
@@ -169,7 +170,7 @@ class Logic():
         else:
             return MilkJobResponse(worker_name, cow_name, MilkingStatus.MILKING_DONE_TODAY)
 
-    async def milk_cow(self, worker_name:str, cow_name:str):
+    async def milk_cow(self, worker_name:str, cow_name:str) -> MilkJobResponse:
         """
         sends the milking request to the database,
         returns if the milking was a success, the amount of milk, if there was a lvl up and the new milking yield of the cow_name
@@ -183,7 +184,6 @@ class Logic():
         _, _, w_lvl, w_ep, _ = self.ranch.database.get_worker(worker_name)[0]
         multiplier = await self._get_milk_multiplier(worker_name)
         bonus = 0.4
-        # lvlup_worker = False
         
         response = self._milk_that_meat_sack(worker_name, cow_name, multiplier + bonus)
         
@@ -191,9 +191,8 @@ class Logic():
             response.worker_lvl_up = self._level_up_worker(worker_name, w_lvl, w_ep)
             
         return response
-        # return (response.status, response.amount, response.cow_lvl_up, response.max_milk, response.worker_lvl_up)
 
-    async def power_milk_cow(self, worker_name:str, cow_name:str, debug_exp=1):
+    async def power_milk_cow(self, worker_name:str, cow_name:str, debug_exp=1) -> MilkJobResponse:
         """
         sends the milking request to the database,
         returns if the milking was a success, the amount of milk, if there was a lvl up and the new milking yield of the cow
@@ -215,9 +214,8 @@ class Logic():
             response.worker_lvl_up = self._level_up_worker(worker_name, w_lvl, w_ep, debug_exp)
         
         return response
-        # return (response.status, response.amount, response.cow_lvl_up, response.max_milk, response.worker_lvl_up)
 
-    async def milk_all(self, user:str, channel:str) -> (list, int):
+    async def milk_all(self, user:str, channel:str) -> Tuple[list, int, bool]:
         '''
         An easier way to milk all the cows in the channel
         @param user: user that runns the command
@@ -226,8 +224,8 @@ class Logic():
         '''
         multiplier = await self._get_milk_multiplier(user)
         _, _, w_lvl, w_ep, _ = self.ranch.database.get_worker(user)[0]
-        not_milkable = 0
-        milked_cows = []
+        not_milkable: int = 0
+        milked_cows: list = []
         
         # lvlup_worker = False
         new_worker_exp = 0
@@ -245,7 +243,7 @@ class Logic():
                     else:
                         not_milkable += 1
         
-        worker_lvl_up = False
+        worker_lvl_up: bool = False
         if new_worker_exp:
             worker_lvl_up = self._level_up_worker(user, w_lvl, w_ep, new_worker_exp)
 
