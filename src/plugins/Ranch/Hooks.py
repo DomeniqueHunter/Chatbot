@@ -173,7 +173,10 @@ class Hooks():
                 
                 elif response.status == MilkingStatus.MILKING_ON_COOLDOWN:
                     message = f"You can milk [user]{cow_name}[/user] again later, [user]{worker}[/user]"
-
+                
+                elif response.status == MilkingStatus.COW_EMPTY:
+                    message = f"[user]{cow_name}[/user] is totally drained now, you can milk them again tomorrow."
+                
                 else:
                     message = f"You can milk [user]{cow_name}[/user] again on the next day, [user]{worker}[/user]"
 

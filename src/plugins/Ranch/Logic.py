@@ -21,7 +21,7 @@ class Logic():
         
         self.worker_interactions = defaultdict(dict)
         
-        self.time_between_milkings = 10800  # 10 800 = 3 * 60 * 60
+        self.time_between_milkings = 10800  # 10 800 = 3 hr * 60 min * 60 sec
         
     def is_person(self, name:str) -> bool:
         person = self.ranch.database.get_person(name)
@@ -112,9 +112,11 @@ class Logic():
         
         return 1.2
     
-    def worker_milkings(self, lvl) -> int:
-        if lvl >= 200: return 3
-        if lvl >= 100: return 2        
+    def worker_milkings(self, worker_lvl:int, cow_lvl:int) -> int:
+        if cow_lvl <= 10: return 1
+        
+        if worker_lvl >= 200: return 3
+        if worker_lvl >= 100: return 2        
         return 1
     
     def check_milking_delay(self, worker:str, cow:str, delay_s:int=3600) -> bool:
@@ -141,16 +143,21 @@ class Logic():
             return None
 
         date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        count_milking = self.ranch.database.check_milking(cow_name, worker_name, date)[0]
+        count_milking = self.ranch.database.check_milking(cow_name, worker_name, date)[0] # 0..1..N
         
-        if (count_milking < self.worker_milkings(wlvl) or not force_milking) and multiplier > 0:
-            
+        if (count_milking < self.worker_milkings(wlvl, level_cow) or not force_milking) and multiplier > 0:
             if self.check_milking_delay(worker_name, cow_name, delay_s=self.time_between_milkings) or not force_milking: 
                 max_milk = int(max_milk * multiplier)
-                amount = int(random.uniform(0.2 * max_milk, max_milk) * self.worker_multiplier(wlvl))
+                
+                repetions_factor = 1 / (count_milking + 1)
+                
+                amount = int(random.uniform(0.2 * max_milk, max_milk) * self.worker_multiplier(wlvl) * repetions_factor)
                 cow_lvl_up = False
-                            
-                success = self.ranch.database.milk_cow(cow_name, worker_name, amount, date)
+                
+                if amount > 0:
+                    success = self.ranch.database.milk_cow(cow_name, worker_name, amount, date)
+                else:
+                    return MilkJobResponse(worker_name, cow_name, MilkingStatus.COW_EMPTY)
                 
                 if success:
                     cow_lvl_up = self._level_up_cow(cow_name, max_milk, level_cow, exp_cow)
@@ -559,4 +566,19 @@ class Logic():
             text = "Moo Session closed!"
             
         await self.ranch.client.send_public_message(text, last_session.channel_id)
+        
+
+def test_milkings(): 
+    max_milk = 10
+    worker_multiplier = .8
+    
+    for count_milking in range(0, 10):
+        repetions_factor = 1 / (count_milking + 1)
+        amount = int(random.uniform(0.2 * max_milk, max_milk) * worker_multiplier * repetions_factor)
+        
+        print(f"{count_milking}: rf: {repetions_factor} -> {amount}")
+        
+
+if __name__ == "__main__":
+    test_milkings()
 

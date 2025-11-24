@@ -7,6 +7,7 @@ class MilkingStatus(Enum):
     FAILED = 2
     MILKING_DONE_TODAY = 3
     MILKING_ON_COOLDOWN = 4
+    COW_EMPTY = 5
 
 
 def test():
