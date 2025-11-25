@@ -124,16 +124,17 @@ class Logic():
         last = self.worker_interactions[worker].get(cow, 0)
         return (now - last) >= delay_s
 
-    def _milk_that_meat_sack(self, worker_name:str, cow_name:str, multiplier:float=0, force_milking:bool=True) -> MilkJobResponse:
+    def __worker_milks_cow(self, worker_name:str, cow_name:str, multiplier:float=0, not_force_milking:bool=True) -> MilkJobResponse:
         """
         sends the milking request to the database,
         returns if the milking was a status, the amount of milk, if there was a lvl up and the new milking yield of the cow
-        @param worker_name: name of the worker, milking the cow
-        @param cow_name: name of the cow
-        @param force_milking: debug flag
-        @return: (status, amount, lvlup_cow, milk)
+        :worker_name: name of the worker, milking the cow
+        :cow_name: name of the cow
+        :multiplier: float multiplier for the milked amount
+        :not_force_milking: debug flag
+        :return: MilkJobResponse
         """
-        name, max_milk, level_cow, exp_cow, _ = self.ranch.database.get_cow(cow_name, force_milking)
+        name, max_milk, level_cow, exp_cow, _ = self.ranch.database.get_cow(cow_name, not_force_milking)
         _, wname, wlvl, _, _ = self.get_worker(worker_name)
 
         if not name.lower() == cow_name.lower():
@@ -145,8 +146,8 @@ class Logic():
         date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         count_milking = self.ranch.database.check_milking(cow_name, worker_name, date)[0] # 0..1..N
         
-        if (count_milking < self.worker_milkings(wlvl, level_cow) or not force_milking) and multiplier > 0:
-            if self.check_milking_delay(worker_name, cow_name, delay_s=self.time_between_milkings) or not force_milking: 
+        if (count_milking < self.worker_milkings(wlvl, level_cow) or not not_force_milking) and multiplier > 0:
+            if self.check_milking_delay(worker_name, cow_name, delay_s=self.time_between_milkings) or not not_force_milking: 
                 max_milk = int(max_milk * multiplier)
                 
                 repetions_factor = 1 / (count_milking + 1)
@@ -178,9 +179,9 @@ class Logic():
         """
         sends the milking request to the database,
         returns if the milking was a success, the amount of milk, if there was a lvl up and the new milking yield of the cow_name
-        @param worker_name: name of the worker, milking the cow_name
-        @param cow_name: name of the cow_name
-        @return: (success, amount, lvlup, milk)
+        :worker_name: name of the worker, milking the cow_name
+        :cow_name: name of the cow_name
+        :return: MilkJobResponse
         """
         if worker_name == cow_name:
             return None
@@ -189,7 +190,7 @@ class Logic():
         multiplier = await self._get_milk_multiplier(worker_name)
         bonus = 0.4
         
-        response = self._milk_that_meat_sack(worker_name, cow_name, multiplier + bonus)
+        response = self.__worker_milks_cow(worker_name, cow_name, multiplier + bonus)
         
         if response.status == MilkingStatus.SUCCESS:
             response.worker_lvl_up = self._level_up_worker(worker_name, w_lvl, w_ep)
@@ -200,9 +201,10 @@ class Logic():
         """
         sends the milking request to the database,
         returns if the milking was a success, the amount of milk, if there was a lvl up and the new milking yield of the cow
-        @param worker_name: name of the worker, milking the cow
-        @param cow_name: name of the cow
-        @return: (success, amount, lvlup, milk)
+        :worker_name: name of the worker, milking the cow
+        :cow_name: name of the cow
+        :debug_exp: set cow exp for milking (debug)
+        :return: MilkJobResponse
         """
         if worker_name == cow_name:
             return None
@@ -212,7 +214,7 @@ class Logic():
 
         _, _, w_lvl, w_ep, _ = self.ranch.database.get_worker(worker_name)[0]
 
-        response = self._milk_that_meat_sack(worker_name, cow_name, multiplier + bonus, False)
+        response = self.__worker_milks_cow(worker_name, cow_name, multiplier + bonus, False)
         
         if response.status == MilkingStatus.SUCCESS:
             response.worker_lvl_up = self._level_up_worker(worker_name, w_lvl, w_ep, debug_exp)
@@ -222,9 +224,9 @@ class Logic():
     async def milk_all(self, user:str, channel:str) -> Tuple[list, int, bool]:
         '''
         An easier way to milk all the cows in the channel
-        @param user: user that runns the command
-        @param channel: channel where the command was started
-        @return: milked_cows, not_milkable
+        :user: user that runns the command
+        :channel: channel where the command was started
+        :return: milked_cows, not_milkable
         '''
         multiplier = await self._get_milk_multiplier(user)
         _, _, w_lvl, w_ep, _ = self.ranch.database.get_worker(user)[0]
@@ -238,7 +240,7 @@ class Logic():
             for character in self.ranch.client.channels[channel].characters.get():
 
                 if self.is_cow(character) and not user.lower() == character.lower():
-                    response = self._milk_that_meat_sack(user, character, multiplier)
+                    response = self.__worker_milks_cow(user, character, multiplier)
 
                     if response.status == MilkingStatus.SUCCESS:
                         milked_cows.append((response.cow, response.amount, response.cow_lvl_up))
@@ -353,8 +355,8 @@ class Logic():
         """
         Returns the milkings of worker
 
-        @param name: name of theworker
-        @return: list of Milkings: worker.id, person.name, level.level, level.experience, worker.active
+        :name: name of theworker
+        :return: list of Milkings: worker.id, person.name, level.level, level.experience, worker.active
         """
         return self.ranch.database.get_worker(name)[0]
 
@@ -396,8 +398,8 @@ class Logic():
 
     def get_cows(self, page:int=1):
         """
-            @param page: number of page
-            @return: list of milkings of cows (name, level, exp, milk)
+        :page: number of page
+        :return: list of milkings of cows (name, level, exp, milk)
         """
         data = self.ranch.database.get_cow_stats_this_month(page)
         return data
