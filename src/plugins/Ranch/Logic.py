@@ -14,12 +14,12 @@ class Logic():
 
     def __init__(self, ranch):
         self.ranch = ranch
-
+        
         # todo: Queues to remember cows and workers
         self.remember_cows = deque(maxlen=30)
         self.remember_workers = deque(maxlen=30)
         
-        self.worker_interactions = defaultdict(dict)
+        # self.worker_interactions = defaultdict(dict)
         
         self.time_between_milkings = 10800  # 10 800 = 3 hr * 60 min * 60 sec
         
@@ -118,11 +118,6 @@ class Logic():
         if worker_lvl >= 200: return 3
         if worker_lvl >= 100: return 2        
         return 1
-    
-    def check_milking_delay(self, worker:str, cow:str, delay_s:int=3600) -> bool:
-        now = int(time.time())
-        last = self.worker_interactions[worker].get(cow, 0)
-        return (now - last) >= delay_s
 
     def __worker_milks_cow(self, worker_name:str, cow_name:str, multiplier:float=0, not_force_milking:bool=True) -> MilkJobResponse:
         """
@@ -144,10 +139,10 @@ class Logic():
             return None
 
         date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        count_milking = self.ranch.database.check_milking(cow_name, worker_name, date)[0] # 0..1..N
+        count_milking = self.ranch.database.check_milking(cow_name, worker_name, date)[0]  # 0..1..N
         
         if (count_milking < self.worker_milkings(wlvl, level_cow) or not not_force_milking) and multiplier > 0:
-            if self.check_milking_delay(worker_name, cow_name, delay_s=self.time_between_milkings) or not not_force_milking: 
+            if self.ranch.client.timeouts.check((worker_name, cow_name), timeout_s=self.time_between_milkings) or not not_force_milking:
                 max_milk = int(max_milk * multiplier)
                 
                 repetions_factor = 1 / (count_milking + 1)
@@ -162,7 +157,8 @@ class Logic():
                 
                 if success:
                     cow_lvl_up = self._level_up_cow(cow_name, max_milk, level_cow, exp_cow)
-                    self.worker_interactions[worker_name][cow_name] = int(time.time())
+                    # self.worker_interactions[worker_name][cow_name] = int(time.time())
+                    self.ranch.client.timeouts.set((worker_name, cow_name))
                     status = MilkingStatus.SUCCESS
                 else:
                     status = MilkingStatus.MILKING_DONE_TODAY

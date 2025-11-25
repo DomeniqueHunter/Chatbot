@@ -13,6 +13,7 @@ from time import sleep
 
 import os
 from framework.communicaton import Communication
+from framework.lib.timeout.timeout import Timeout
 
 
 class Core():
@@ -45,6 +46,7 @@ class Core():
             os.makedirs(self.data_path, exist_ok=True)
         
         self.comm = Communication(self)
+        self.timeouts = Timeout()
 
         self.file_manager = FileManager(self.data_path)
         self.file_manager.add('status', 'status.txt', 'plain')
