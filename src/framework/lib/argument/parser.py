@@ -1,4 +1,5 @@
 from typing import Union 
+import shlex
 
 __allowed_types: tuple = (str, int, float, bool)
 
@@ -59,6 +60,58 @@ def parse(input_string:str, *types:type, separator:str=",") -> Union[tuple, None
 
     return tuple(parsed_values)
 
+
+
+def parse_params(input_string:str, types:dict[str,type], separator:str=" ")->dict:
+    if separator == " ":
+        parts = shlex.split(input_string)
+    else:
+        raw_parts = input_string.split(separator)
+        parts = []
+        for rp in raw_parts:
+            parts.extend(shlex.split(rp))
+
+    raw = {}
+    for p in parts:
+        if "=" in p:
+            k, v = p.split("=", 1)
+            raw[k] = v
+
+    parsed = {}
+
+    for key, type_ in types.items():
+        if type_ not in __allowed_types:
+            parsed[key] = None
+            continue
+
+        if key not in raw:
+            parsed[key] = __default_values[type_]
+            continue
+
+        value = raw[key]
+
+        if value == "":
+            parsed[key] = __default_values[type_]
+            continue
+
+        try:
+            if type_ is bool:
+                n = value.lower()
+                if n in ("true", "1", "yes", "y"):
+                    parsed[key] = True
+                elif n in ("false", "0", "no", "n"):
+                    parsed[key] = False
+                else:
+                    parsed[key] = __default_values[bool]
+                continue
+
+            parsed[key] = type_(value)
+
+        except ValueError:
+            parsed[key] = __default_values[type_]
+
+    return parsed
+
     
 def test():
     test_strings = [
@@ -73,6 +126,20 @@ def test():
         split = parse(test_string, str, int, str, float)
         
         print(split)
+    
+    # parse params
+    params = 'dog=bar;count=5;owner="Humbert Meier"'
+    result = parse_params(
+        params,
+        {
+            "dog": str,
+            "count": int,
+            "owner": str
+        },
+        separator=";"
+    )
+    
+    print(result)
 
 
 if __name__ == "__main__":

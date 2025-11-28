@@ -142,7 +142,7 @@ class Logic():
             if self.ranch.client.timeouts.check((worker_name, cow_name), timeout_s=self.time_between_milkings) or not not_force_milking:
                 max_milk = int(max_milk * multiplier)
                 
-                repetions_factor = 1 / (count_milking + 1) # TODO: observe
+                repetions_factor = 1 / (count_milking + 1) if not_force_milking else 1 # TODO: observe
                 
                 amount = int(random.uniform(0.2 * max_milk, max_milk) * self.worker_multiplier(wlvl) * repetions_factor)
                 cow_lvl_up = False
@@ -189,13 +189,13 @@ class Logic():
             
         return response
 
-    async def power_milk_cow(self, worker_name:str, cow_name:str, debug_exp=1) -> MilkJobResponse:
+    async def power_milk_cow(self, worker_name:str, cow_name:str, debug_worker_exp=1) -> MilkJobResponse:
         """
         sends the milking request to the database,
         returns if the milking was a success, the amount of milk, if there was a lvl up and the new milking yield of the cow
         :worker_name: name of the worker, milking the cow
         :cow_name: name of the cow
-        :debug_exp: set cow exp for milking (debug)
+        :debug_worker_exp: set worker exp for milking (debug)
         :return: MilkJobResponse
         """
         if worker_name == cow_name:
@@ -209,7 +209,7 @@ class Logic():
         response = self.__worker_milks_cow(worker_name, cow_name, multiplier + bonus, False)
         
         if response.status == MilkingStatus.SUCCESS:
-            response.worker_lvl_up = self._level_up_worker(worker_name, w_lvl, w_ep, debug_exp)
+            response.worker_lvl_up = self._level_up_worker(worker_name, w_lvl, w_ep, debug_worker_exp)
         
         return response
 

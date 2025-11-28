@@ -7,6 +7,7 @@ import calendar
 import random
 from plugins.Ranch.statuscodes import MilkingStatus
 from plugins.Ranch.response import MilkJobResponse
+from framework.lib.argument.parser import parse
 
 
 class Hooks():
@@ -200,18 +201,12 @@ class Hooks():
 
     async def power_milk(self, user, input_str=" , "):
         if self.ranch.client.is_owner(user.strip()):
-            input = input_str.split(', ')
-            if len(input) == 1:
-                cow = input[0]
-                exp = 1
-            else:
-                cow = input[0]
-                exp = int(input[1])
+            cow, worker_exp = parse(input_str, str, int)
+            if worker_exp == 0: worker_exp = 1
                 
             cow_name = bbcode.get_name(cow)
             is_worker = self.ranch.logic.is_worker(user)
             is_cow = self.ranch.logic.is_cow(cow_name, False)
-            is_online = True  # todo: find a better way
 
             if is_worker:
                 worker = user
@@ -219,9 +214,8 @@ class Hooks():
             if not is_cow:
                 message = "this is not a cow"
 
-            if worker.lower() != cow_name.lower() and is_worker and is_cow and is_online:
-                # (success, amount, lvlup, _, lvlup_worker) = await self.ranch.logic.power_milk_cow(worker, cow_name, exp)
-                response: MilkJobResponse = await self.ranch.logic.power_milk_cow(worker, cow_name, exp)
+            if worker.lower() != cow_name.lower() and is_worker and is_cow:
+                response: MilkJobResponse = await self.ranch.logic.power_milk_cow(worker, cow_name, worker_exp)
                 
                 if response.status == MilkingStatus.SUCCESS:
                     message = f"You milked [user]{cow_name}[/user] against it's will and got {response.amount}l of milk!"
@@ -501,7 +495,6 @@ class Hooks():
             await self.ranch.client.send_private_message(message, user)
             
         await self.ranch.client.send_private_message(user, f"you have no permissions for this!")
-
             
     async def start_session(self, user:str, input_string:str=None):
         if self.ranch.client.has_admin_rights(user) and input_string:
@@ -521,8 +514,6 @@ class Hooks():
                 session_duration = int(parameters[1]) * 60
                 ep = int(parameters[2])           
             
-            
-            
             await self.__start_session(user, channel, session_duration, ep)
     
     async def __start_session(self, user, channel_name:str, session_duration:int, ep:int):
@@ -541,7 +532,6 @@ class Hooks():
                 
             if ep > 10:
                 ep = 10  # still insane..
-            
             
             # create session
             self.ranch.session_manager.start_session(session_duration, channel_id, self.ranch.logic.moo_function)
