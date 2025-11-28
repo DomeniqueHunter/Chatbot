@@ -1,12 +1,11 @@
 import random
 from plugins.Ranch.response import MilkJobResponse
 from datetime import datetime
-from collections import deque, defaultdict
+from collections import deque
 import calendar
 import json
 import re
-import time
-from plugins.Ranch.milkingstatus import MilkingStatus
+from plugins.Ranch.statuscodes import MilkingStatus
 from typing import Tuple
 
 
@@ -18,8 +17,6 @@ class Logic():
         # todo: Queues to remember cows and workers
         self.remember_cows = deque(maxlen=30)
         self.remember_workers = deque(maxlen=30)
-        
-        # self.worker_interactions = defaultdict(dict)
         
         self.time_between_milkings = 10800  # 10 800 = 3 hr * 60 min * 60 sec
         
@@ -145,7 +142,7 @@ class Logic():
             if self.ranch.client.timeouts.check((worker_name, cow_name), timeout_s=self.time_between_milkings) or not not_force_milking:
                 max_milk = int(max_milk * multiplier)
                 
-                repetions_factor = 1 / (count_milking + 1)
+                repetions_factor = 1 / (count_milking + 1) # TODO: observe
                 
                 amount = int(random.uniform(0.2 * max_milk, max_milk) * self.worker_multiplier(wlvl) * repetions_factor)
                 cow_lvl_up = False
@@ -157,7 +154,6 @@ class Logic():
                 
                 if success:
                     cow_lvl_up = self._level_up_cow(cow_name, max_milk, level_cow, exp_cow)
-                    # self.worker_interactions[worker_name][cow_name] = int(time.time())
                     self.ranch.client.timeouts.set((worker_name, cow_name))
                     status = MilkingStatus.SUCCESS
                 else:
@@ -467,9 +463,14 @@ class Logic():
     async def disable_cow(self, name:str):
         if self.is_cow(name):
             try:
-                self.remember_cows.remove(name)
+                target_lower = name.lower()
+                for entry in list(self.remember_cows):
+                    if entry.lower() == target_lower:
+                        self.remember_cows.remove(entry)
+                        break
             except:
-                pass
+                print(f"ERROR removing cow: {name}")
+                
             return self.ranch.database.disable("cow", name)
         else:
             return False
@@ -477,9 +478,14 @@ class Logic():
     async def disable_worker(self, name:str):
         if await self.is_worker(name):
             try:
-                self.remember_workers.remove(name)
+                target_lower = name.lower()
+                for entry in list(self.remember_workers):
+                    if entry.lower() == target_lower:
+                        self.remember_workers.remove(entry)
+                        break
             except:
-                pass
+                print(f"ERROR removing worker: {name}")
+                
             return self.ranch.database.disable("worker", name)
         else:
             return False

@@ -5,7 +5,7 @@ from plugins.Ranch.Logic import Logic
 from datetime import datetime
 import calendar
 import random
-from plugins.Ranch.milkingstatus import MilkingStatus
+from plugins.Ranch.statuscodes import MilkingStatus
 from plugins.Ranch.response import MilkJobResponse
 
 
@@ -59,9 +59,9 @@ class Hooks():
     async def get_cows(self, user, channel, page=1):
         """
         user requires list of cows
-        @param user: User who calls command
-        @param channel: Channel where command is called
-        @param page: int, page that is required
+        :user: User who calls command
+        :channel: Channel where command is called
+        :page: int, page that is required
         """
 
         if self.ranch.is_milking_channel(channel):
@@ -92,9 +92,9 @@ class Hooks():
     async def get_workers(self, user, channel, page=1):
         """
         user requires list of workers
-        @param user: User who calls command
-        @param channel: Channel where command is called
-        @param page: int, page that is required
+        :user: User who calls command
+        :channel: Channel where command is called
+        :page: int, page that is required
         """
         if self.ranch.is_milking_channel(channel):
             data = self.ranch.logic.get_workers(page)
@@ -140,9 +140,9 @@ class Hooks():
     async def milk(self, worker, channel, cow_name):
         """
         Milk a cow
-        @param worker: the worker who milks the cow
-        @param channel: channel where request was sent
-        @param cow_name: name of the cow
+        :worker: the worker who milks the cow
+        :channel: channel where request was sent
+        :cow_name: name of the cow
 
         """
         if self.ranch.is_milking_channel(channel):
@@ -156,7 +156,7 @@ class Hooks():
                 # (success, amount, lvlup, _, lvlup_worker) = await self.ranch.logic.milk_cow(worker, cow_name)  # (success, amount, lvlup, milk)
                 response: MilkJobResponse = await self.ranch.logic.milk_cow(worker, cow_name)  # (success, amount, lvlup, milk)
                 
-                # print(f"STATUS: {response.status}")
+                print(f"STATUS: {response.status}")
                 
                 message = ""
 
@@ -243,8 +243,8 @@ class Hooks():
     async def milkall(self, user, channel):
         """
         milk all cows currently in the channel
-        @param user: worker who wants to milk all cows
-        @param channel: channel where the cows supposed to be
+        :user: worker who wants to milk all cows
+        :channel: channel where the cows supposed to be
         """
         if self.ranch.is_milking_channel(channel):
             message = ""
@@ -277,8 +277,8 @@ class Hooks():
     async def makemecow(self, user, channel):
         """
         add user to cows
-        @param user: user who becomes a cow
-        @param channel: channel where request was sent
+        :user: user who becomes a cow
+        :channel: channel where request was sent
         """
         if self.ranch.is_milking_channel(channel):
             status = await self.ranch.logic.add_cow(user)
@@ -293,8 +293,8 @@ class Hooks():
     async def becomeaworker(self, user, channel):
         """
         adds user to worker list
-        @param user: new worker
-        @param channel: channel where request was sent
+        :user: new worker
+        :channel: channel where request was sent
         """
         if self.ranch.is_milking_channel(channel):
             status = await self.ranch.logic.add_worker(user)
@@ -343,8 +343,8 @@ class Hooks():
     async def add_cow(self, user, input_string=" , "):
         """
         add a cow the the farm
-        @param user: user who sends the request
-        @param input_string: cow,milk
+        :user: user who sends the request
+        :input_string: cow,milk
         """
         if "," in input_string:
             name, milk = input_string.strip().split(',')
@@ -389,8 +389,8 @@ class Hooks():
     async def remove_cow(self, user, name):
         """
         Disable a cow
-        @param user: user who requests the cow to be disabled (admin)
-        @param cow_name: name of the cow
+        :user: user who requests the cow to be disabled (admin)
+        :cow_name: name of the cow
         """
         if name:
             name = bbcode.get_name(name)
@@ -414,8 +414,8 @@ class Hooks():
     async def remove_worker(self, user, name):
         """
         Disable a worker
-        @param user: user who requests the cow to be disabled ( admin)
-        @param name: name of the cow
+        :user: user who requests the cow to be disabled ( admin)
+        :name: name of the cow
         """
         if name:
             name = bbcode.get_name(name)
@@ -439,8 +439,8 @@ class Hooks():
     async def set_cow_milk(self, user, input_string=" , "):
         """
         set the milk output of a cow
-        @param user: username
-        @param input_string: cow name, milk (csv)
+        :user: username
+        :input_string: cow name, milk (csv)
         """
         if self.ranch.client.has_admin_rights(user):
             name, amount = input_string.strip().split(',')

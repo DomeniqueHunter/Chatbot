@@ -15,7 +15,7 @@ class Ranch(PluginPrototype):
 
     def __init__(self, client=None):
         self.module_name = "Ranch"
-        self.module_version = "2.7.7"
+        self.module_version = "2.7.8"
 
         self.logic = Logic(self)
         self.hooks = Hooks(self)
