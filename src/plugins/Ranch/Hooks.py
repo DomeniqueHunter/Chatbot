@@ -157,7 +157,7 @@ class Hooks():
                 # (success, amount, lvlup, _, lvlup_worker) = await self.ranch.logic.milk_cow(worker, cow_name)  # (success, amount, lvlup, milk)
                 response: MilkJobResponse = await self.ranch.logic.milk_cow(worker, cow_name)  # (success, amount, lvlup, milk)
                 
-                print(f"STATUS: {response.status}")
+                # print(f"STATUS: {response.status}")
                 
                 message = ""
 

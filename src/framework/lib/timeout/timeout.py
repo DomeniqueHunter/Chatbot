@@ -7,7 +7,7 @@ class Timeout:
     def __init__(self):
         self.__timeouts = {}
 
-    def set(self, key:Any, value:Union[int, None]=None) -> None:
+    def set(self, key:Any, value:Union[int, None]=None) -> int:
         """
         Stores a timestamp for a given key.
         If value is None, the current epoch time is used.
@@ -17,6 +17,7 @@ class Timeout:
         """
         value = int(time.time()) if value is None else value
         self.__timeouts[key] = value
+        return self.__timeouts[key]
     
     def add(self, key:Any, value:Union[int, None]=None) -> None:
         return self.set(key, value)
@@ -33,6 +34,7 @@ class Timeout:
         """
         now = int(time.time())
         last = self.__timeouts.get(key, 0)
+        
         return (now - last) >= timeout_s
 
     def get(self, key:Any) -> int:
@@ -69,7 +71,7 @@ def test() -> None:
 
     if timeout.check(key_1, 3):
         print("1 No timeout exists")
-        timeout.set(key_1)
+        print(timeout.set(key_1))
         print(timeout.get(key_1))
 
     time.sleep(2)

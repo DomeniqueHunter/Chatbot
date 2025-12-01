@@ -139,7 +139,9 @@ class Logic():
         count_milking = self.ranch.database.check_milking(cow_name, worker_name, date)[0]  # 0..1..N
         
         if (count_milking < self.worker_milkings(wlvl, level_cow) or not not_force_milking) and multiplier > 0:
-            if self.ranch.client.timeouts.check((worker_name, cow_name), timeout_s=self.time_between_milkings) or not not_force_milking:
+            to_id = (worker_name.lower(), cow_name.lower())
+            
+            if self.ranch.client.timeouts.check(to_id, timeout_s=self.time_between_milkings) or not not_force_milking:
                 max_milk = int(max_milk * multiplier)
                 
                 repetions_factor = 1 / (count_milking + 1) if not_force_milking else 1 # TODO: observe
@@ -154,7 +156,7 @@ class Logic():
                 
                 if success:
                     cow_lvl_up = self._level_up_cow(cow_name, max_milk, level_cow, exp_cow)
-                    self.ranch.client.timeouts.set((worker_name, cow_name))
+                    self.ranch.client.timeouts.set(to_id)
                     status = MilkingStatus.SUCCESS
                 else:
                     status = MilkingStatus.MILKING_DONE_TODAY
