@@ -3,27 +3,35 @@ from framework.lib.config import Config
 from framework import opcode
 import json
 import websockets.client
+import asyncio
+from collections import deque
+from typing import Deque, Optional, Tuple
 
 
 class Communication:
-    
+
     def __init__(self, bot) -> None:
         self.bot = bot
-        self.config:Config = self.bot.config
+        self.config: Config = self.bot.config
         self.connection = None
-        
+
+        self._send_queue: Deque[Tuple[str, dict | None]] = deque()
+        self._queue_condition = asyncio.Condition()
+        self._sender_task: Optional[asyncio.Task] = None
+
     async def identify(self) -> None:
         data = {
-            'method': 'ticket',
-            'ticket': await self.get_api_ticket(),
-            'account': str(self.config.account),
-            'character': str(self.config.character),
-            'cname': "Python Client",
-            'cversion': self.bot.version,
+            "method": "ticket",
+            "ticket": await self.get_api_ticket(),
+            "account": str(self.config.account),
+            "character": str(self.config.character),
+            "cname": "Python Client",
+            "cversion": self.bot.version,
         }
+
         await self.message(opcode.IDENTIFY, data)
         await self.read()
-        
+
     async def connect(self) -> None:
         uri = self.config.protocol + self.config.server + self.config.endpoint
 
@@ -36,11 +44,24 @@ class Communication:
             print(f"error: {e}")
             self.connection = None
 
-    async def message(self, opcode:str, data:dict=None) -> None:
+    async def start_sender(self) -> None:
+        if self._sender_task is None:
+            self._sender_task = asyncio.create_task(self._send_loop())
+
+    async def message(self, opcode: str, data: dict | None=None) -> None:
+        async with self._queue_condition:
+            self._send_queue.append((opcode, data))
+            self._queue_condition.notify()
+
+    async def priority_message(self, opcode: str, data: dict | None=None) -> None:
+        async with self._queue_condition:
+            self._send_queue.appendleft((opcode, data))
+            self._queue_condition.notify()
+
+    async def _send_message(self, opcode: str, data: dict | None=None) -> None:
         try:
             if data:
                 await self.connection.send(f"{opcode} {json.dumps(data)}")
-                
             else:
                 await self.connection.send(opcode)
 
@@ -48,17 +69,27 @@ class Communication:
             print("could not send data to server")
             print(e)
 
-    async def read(self) -> str:
+    async def read(self) -> str | None:
         try:
             return await self.connection.recv()
 
         except Exception as e:
             print("could not read from stream ...")
             print(e)
-            
+
     async def get_api_ticket(self) -> str:
         return await get_ticket(self.bot.config.account, self.bot.config.password)
-    
+
     def status(self) -> str:
         return self.connection.state.name
-    
+
+    async def _send_loop(self) -> None:
+        while True:
+            async with self._queue_condition:
+                while not self._send_queue:
+                    await self._queue_condition.wait()
+
+                opcode, data = self._send_queue.popleft()
+
+            await self._send_message(opcode, data)
+            await asyncio.sleep(1.0)

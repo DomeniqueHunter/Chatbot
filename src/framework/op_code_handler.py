@@ -58,6 +58,7 @@ class OpCodeHandler(ChatCodeHandler):
             await self.opcodes_handler.react(op, json_object)
 
     async def connect(self) -> None:
+        await self.comm.start_sender()
         await self.comm.connect() # comm
         await self.comm.identify() # comm
 

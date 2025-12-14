@@ -67,7 +67,8 @@ class ChatCodeHandler(Core):
     async def _ping(self) -> None:
         # print("ping back")
         self.ping_time = int(time())
-        await self.message(opcode.PING)
+        # await self.message(opcode.PING)
+        await self.comm.priority_message(opcode=opcode.PING)
 
     # TODO: sleep decorator, put sleep in message
     async def send_private_message(self, message:str, user:str) -> None:
