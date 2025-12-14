@@ -64,7 +64,7 @@ class ChatCodeHandler(Core):
         # deop channel, user
         # set_description room, desc
 
-    async def _ping(self) -> None:
+    async def ping(self) -> None:
         # print("ping back")
         self.ping_time = int(time())
         # await self.message(opcode.PING)
@@ -75,13 +75,13 @@ class ChatCodeHandler(Core):
         data = {"character": self.charactername,
                 "message": message,
                 "recipient": user}
-        sleep(1)
+        # sleep(1)
         await self.message(opcode.PRIVATE_MESSAGE, data)
 
     async def send_public_message(self, message:str, channel:str) -> None:
         data = {"channel": channel,
                 "message": message}
-        sleep(1)
+        # sleep(1)
         await self.message(opcode.CHANNEL_MESSAGE, data)
 
     async def _get_channel_description(self, data:dict) -> None:
@@ -388,4 +388,5 @@ class ChatCodeHandler(Core):
 
     async def _hook_sysinfo(self, user:str="") -> None:
         if self.is_owner(user):
+            # for _ in range(200):
             await self.send_private_message(self._sysinfo(), user)

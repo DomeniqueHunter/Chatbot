@@ -90,6 +90,7 @@ class Communication:
                     await self._queue_condition.wait()
 
                 opcode, data = self._send_queue.popleft()
-
+                print(len(self._send_queue), opcode)
+                
             await self._send_message(opcode, data)
             await asyncio.sleep(1.0)

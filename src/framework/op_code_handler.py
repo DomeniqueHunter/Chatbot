@@ -130,7 +130,7 @@ class OpCodeHandler(ChatCodeHandler):
 
     async def _opcode_handler_ping(self, empty:None=None) -> None:
         # print ("PING ... .. .. ...")
-        await self._ping()
+        await self.ping()
         await self.trigger_clock()
 
         if self.counter_load_channels.tick():
