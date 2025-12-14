@@ -3,7 +3,7 @@ from plugins.Ranch.statuscodes import MilkingStatus
 
 class MilkJobResponse:
     
-    def __init__(self, worker:str, cow:str, status:MilkingStatus=MilkingStatus.EMPTY, milk:int=0, amount:int=0, cow_lvl_up:bool=False, worker_lvl_up:bool=False):
+    def __init__(self, worker:str, cow:str, status:MilkingStatus=MilkingStatus.EMPTY, milk:int=0, amount:int=0, cow_lvl_up:bool=False, worker_lvl_up:bool=False, milking_repetions:int=0):
         self.worker = worker
         self.cow = cow
         self.status = status
@@ -14,3 +14,5 @@ class MilkJobResponse:
         
         self.cow_lvl_up = cow_lvl_up
         self.worker_lvl_up = worker_lvl_up
+        
+        self.milking_repetions = milking_repetions

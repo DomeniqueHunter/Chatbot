@@ -148,20 +148,22 @@ class Logic():
                 
                 amount = int(random.uniform(0.2 * max_milk, max_milk) * self.worker_multiplier(wlvl) * repetions_factor)
                 cow_lvl_up = False
+                success = False
                 
                 if amount > 0:
                     success = self.ranch.database.milk_cow(cow_name, worker_name, amount, date)
-                else:
-                    return MilkJobResponse(worker_name, cow_name, MilkingStatus.COW_EMPTY)
+                # else:
+                #     return MilkJobResponse(worker_name, cow_name, MilkingStatus.COW_EMPTY)
                 
                 if success:
-                    cow_lvl_up = self._level_up_cow(cow_name, max_milk, level_cow, exp_cow)
+                    if count_milking == 0:
+                        cow_lvl_up = self._level_up_cow(cow_name, max_milk, level_cow, exp_cow)
                     self.ranch.client.timeouts.set(to_id)
                     status = MilkingStatus.SUCCESS
                 else:
-                    status = MilkingStatus.MILKING_DONE_TODAY
+                    status = MilkingStatus.COW_EMPTY
             
-                return MilkJobResponse(worker_name, cow_name, status, max_milk, amount, cow_lvl_up)
+                return MilkJobResponse(worker_name, cow_name, status, max_milk, amount, cow_lvl_up, milking_repetions=count_milking)
             
             else:
                 return MilkJobResponse(worker_name, cow_name, MilkingStatus.MILKING_ON_COOLDOWN)
@@ -186,7 +188,7 @@ class Logic():
         
         response = self.__worker_milks_cow(worker_name, cow_name, multiplier + bonus)
         
-        if response.status == MilkingStatus.SUCCESS:
+        if response.status == MilkingStatus.SUCCESS and response.milking_repetions == 0:
             response.worker_lvl_up = self._level_up_worker(worker_name, w_lvl, w_ep)
             
         return response
@@ -238,7 +240,7 @@ class Logic():
 
                     if response.status == MilkingStatus.SUCCESS:
                         milked_cows.append((response.cow, response.amount, response.cow_lvl_up))
-                        new_worker_exp += 1
+                        new_worker_exp += 1 if response.milking_repetions == 0 else 0
 
                     else:
                         not_milkable += 1

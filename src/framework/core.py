@@ -124,7 +124,6 @@ class Core():
         for channel in channels:
             await self.join(channel)
 
-    # TODO: sleep decorator from ChatCodeHandler, here
     async def message(self, opcode:str, data=None) -> None:
         await self.comm.message(opcode, data)
 
