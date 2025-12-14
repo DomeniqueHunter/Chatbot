@@ -8,6 +8,10 @@ from collections import deque
 from typing import Deque, Optional, Tuple
 
 
+def _parsed(op:str, msg:str | None="") -> tuple[str,str]: 
+    return op, msg
+
+
 class Communication:
 
     def __init__(self, bot) -> None:
@@ -18,6 +22,10 @@ class Communication:
         self._send_queue: Deque[Tuple[str, dict | None]] = deque()
         self._queue_condition = asyncio.Condition()
         self._sender_task: Optional[asyncio.Task] = None
+        
+        self._recv_queue: Deque[str] = deque()
+        self._recv_condition = asyncio.Condition()
+        self._receiver_task: Optional[asyncio.Task] = None
 
     async def identify(self) -> None:
         data = {
@@ -47,6 +55,14 @@ class Communication:
     async def start_sender(self) -> None:
         if self._sender_task is None:
             self._sender_task = asyncio.create_task(self._send_loop())
+    
+    async def start_receiver(self) -> None:
+        if self._receiver_task is None:
+            self._receiver_task = asyncio.create_task(self._recv_loop())
+           
+    async def start(self) -> None:
+        # await self.start_receiver()
+        await self.start_sender()
 
     async def message(self, opcode: str, data: dict | None=None) -> None:
         async with self._queue_condition:
@@ -76,6 +92,13 @@ class Communication:
         except Exception as e:
             print("could not read from stream ...")
             print(e)
+            
+    async def receive(self) -> str:
+        async with self._recv_condition:
+            while not self._recv_queue:
+                await self._recv_condition.wait()
+    
+            return self._recv_queue.popleft()
 
     async def get_api_ticket(self) -> str:
         return await get_ticket(self.bot.config.account, self.bot.config.password)
@@ -94,3 +117,17 @@ class Communication:
                 
             await self._send_message(opcode, data)
             await asyncio.sleep(1.0)
+            
+    async def _recv_loop(self) -> None:
+        while True:
+            message_str = await self.connection.recv()
+            print(message_str)
+            message = _parsed(*message_str.split(" ", 1))
+            print(message)
+            
+            async with self._recv_condition:
+                if message[0] == opcode.PING:
+                    self._recv_queue.appendleft(message)
+                else:
+                    self._recv_queue.append(message)
+                self._recv_condition.notify()

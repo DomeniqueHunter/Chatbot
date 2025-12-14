@@ -54,11 +54,10 @@ class OpCodeHandler(ChatCodeHandler):
         self.all_users = {}
 
     async def dispatcher(self, op:str, json_object:str="") -> None:
-        if op:
-            await self.opcodes_handler.react(op, json_object)
+        await self.opcodes_handler.react(op, json_object)
 
     async def connect(self) -> None:
-        await self.comm.start_sender()
+        await self.comm.start()
         await self.comm.connect() # comm
         await self.comm.identify() # comm
 

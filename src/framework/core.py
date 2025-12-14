@@ -9,7 +9,7 @@ from framework.lib.time import AdvTime
 
 from framework.lib.channel import ChannelManager, ChannelCreationQueue
 
-from time import sleep
+from time import time
 
 import os
 from framework.communicaton import Communication
@@ -58,6 +58,12 @@ class Core():
         data = {'channel': channel_code}
         if channel_code not in self.channels and channel_code or (channel_code and force):
             await self.message(opcode.JOIN_CHANNEL, data)
+            
+    async def ping(self) -> None:
+        # print("ping back")
+        self.ping_time = int(time())
+        # await self.message(opcode.PING)
+        await self.comm.priority_message(opcode=opcode.PING)
 
     async def create_private_channel(self, channel_name:str) -> None:
         data = {"channel": channel_name}
@@ -148,7 +154,6 @@ class Core():
     async def _set_status(self, status:str) -> None:
         data = {"status":"online",
                 "statusmsg":status}
-        sleep(1)
         await self.message(opcode.STATUS, data)
 
     async def _invite_user_to_channel(self, user:str, channel_name:str) -> None:

@@ -3,7 +3,6 @@ from framework import opcode
 
 from framework.lib.command_manager import CommandManager
 
-from time import sleep, time
 from framework.lib.config.config import Config
 from framework.lib.argument.parser import parse
 
@@ -63,12 +62,6 @@ class ChatCodeHandler(Core):
         # closeroom room
         # deop channel, user
         # set_description room, desc
-
-    async def ping(self) -> None:
-        # print("ping back")
-        self.ping_time = int(time())
-        # await self.message(opcode.PING)
-        await self.comm.priority_message(opcode=opcode.PING)
 
     # TODO: sleep decorator, put sleep in message
     async def send_private_message(self, message:str, user:str) -> None:
