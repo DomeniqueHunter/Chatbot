@@ -58,8 +58,8 @@ class OpCodeHandler(ChatCodeHandler):
 
     async def connect(self) -> None:
         await self.comm.start_sender()
-        await self.comm.connect() # comm
-        await self.comm.identify() # comm
+        await self.comm.connect()
+        await self.comm.identify()
         await self.comm.start_receiver()
 
     async def _restart(self) -> None:
@@ -77,7 +77,7 @@ class OpCodeHandler(ChatCodeHandler):
         await self.join_default_channels(self.config.default_channels)
 
     def start(self) -> None:
-        self.loop.run_until_complete(self.connect()) # comm
+        self.loop.run_until_complete(self.connect())
         self.loop.run_until_complete(self._prepare())
         self.loop.run_until_complete(self._run())
 
