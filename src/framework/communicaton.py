@@ -8,7 +8,7 @@ from collections import deque
 from typing import Deque, Optional, Tuple
 
 
-def _parsed(op:str, msg:str | None="") -> tuple[str,str]: 
+def _parsed(op:str, msg:str | None="") -> tuple[str, str]: 
     return op, msg
 
 
@@ -59,11 +59,7 @@ class Communication:
     async def start_receiver(self) -> None:
         if self._receiver_task is None:
             self._receiver_task = asyncio.create_task(self._recv_loop())
-           
-    async def start(self) -> None:
-        # await self.start_receiver()
-        await self.start_sender()
-
+            
     async def message(self, opcode: str, data: dict | None=None) -> None:
         async with self._queue_condition:
             self._send_queue.append((opcode, data))
@@ -113,21 +109,21 @@ class Communication:
                     await self._queue_condition.wait()
 
                 opcode, data = self._send_queue.popleft()
-                print(len(self._send_queue), opcode)
+                # print(len(self._send_queue), opcode)
                 
             await self._send_message(opcode, data)
             await asyncio.sleep(1.0)
             
     async def _recv_loop(self) -> None:
         while True:
-            message_str = await self.connection.recv()
-            print(message_str)
+            message_str = await self.read()
             message = _parsed(*message_str.split(" ", 1))
-            print(message)
             
             async with self._recv_condition:
                 if message[0] == opcode.PING:
                     self._recv_queue.appendleft(message)
+                    # print("PIN", len(self._recv_queue), list(self._recv_queue))
                 else:
                     self._recv_queue.append(message)
                 self._recv_condition.notify()
+        

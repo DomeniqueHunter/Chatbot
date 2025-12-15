@@ -57,9 +57,10 @@ class OpCodeHandler(ChatCodeHandler):
         await self.opcodes_handler.react(op, json_object)
 
     async def connect(self) -> None:
-        await self.comm.start()
+        await self.comm.start_sender()
         await self.comm.connect() # comm
         await self.comm.identify() # comm
+        await self.comm.start_receiver()
 
     async def _restart(self) -> None:
         print("MSG: restart chatbot")
@@ -88,10 +89,9 @@ class OpCodeHandler(ChatCodeHandler):
     async def _run (self) -> None:
         while True:
             if self.comm.connection != None and self.comm.status() == "OPEN":
-                message = await self.comm.read() # comm
-                if message:
-                    data = message.split(" ", 1)
-                    await self.dispatcher(*data)
+                # message = await self.comm.read() # comm
+                op, msg = await self.comm.receive()
+                await self.dispatcher(op, msg)
 
                 if self.stop_impulse:
                     exit()
