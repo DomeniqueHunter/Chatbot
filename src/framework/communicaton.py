@@ -117,12 +117,18 @@ class Communication:
     async def _recv_loop(self) -> None:
         while True:
             message_str = await self.read()
-            message = _parsed(*message_str.split(" ", 1))
+            try:                
+                data = message_str.split(" ", 1)
+            except Exception as e:
+                print(f"could not split message: {message_str}")
+                print(e)
+                continue
+                
+            message = _parsed(*data)
             
             async with self._recv_condition:
                 if message[0] == opcode.PING:
                     self._recv_queue.appendleft(message)
-                    # print("PIN", len(self._recv_queue), list(self._recv_queue))
                 else:
                     self._recv_queue.append(message)
                 self._recv_condition.notify()

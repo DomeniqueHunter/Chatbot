@@ -24,10 +24,10 @@ class Core():
     def __init__(self, config:Config, root_path:str="./") -> None:
         self.account = config.account
         self.password = config.password
-        self.version = "0.9.8"
+        self.version = "0.9.9"
 
         self.channel_manager = ChannelManager(self.join)
-        self.channels = self.channel_manager.joined_channels  # is this good?
+        self.channels = self.channel_manager.joined_channels
 
         self.channel_creation_queue = ChannelCreationQueue()
 

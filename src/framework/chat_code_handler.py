@@ -63,18 +63,15 @@ class ChatCodeHandler(Core):
         # deop channel, user
         # set_description room, desc
 
-    # TODO: sleep decorator, put sleep in message
     async def send_private_message(self, message:str, user:str) -> None:
         data = {"character": self.charactername,
                 "message": message,
                 "recipient": user}
-        # sleep(1)
         await self.message(opcode.PRIVATE_MESSAGE, data)
 
     async def send_public_message(self, message:str, channel:str) -> None:
         data = {"channel": channel,
                 "message": message}
-        # sleep(1)
         await self.message(opcode.CHANNEL_MESSAGE, data)
 
     async def _get_channel_description(self, data:dict) -> None:
@@ -108,16 +105,14 @@ class ChatCodeHandler(Core):
         if self.is_owner(user):
             print ("save settings")
             await self._save_all_settings(user)
-            # await self.send_private_message("settings saved!", user)
 
     async def _hook_load_all(self, user:str="") -> None:
         if self.is_owner(user):
             await self._load_all_settings(user)
 
     async def _hook_exception_handler(self, handler, *args) -> None:
-        print("HOOK EXCEPTION")
-        print("handler:", handler, "\nargs:", *args)
-        # await self.send_private_message("don't understand: "+handler)
+        # silent - we do not spam the log with people chatting to the bot
+        pass
 
     async def _hook_permission_denied(self, user) -> None:
         await self.send_private_message("Permission denied!", user)

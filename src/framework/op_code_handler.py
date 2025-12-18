@@ -104,31 +104,31 @@ class OpCodeHandler(ChatCodeHandler):
                 await self._load_all_settings(self.owner)
 
     async def _opcode_handler_private_message(self, json_object:str) -> None:
+        # Private Message Dispatcher
+        
         data = json.loads(json_object)
         user = data['character']
         message = data['message'].strip()
-
+                
         message = message.split(' ', 1)
-        handler = message.pop(0)
+        handle = message.pop(0)
 
-        await self.private_msg_handler.react(handler, user, *message)
+        await self.private_msg_handler.react(handle, user, *message)
 
-    async def _opcode_handler_channel_message(self, json_object:str) -> None:
-        '''
-            Channel Message Dispatcher
-        '''
+    async def _opcode_handler_channel_message(self, json_object:str) -> None:    
+        # Channel Message Dispatcher
+        
         data = json.loads(json_object)
         channel = data ['channel']
         message = data ['message'].strip()
         user = data ['character']
 
         message = message.split(' ', 1)
-        handler = message.pop(0)
+        handle = message.pop(0)
 
-        await self.public_msg_handler.react(handler, user, channel, *message)
+        await self.public_msg_handler.react(handle, user, channel, *message)
 
-    async def _opcode_handler_ping(self, empty:None=None) -> None:
-        # print ("PING ... .. .. ...")
+    async def _opcode_handler_ping(self, _:None=None) -> None:
         await self.ping()
         await self.trigger_clock()
 
