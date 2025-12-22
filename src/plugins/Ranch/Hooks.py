@@ -243,14 +243,16 @@ class Hooks():
         if self.ranch.is_milking_channel(channel):
             message = ""
             milked_cows, not_milkable, lvlup_worker = await self.ranch.logic.milk_all(user, channel)
-
+            bb_user = bbcode.user(user)
+            
             for cow, amount, lvlup in milked_cows:
-                message += f"\n[user]{user}[/user] milked [user]{cow}[/user] and got {amount} liters of Milk"
+                bb_cow = bbcode.user(cow)
+                message += f"\n{bb_user} milked {bb_cow} and got {amount} liters of Milk"
                 
                 if amount == 69: message += " - nice!"
                 
                 if lvlup:
-                    message += f"\n[user]{cow}[/user] has leveled up!"
+                    message += f"\n{bb_cow}  has leveled up!"
 
             if not_milkable > 0:
                 if not_milkable == 1:
@@ -264,7 +266,7 @@ class Hooks():
                 message += f"\nThere {i} {not_milkable} {c} who {i} milkable in {milkable_in}."
             
             if lvlup_worker:
-                message += f"\n[user]{user}[/user] has leveled up!"
+                message += f"\n{bb_user} has leveled up!"
 
             await self.ranch.client.send_public_message(message, channel)
 

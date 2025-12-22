@@ -248,12 +248,14 @@ class Core():
 
     def _sysinfo(self) -> str:
         _now = AdvTime()
-        sysinfo = "\n"
-        sysinfo += f"Start Time {self.start_time.get_time_date()}\n"
-        sysinfo += f"Local Time {_now.get_time_date()}\n"
-        sysinfo += f"Version {self.version}\n"
-        sysinfo += f"Restarts: {self.restarts}\n"
-        sysinfo += f"Help calls: {self.manpage.counter()}\n"
+        sysinfo = ( 
+            "\n"
+            f"Start Time: {self.start_time.get_time_date()}\n"
+            f"Local Time: {_now.get_time_date()}\n"
+            f"Version: {self.version}\n"
+            f"Restarts: {self.restarts}\n"
+            f"Help calls: {self.manpage.counter()}\n"
+        )
 
         sysinfo += "Plugins:\n"
         for plugin in self.plugin_loader.plugins:
