@@ -8,7 +8,7 @@ from collections import deque
 from typing import Deque, Optional, Tuple
 
 
-def _parsed(op:str, msg:str | None="") -> tuple[str, str]: 
+def msg_parse(op:str, msg:str | None="") -> tuple[str, str]: 
     return op, msg
 
 
@@ -126,9 +126,9 @@ class Communication:
             except Exception as e:
                 print(f"could not split message: {message_str}")
                 print(e)
-                break
+                data = ("__ERROR", "")
                 
-            message = _parsed(*data)
+            message = msg_parse(*data)
             
             async with self._recv_condition:
                 if message[0] == opcode.PING:
