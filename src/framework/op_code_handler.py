@@ -58,14 +58,16 @@ class OpCodeHandler(ChatCodeHandler):
 
     async def connect(self) -> None:
         await self.comm.start_sender()
-        await self.comm.connect()
-        await self.comm.identify()
-        # await self.comm.start_receiver()
+        if await self.comm.connect():
+            await self.comm.identify()
+            await self.comm.start_receiver()
 
     async def _restart(self) -> None:
-        print("MSG: restart chatbot")
+        # print("MSG: restart chatbot")
+        await self.comm.stop()
         await self.connect()
-        await self.channel_manager.rejoin_channels()
+        if self.comm.connection:
+            await self.channel_manager.rejoin_channels()
         self.restarts += 1
 
     async def _prepare(self) -> None:
@@ -89,24 +91,26 @@ class OpCodeHandler(ChatCodeHandler):
     async def _run (self) -> None:
         while True:
             if self.comm.connection != None and self.comm.status() == "OPEN":
-                message = await self.comm.read()  # comm
+                # TODO: TESTING
+                # message = await self.comm.read()  # comm
+                # if message:
+                #     data = message.split(" ", 1)
+                #     await self.dispatcher(*data)
                 
                 # new one, not working.. needs more research in the future or will be removed..
-                # op, msg = await self.comm.receive()
-                
-                if message:
-                    data = message.split(" ", 1)
-                    await self.dispatcher(*data)
+                op, msg = await self.comm.receive()
+                # print(op, "|", msg, "##")
+                await self.dispatcher(op, msg)
 
                 if self.stop_impulse:
                     print("FULL STOP")
                     exit()
 
             else:
-                print("!!!!!!!! RECONNECT !!!!!!!!")
+                print(f"!!!!!!!! RECONNECT ({self.restarts+1}) !!!!!!!!")
                 await self._save_all_settings(self.owner)
                 time.sleep(30)
-                await self._restart()  # handles setting up connection etc
+                await self._restart()
                 await self._load_all_settings(self.owner)
 
     async def _opcode_handler_private_message(self, json_object:str) -> None:

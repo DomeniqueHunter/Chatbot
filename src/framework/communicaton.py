@@ -46,11 +46,14 @@ class Communication:
         try:
             self.connection = await websockets.client.connect(uri)
             print(f"connected to: {uri} - {self.status()}")
+            return True
 
         except Exception as e:
             print(f"could not connect to: {uri}")
             print(f"error: {e}")
             self.connection = None
+            
+        return False
 
     async def start_sender(self) -> None:
         if self._sender_task is None:
@@ -123,6 +126,7 @@ class Communication:
             message_str = await self.read()
             try:                
                 data = message_str.split(" ", 1)
+                
             except Exception as e:
                 print(f"could not split message: {message_str}")
                 print(e)
@@ -136,4 +140,33 @@ class Communication:
                 else:
                     self._recv_queue.append(message)
                 self._recv_condition.notify()
+                
+    async def stop(self) -> None:
+        # Cancel sender task
+        if self._sender_task is not None:
+            self._sender_task.cancel()
+            try:
+                await self._sender_task
+            except asyncio.CancelledError:
+                pass
+            self._sender_task = None
+    
+        # Cancel receiver task
+        if self._receiver_task is not None:
+            self._receiver_task.cancel()
+            try:
+                await self._receiver_task
+            except asyncio.CancelledError:
+                pass
+            self._receiver_task = None
+    
+        # Close WebSocket connection immediately
+        if self.connection is not None:
+            await self.connection.close()
+            self.connection = None
+    
+        # Clear queues
+        self._send_queue.clear()
+        self._recv_queue.clear()
+
         
