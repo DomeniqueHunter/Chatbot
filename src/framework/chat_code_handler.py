@@ -55,7 +55,7 @@ class ChatCodeHandler(Core):
         self.private_msg_handler.add_action("!debug_ors"    , self._order_list_of_open_private_channels, "DEBUG List of open Channels", "owner", "Bot (Admin)")
         self.private_msg_handler.add_action("!debug_cha"    , self._order_list_of_official_channels, "DEBUG List of official Channels", "owner", "Bot (Admin)")
         self.private_msg_handler.add_action("!debug_channels", self._debug_channels, "Debug Channels", "admin", "Bot (Admin)")
-        self.private_msg_handler.add_action("!__"           , self._hook_sysinfo, "system information", "owner", "Bot (Admin)")
+        self.private_msg_handler.add_action("!__ <pluginname>" , self._hook_sysinfo, "system information", "owner", "Bot (Admin)")
 
         # TODO:
         # openroom room
