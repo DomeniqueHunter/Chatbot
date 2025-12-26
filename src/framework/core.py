@@ -147,9 +147,13 @@ class Core():
             await self.channel_manager.join(channel['name'], channel['code'])
             
     async def _join_channels(self, channels:dict) -> None:
-        print('load Channels:')
+        print('Load Channels:')
         for channel in channels.values():
             await self.channel_manager.join(channel['name'], channel['code'])
+            print(f"+ {channel['name']}")
+        else:
+            print()
+            
 
     async def _set_status(self, status:str) -> None:
         data = {"status":"online",
@@ -258,8 +262,8 @@ class Core():
         )
 
         sysinfo += "Plugins:\n"
-        for plugin in self.plugin_loader.plugins:
-            sysinfo += f"-- {self.plugin_loader.plugins[plugin].module_name} ({self.plugin_loader.plugins[plugin].module_version})\n"
+        for key, plugin in self.plugin_loader.plugins.items():
+            sysinfo += f"-- [{key}] {plugin.module_name} ({plugin.module_version})\n"
 
         return sysinfo
 

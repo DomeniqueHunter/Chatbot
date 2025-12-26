@@ -382,3 +382,5 @@ class ChatCodeHandler(Core):
                 await self.send_private_message(info_str, user)
             else:
                 await self.send_private_message(self._sysinfo(), user)
+                
+                

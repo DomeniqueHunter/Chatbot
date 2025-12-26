@@ -45,11 +45,11 @@ class Communication:
 
         try:
             self.connection = await websockets.client.connect(uri)
-            print(f"connected to: {uri} - {self.status()}")
+            print(f"\nConnected to: {uri} - {self.status()}")
             return True
 
         except Exception as e:
-            print(f"could not connect to: {uri}")
+            print(f"\nCould not connect to: {uri}")
             print(f"error: {e}")
             self.connection = None
             
