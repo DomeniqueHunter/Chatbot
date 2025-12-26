@@ -70,7 +70,7 @@ class Logic():
             return status
         return not is_cow
 
-    async def add_worker(self, name:str) -> bool:
+    async def add_worker(self, name:str, setup:bool=False) -> bool:
         is_worker = self.is_worker(name)
 
         if not is_worker:
@@ -80,6 +80,10 @@ class Logic():
                 self.ranch.database.enable("worker", name)
 
             return status
+        
+        if setup:
+            print(f"User: {name} is a worker already")
+            
         return not is_worker
 
     async def _get_milk_multiplier(self, worker_name:str) -> float:

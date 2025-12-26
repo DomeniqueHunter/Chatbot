@@ -82,7 +82,7 @@ class Ranch(PluginPrototype):
         '''
             setup database
         '''
-
+        print(self.info())
         host = self.client.config.plugins["ranch"]["sql_host"]
         user = self.client.config.plugins["ranch"]["sql_user"]
         password = self.client.config.plugins["ranch"]["sql_pass"]
@@ -95,8 +95,9 @@ class Ranch(PluginPrototype):
         # session setup
         self.session_manager = SessionManager(bot=self.client)
 
-        loop = asyncio.new_event_loop()
-        loop.run_until_complete(self.logic.add_worker(self.client.config.character))
+        loop = asyncio.get_event_loop()
+        # loop = asyncio.new_event_loop()
+        loop.run_until_complete(self.logic.add_worker(self.client.config.character, setup=True))
 
         self.client.file_manager.add("ranch_milking_channels", "ranch_milking_channels.json", 'json')
 
