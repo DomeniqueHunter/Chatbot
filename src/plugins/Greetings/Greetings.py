@@ -13,7 +13,6 @@ class Greetings(PluginPrototype):
         self.client = client
         
     def setup(self):
-        self._info()
         self.client.file_manager.add("greetings", "greetings.json", 'json')
 
     def _register_greeting(self, user, title=None):

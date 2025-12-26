@@ -14,9 +14,6 @@ class PluginLoader():
         self.client = client
         
     def load_plugins(self) -> None:
-        """Load all plugins from the given directory."""
-        # self._extend_path()
-
         for plugin_name in os.listdir(self.plugins_dir):
             if plugin_name.startswith("_") or not os.path.isdir(
                 os.path.join(self.plugins_dir, plugin_name)
@@ -40,11 +37,8 @@ class PluginLoader():
             except Exception as e:
                 print(f"Failed to load plugin '{plugin_name}': {e}")
                 
-    def _extend_path(self):
-        for module in os.listdir(self.plugins_dir):
-            if (not module.startswith("_")):
-                plugin = self.plugins_dir + '/' + module + '/'
-                sys.path.append(plugin)
+    def check_plugin(self, plugin) -> bool:
+        return plugin in self.plugins
                 
     def get_plugin(self, plugin):
         if plugin in self.plugins:

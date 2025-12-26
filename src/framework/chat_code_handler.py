@@ -374,7 +374,11 @@ class ChatCodeHandler(Core):
 
         await self.send_private_message(help_string, user)
 
-    async def _hook_sysinfo(self, user:str="") -> None:
+    async def _hook_sysinfo(self, user:str="", plugin:str="") -> None:
         if self.is_owner(user):
-            # for _ in range(200):
-            await self.send_private_message(self._sysinfo(), user)
+            if self.plugin_loader.check_plugin(plugin):
+                print(f"Plugin {plugin} exists")
+                info_str: str = self.plugin_loader.get_plugin(plugin).info()
+                await self.send_private_message(info_str, user)
+            else:
+                await self.send_private_message(self._sysinfo(), user)
