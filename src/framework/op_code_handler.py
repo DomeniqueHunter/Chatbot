@@ -91,16 +91,9 @@ class OpCodeHandler(ChatCodeHandler):
     async def _run (self) -> None:
         while True:
             if self.comm.connection != None and self.comm.status() == "OPEN":
-                # TODO: TESTING
-                # message = await self.comm.read()  # comm
-                # if message:
-                #     data = message.split(" ", 1)
-                #     await self.dispatcher(*data)
+                data = await self.comm.receive()
                 
-                # new one, not working.. needs more research in the future or will be removed..
-                op, msg = await self.comm.receive()
-                # print(op, "|", msg, "##")
-                await self.dispatcher(op, msg)
+                await self.dispatcher(*data)
 
                 if self.stop_impulse:
                     print("FULL STOP")

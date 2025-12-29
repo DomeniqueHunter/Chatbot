@@ -8,10 +8,6 @@ from collections import deque
 from typing import Deque, Optional, Tuple
 
 
-def msg_parse(op:str, msg:str | None="") -> tuple[str, str]: 
-    return op, msg
-
-
 class Communication:
 
     def __init__(self, bot) -> None:
@@ -115,30 +111,27 @@ class Communication:
                 while not self._send_queue:
                     await self._queue_condition.wait()
 
-                opcode, data = self._send_queue.popleft()
-                # print(len(self._send_queue), opcode)
+                op, data = self._send_queue.popleft()
                 
-            await self._send_message(opcode, data)
+            await self._send_message(op, data)
             await asyncio.sleep(1.0)
             
     async def _recv_loop(self) -> None:
         while True:
             message_str = await self.read()
-            try:                
+            try: 
                 data = message_str.split(" ", 1)
                 
             except Exception as e:
                 print(f"could not split message: {message_str}")
                 print(e)
                 data = ("__ERROR", "")
-                
-            message = msg_parse(*data)
             
             async with self._recv_condition:
-                if message[0] == opcode.PING:
-                    self._recv_queue.appendleft(message)
+                if data[0] == opcode.PING:
+                    self._recv_queue.appendleft(data)
                 else:
-                    self._recv_queue.append(message)
+                    self._recv_queue.append(data)
                 self._recv_condition.notify()
                 
     async def stop(self) -> None:
@@ -168,5 +161,4 @@ class Communication:
         # Clear queues
         self._send_queue.clear()
         self._recv_queue.clear()
-
         
