@@ -153,7 +153,6 @@ class Core():
             print(f"+ {channel['name']}")
         else:
             print()
-            
 
     async def _set_status(self, status:str) -> None:
         data = {"status":"online",
@@ -252,7 +251,7 @@ class Core():
 
     def _sysinfo(self) -> str:
         _now = AdvTime()
-        sysinfo = ( 
+        sysinfo = (
             "\n"
             f"Start Time: {self.start_time.get_time_date()}\n"
             f"Local Time: {_now.get_time_date()}\n"

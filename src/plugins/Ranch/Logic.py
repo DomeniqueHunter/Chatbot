@@ -148,7 +148,7 @@ class Logic():
             if self.ranch.client.timeouts.check(to_id, timeout_s=self.time_between_milkings) or not not_force_milking:
                 max_milk = int(max_milk * multiplier)
                 
-                repetions_factor = 1 / (count_milking + 1) if not_force_milking else 1 # TODO: observe
+                repetions_factor = 1 / (count_milking + 1) if not_force_milking else 1  # TODO: observe
                 
                 amount = int(random.uniform(0.2 * max_milk, max_milk) * self.worker_multiplier(wlvl) * repetions_factor)
                 cow_lvl_up = False

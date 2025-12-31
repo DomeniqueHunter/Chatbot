@@ -138,7 +138,7 @@ class Hooks():
         else:
             await self.ranch.client.send_private_message("not permitted", user)
 
-    async def milk(self, worker, channel, cow_name):
+    async def milk(self, worker:str, channel:str, cow_name:str):
         """
         Milk a cow
         :worker: the worker who milks the cow
@@ -148,6 +148,11 @@ class Hooks():
         """
         if self.ranch.is_milking_channel(channel):
             cow_name = bbcode.get_name(cow_name)
+            
+            if cow_name.lower() == "all":
+                await self.milkall(worker, channel)
+                return
+            
             is_worker = self.ranch.logic.is_worker(worker)
             is_cow = self.ranch.logic.is_cow(cow_name)
             is_online = self.ranch.client.channels[channel].is_online(cow_name)
@@ -199,7 +204,7 @@ class Hooks():
 
             await self.ranch.client.send_public_message(message, channel)
 
-    async def power_milk(self, user, input_str=" , "):
+    async def power_milk(self, user:str, input_str:str=" , "):
         if self.ranch.client.is_owner(user.strip()):
             cow, worker_exp = parse(input_str, str, int)
             if worker_exp == 0: worker_exp = 1
@@ -234,7 +239,7 @@ class Hooks():
 
         await self.ranch.client.send_private_message(message, worker)
 
-    async def milkall(self, user, channel):
+    async def milkall(self, user:str, channel:str):
         """
         milk all cows currently in the channel
         :user: worker who wants to milk all cows

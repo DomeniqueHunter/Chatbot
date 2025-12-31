@@ -15,7 +15,7 @@ class Ranch(PluginPrototype):
 
     def __init__(self, client=None):
         self.module_name = "Ranch"
-        self.module_version = "2.7.8"
+        self.module_version = "2.8.0"
 
         self.logic = Logic(self)
         self.hooks = Hooks(self)
@@ -33,6 +33,7 @@ class Ranch(PluginPrototype):
         self.counter = Counter(count_to)
 
         self.milking_channels = []  # id's of milking channels
+        self.set_client(client)
 
     def is_milking_channel(self, channel):
         return channel in self.milking_channels
