@@ -15,7 +15,7 @@ class Ranch(PluginPrototype):
 
     def __init__(self, client=None):
         self.module_name = "Ranch"
-        self.module_version = "2.8.0"
+        self.module_version = "2.9.0"
 
         self.logic = Logic(self)
         self.hooks = Hooks(self)
@@ -67,6 +67,7 @@ class Ranch(PluginPrototype):
             self.client.private_msg_handler.add_action("!ranch_milking_channels", self.hooks.get_milking_channels, "Show milking channels", "admin", f"{self.module_name} (Admin)")
             self.client.private_msg_handler.add_action("!ranch_remove_milking_channel <index>", self.hooks.remove_milking_channel_by_index, "Disable milking in the Channel", "admin", f"{self.module_name} (Admin)")
             self.client.private_msg_handler.add_action("!ranch_person <name>", self.hooks.get_person, "Get Preson info", "admin", f"{self.module_name} (Admin)")
+            self.client.private_msg_handler.add_action("!ranch_milkablecows <channel>", self.hooks.check_milkable, "Check if cows are milkable", "admin", f"{self.module_name} (Admin)")
 
             self.client.public_msg_handler.add_action("!milkhere", self.hooks.set_milking_channel, "Enabled milking in the Channel", "admin", f"{self.module_name} (Admin)")
             self.client.public_msg_handler.add_action("!dontmilkhere", self.hooks.remove_milking_channel_by_id, "Disable milking in the Channel", "admin", f"{self.module_name} (Admin)")

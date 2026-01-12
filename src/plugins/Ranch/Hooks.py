@@ -562,4 +562,22 @@ class Hooks():
         
         else:
             await self.ranch.client.send_private_message("This is no milking channel!", user)
-
+            
+    async def check_milkable(self, user:str, parameter_str:str="") -> None:
+        if self.ranch.client.has_admin_rights(user) and self.ranch.logic.is_worker(user):
+            channel = parse(parameter_str, str)[0]
+            
+            channel_obj = self.ranch.client.channel_manager.find_channel(channel)
+            is_milking_channel = self.ranch.is_milking_channel(channel_obj.code)
+            if not is_milking_channel:
+                await self.ranch.client.send_private_message(f"{channel} is not a milking channel", user)
+            
+            milkable_cows = self.ranch.logic.check_milkable_cows(user, channel)
+            
+            if milkable_cows:
+                answer = "\nMilkable cows:\n" + "\n".join([" !milk " + bbcode.user(cow) for cow in milkable_cows])
+            else:
+                answer = f"No milkable cows in channel {channel}"
+            
+            await self.ranch.client.send_private_message(answer, user)
+            

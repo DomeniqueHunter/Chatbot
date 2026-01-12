@@ -56,6 +56,35 @@ class Logic():
             return True
         else:
             return False
+        
+    def is_milkable(self, cow_name:str, worker_name:str, worker_level:int) -> bool: 
+        if not self.is_cow(cow_name): return False
+        if cow_name.lower() == worker_name.lower(): return False
+        
+        _n, _y, cow_level, _e, _a = self.get_cow(cow_name)  # _, _, cow_level, _, _
+        
+        date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        count_milking = self.ranch.database.check_milking(cow_name, worker_name, date)[0]
+        
+        timeout_id = (worker_name.lower(), cow_name.lower())
+        
+        return self.ranch.client.timeouts.check(timeout_id, timeout_s=self.time_between_milkings) and count_milking < self.worker_milkings(worker_level, cow_level)
+    
+    def check_milkable_cows(self, worker_name:str, channel_name:str) -> list:
+        if not self.is_worker(worker_name): return []
+        
+        _, _, worker_level, _, _ = self.get_worker(worker_name)
+        
+        milkable_cows = []
+        channel = self.ranch.client.channel_manager.find_channel(channel_name)
+        
+        if not channel: return []
+        
+        for cow_name in channel.characters.get(): 
+            if self.is_milkable(cow_name, worker_name, worker_level):
+                milkable_cows.append(cow_name)
+                
+        return milkable_cows
 
     async def add_cow(self, cow_name:str, milk_yield=10) -> bool:
         is_cow = self.is_cow(cow_name)
@@ -384,7 +413,14 @@ class Logic():
     def get_worker_stats(self, name:str):
         return self.ranch.database.get_worker_jobs(name)
 
-    def get_cow(self, name:str, respect:bool=True):
+    def get_cow(self, name:str, respect:bool=True) -> tuple:
+        """
+        Get Cow from Database
+        
+        :name: cow name
+        :respect: debug parameter for force milking
+        :return: person.name, cow.yield, level.level, level.experience, cow.active
+        """
         try:
             return self.ranch.database.get_cow(name, respect)
         except:
