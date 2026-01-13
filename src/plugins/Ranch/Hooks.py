@@ -568,9 +568,11 @@ class Hooks():
             channel = parse(parameter_str, str)[0]
             
             channel_obj = self.ranch.client.channel_manager.find_channel(channel)
-            is_milking_channel = self.ranch.is_milking_channel(channel_obj.code)
+            is_milking_channel = self.ranch.is_milking_channel(channel_obj.code) if channel_obj else False
+            
             if not is_milking_channel:
                 await self.ranch.client.send_private_message(f"{channel} is not a milking channel", user)
+                return
             
             milkable_cows = self.ranch.logic.check_milkable_cows(user, channel)
             
