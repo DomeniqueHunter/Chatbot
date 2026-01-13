@@ -57,18 +57,21 @@ class Logic():
         else:
             return False
         
-    def is_milkable(self, cow_name:str, worker_name:str, worker_level:int) -> bool: 
+    def is_milkable(self, cow_name:str, worker_name:str, worker_level:int) -> str|None: 
         if not self.is_cow(cow_name): return False
         if cow_name.lower() == worker_name.lower(): return False
         
-        _n, _y, cow_level, _e, _a = self.get_cow(cow_name)  # _, _, cow_level, _, _
+        cow_name, _y, cow_level, _e, _a = self.get_cow(cow_name)
         
         date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         count_milking = self.ranch.database.check_milking(cow_name, worker_name, date)[0]
         
         timeout_id = (worker_name.lower(), cow_name.lower())
         
-        return self.ranch.client.timeouts.check(timeout_id, timeout_s=self.time_between_milkings) and count_milking < self.worker_milkings(worker_level, cow_level)
+        if self.ranch.client.timeouts.check(timeout_id, timeout_s=self.time_between_milkings) and count_milking < self.worker_milkings(worker_level, cow_level):
+            return cow_name
+        
+        return None
     
     def check_milkable_cows(self, worker_name:str, channel_name:str) -> list:
         if not self.is_worker(worker_name): return []
@@ -81,9 +84,10 @@ class Logic():
         if not channel: return []
         
         for cow_name in channel.characters.get(): 
-            if self.is_milkable(cow_name, worker_name, worker_level):
-                milkable_cows.append(cow_name)
-                
+            milkable_cow = self.is_milkable(cow_name, worker_name, worker_level)
+            if milkable_cow:
+                milkable_cows.append(milkable_cow)
+        # print(milkable_cows)
         return milkable_cows
 
     async def add_cow(self, cow_name:str, milk_yield=10) -> bool:
@@ -380,7 +384,7 @@ class Logic():
             
             return response
 
-    def get_worker(self, name:str) -> tuple:
+    def get_worker(self, name:str) -> Tuple[int, str, int, int, int]:
         """
         Returns the milkings of worker
 
@@ -413,7 +417,7 @@ class Logic():
     def get_worker_stats(self, name:str):
         return self.ranch.database.get_worker_jobs(name)
 
-    def get_cow(self, name:str, respect:bool=True) -> tuple:
+    def get_cow(self, name:str, respect:bool=True) -> Tuple[str, int, int, int, int]:
         """
         Get Cow from Database
         

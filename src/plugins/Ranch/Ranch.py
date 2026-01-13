@@ -15,7 +15,7 @@ class Ranch(PluginPrototype):
 
     def __init__(self, client=None):
         self.module_name = "Ranch"
-        self.module_version = "2.9.0"
+        self.module_version = "2.9.2"
 
         self.logic = Logic(self)
         self.hooks = Hooks(self)
@@ -56,6 +56,8 @@ class Ranch(PluginPrototype):
             self.client.public_msg_handler.add_action("!becomeacow", self.hooks.makemecow, "you will beome a cow", "user", self.module_name)
             self.client.public_msg_handler.add_action("!becomeaworker", self.hooks.becomeaworker, "you will beome a worker", "user", self.module_name)
 
+            self.client.private_msg_handler.add_action("!ranch_milkablecows <channel>", self.hooks.check_milkable, "Check if cows are milkable", "user", f"{self.module_name} (Direct)")
+
             # admin commands
             self.client.private_msg_handler.add_action("!power_milk <cowname>, <exp gain (int) : optional>", self.hooks.power_milk, "DEBUG power milk a cow", "admin", f"{self.module_name} (Admin)")
             self.client.private_msg_handler.add_action("!ranch_add_cow <name>, <milkoutput (int): optional>", self.hooks.add_cow, "Add a cow to the Ranch", "admin", f"{self.module_name} (Admin)")
@@ -67,7 +69,6 @@ class Ranch(PluginPrototype):
             self.client.private_msg_handler.add_action("!ranch_milking_channels", self.hooks.get_milking_channels, "Show milking channels", "admin", f"{self.module_name} (Admin)")
             self.client.private_msg_handler.add_action("!ranch_remove_milking_channel <index>", self.hooks.remove_milking_channel_by_index, "Disable milking in the Channel", "admin", f"{self.module_name} (Admin)")
             self.client.private_msg_handler.add_action("!ranch_person <name>", self.hooks.get_person, "Get Preson info", "admin", f"{self.module_name} (Admin)")
-            self.client.private_msg_handler.add_action("!ranch_milkablecows <channel>", self.hooks.check_milkable, "Check if cows are milkable", "admin", f"{self.module_name} (Admin)")
 
             self.client.public_msg_handler.add_action("!milkhere", self.hooks.set_milking_channel, "Enabled milking in the Channel", "admin", f"{self.module_name} (Admin)")
             self.client.public_msg_handler.add_action("!dontmilkhere", self.hooks.remove_milking_channel_by_id, "Disable milking in the Channel", "admin", f"{self.module_name} (Admin)")

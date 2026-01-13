@@ -564,7 +564,7 @@ class Hooks():
             await self.ranch.client.send_private_message("This is no milking channel!", user)
             
     async def check_milkable(self, user:str, parameter_str:str="") -> None:
-        if self.ranch.client.has_admin_rights(user) and self.ranch.logic.is_worker(user):
+        if self.ranch.logic.is_worker(user): # self.ranch.client.has_admin_rights(user)
             channel = parse(parameter_str, str)[0]
             
             channel_obj = self.ranch.client.channel_manager.find_channel(channel)
