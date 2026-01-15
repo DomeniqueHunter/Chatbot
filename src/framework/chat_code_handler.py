@@ -50,7 +50,8 @@ class ChatCodeHandler(Core):
         self.private_msg_handler.add_action("!allusers"     , self._hook_list_all_users, "Lists all users", "owner", "Bot (Admin)")
 
         self.private_msg_handler.add_action("!DIE"          , self._hook_die, "Kills the bot", "owner", "Bot (Admin)")
-
+        
+        self.private_msg_handler.add_action("!statistics"   , self._hook_command_statistics, "Show Bot Statistics", "admin", "Bot (Admin)")
         self.private_msg_handler.add_action("!ch_info <channel>", self._hook_get_users_in_channel, "returns info of channel", "admin", "Bot (Admin)")
         self.private_msg_handler.add_action("!debug_ors"    , self._order_list_of_open_private_channels, "DEBUG List of open Channels", "owner", "Bot (Admin)")
         self.private_msg_handler.add_action("!debug_cha"    , self._order_list_of_official_channels, "DEBUG List of official Channels", "owner", "Bot (Admin)")
@@ -373,6 +374,21 @@ class ChatCodeHandler(Core):
         # print(f"help page length: {len(help_string)}")
 
         await self.send_private_message(help_string, user)
+        
+    async def _hook_command_statistics(self, user:str) -> None:
+        if self.has_admin_rights(user):
+            stats: str = ""
+            if pr_stats := self.private_msg_handler.show_statistics():
+                stats += "\nPrivate Messages\n"
+                for handler, calls in pr_stats.items():
+                    stats += f"{handler}: {calls}\n"
+                
+            if pu_stats := self.public_msg_handler.show_statistics():
+                stats += "\nPublic Messages\n"
+                for handler, calls in pu_stats.items():
+                    stats += f"{handler}: {calls}\n"
+            
+            await self.send_private_message(stats, user)
 
     async def _hook_sysinfo(self, user:str="", plugin:str="") -> None:
         if self.is_owner(user):
@@ -382,5 +398,4 @@ class ChatCodeHandler(Core):
                 await self.send_private_message(info_str, user)
             else:
                 await self.send_private_message(self._sysinfo(), user)
-                
                 
