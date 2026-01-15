@@ -20,6 +20,9 @@ class Hooks():
 
     async def get_cow(self, user, channel, name=None):
         if self.ranch.is_milking_channel(channel):
+            if name == None:
+                name = user
+                
             name = bbcode.get_name(name)
             is_cow = self.ranch.logic.is_cow(name)
             message = "ERROR"
@@ -112,6 +115,9 @@ class Hooks():
 
     async def get_worker(self, user, channel, name=None):
         if self.ranch.is_milking_channel(channel):
+            if name == None:
+                name = user
+            
             name = bbcode.get_name(name)
 
             is_worker = self.ranch.logic.is_worker(name)
