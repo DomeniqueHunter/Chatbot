@@ -24,7 +24,7 @@ class Core():
     def __init__(self, config:Config, root_path:str="./") -> None:
         self.account = config.account
         self.password = config.password
-        self.version = "0.9.13"
+        self.version = "0.9.14"
 
         self.channel_manager = ChannelManager(self.join)
         self.channels = self.channel_manager.joined_channels

@@ -28,7 +28,7 @@ class OpCodeHandler(ChatCodeHandler):
 
         # Register Opcode Actions
         self.opcodes_handler = Reactions()
-        self.opcodes_handler.add_action("EXCEPTION"               , self._opcode_handler_except)
+        self.opcodes_handler.add_action("__EXCEPTION__"           , self._opcode_handler_except)
         self.opcodes_handler.add_action(opcode.PING               , self._opcode_handler_ping)
         self.opcodes_handler.add_action(opcode.PRIVATE_MESSAGE    , self._opcode_handler_private_message)
         self.opcodes_handler.add_action(opcode.CHANNEL_MESSAGE    , self._opcode_handler_channel_message)
@@ -46,7 +46,7 @@ class OpCodeHandler(ChatCodeHandler):
         self.opcodes_handler.add_action(opcode.LIST_OFFICAL_CHANNELS, self._opcode_handler_receive_list_of_official_channels)
 
         self.public_msg_handler = CommandManager(self.manpage)
-        self.public_msg_handler.add_action("EXCEPTION", self._opcode_handler_except, no_help=True)
+        self.public_msg_handler.add_action("__EXCEPTION__", self._opcode_handler_except, no_help=True)
         self.public_msg_handler.add_action("!help", self._hook_help_page, no_help=True)
 
         self.public_msg_handler.add_action("!debug_users", self._debug_users, "DEBUG show all users in channel", "owner", "Bot (Admin)")

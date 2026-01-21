@@ -7,9 +7,9 @@ class Reaction():
     def __init__(self, defaultExceptionFunction=None):
         self.actions = {}
         if defaultExceptionFunction and (inspect.isfunction(defaultExceptionFunction) or inspect.ismethod(defaultExceptionFunction)):
-            self.__add_action('EXCEPTION', defaultExceptionFunction)
+            self.__add_action('__EXCEPTION__', defaultExceptionFunction)
         else:
-            self.__add_action('EXCEPTION', self.__defaultException)
+            self.__add_action('__EXCEPTION__', self.__defaultException)
             
     def add_action(self, handler, function):
         return self.__add_action(handler, function)
@@ -26,13 +26,13 @@ class Reaction():
             print(f"+ set action for method: {handler} ({self.actions[handler].len})")
             
         else:
-            self.react('EXCEPTION', handler, 'is not a function or method')
+            self.react('__EXCEPTION__', handler, 'is not a function or method')
         
     def react(self, handler, *args):
         try:
             return self.actions[handler](*args[:self.actions[handler].len])
         except:
-            return self.react('EXCEPTION', handler)
+            return self.react('__EXCEPTION__', handler)
         
     def __defaultException(self, handler, message='handler not found!'):
         """

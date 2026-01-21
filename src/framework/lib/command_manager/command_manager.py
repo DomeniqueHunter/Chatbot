@@ -16,7 +16,8 @@ class CommandManager(Reaction):
             
         super().add_action(handler, function)
         
-        self.prefixes.add(handler[0])  # add prefix from handler to set of prefixes
+        if handler != "__EXCEPTION__":
+            self.prefixes.add(handler[0])  # add prefix from handler to set of prefixes
         
     def react(self, handler, *args):
         if handler in self.actions: 
