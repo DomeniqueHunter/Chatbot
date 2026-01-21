@@ -115,6 +115,8 @@ class OpCodeHandler(ChatCodeHandler):
                 
         message = message.split(' ', 1)
         handle = message.pop(0)
+        
+        if not handle.startswith("!"): return
 
         await self.private_msg_handler.react(handle, user, *message)
 
@@ -122,13 +124,15 @@ class OpCodeHandler(ChatCodeHandler):
         # Channel Message Dispatcher
         
         data = json.loads(json_object)
-        channel = data ['channel']
-        message = data ['message'].strip()
+        channel = data['channel']
+        message = data['message'].strip()
         user = data ['character']
 
         message = message.split(' ', 1)
         handle = message.pop(0)
-
+        
+        if not handle.startswith("!"): return
+        
         await self.public_msg_handler.react(handle, user, channel, *message)
 
     async def _opcode_handler_ping(self, _:None=None) -> None:

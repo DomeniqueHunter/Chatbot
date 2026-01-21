@@ -13,7 +13,6 @@ class CommandManager(Reaction):
         if not no_help:
             handler = self.manpage.add_command(handler, man_text, role, section)
             
-        print(function.__name__)
         super().add_action(handler, function)
         
     def react(self, handler, *args):
