@@ -8,12 +8,15 @@ class CommandManager(Reaction):
         super().__init__(defaultExceptionFunction)
         self.manpage = manpage
         self.statistics = defaultdict(int)
+        self.prefixes = set()
     
     def add_action(self, handler, function, man_text="", role=None, section=None, no_help=False) -> None:
         if not no_help:
             handler = self.manpage.add_command(handler, man_text, role, section)
             
         super().add_action(handler, function)
+        
+        self.prefixes.add(handler[0])  # add prefix from handler to set of prefixes
         
     def react(self, handler, *args):
         if handler in self.actions: 
@@ -24,3 +27,5 @@ class CommandManager(Reaction):
     def show_statistics(self) -> dict:
         return dict(self.statistics)
     
+    def allowed_prefix(self, prefix:str) -> bool: 
+        return prefix in self.prefixes

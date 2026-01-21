@@ -116,7 +116,7 @@ class OpCodeHandler(ChatCodeHandler):
         message = message.split(' ', 1)
         handle = message.pop(0)
         
-        if not handle.startswith("!"): return
+        if not self.private_msg_handler.allowed_prefix(handle[0]): return
 
         await self.private_msg_handler.react(handle, user, *message)
 
@@ -131,7 +131,7 @@ class OpCodeHandler(ChatCodeHandler):
         message = message.split(' ', 1)
         handle = message.pop(0)
         
-        if not handle.startswith("!"): return
+        if not self.public_msg_handler.allowed_prefix(handle[0]): return
         
         await self.public_msg_handler.react(handle, user, channel, *message)
 
