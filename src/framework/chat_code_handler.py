@@ -2,6 +2,7 @@ from framework.core import Core
 from framework import opcode
 
 from framework.lib.command_manager import CommandManager
+from framework.lib.reaction import EXCEPTION_REACTION_HANDLER
 
 from framework.lib.config.config import Config
 from framework.lib.argument.parser import parse
@@ -28,7 +29,7 @@ class ChatCodeHandler(Core):
         # Register Message Actions
         self.private_msg_handler = CommandManager(self.manpage)
         #  add_action(self, handler, function, man_text="", role="owner", section="Bot (Admin)")
-        self.private_msg_handler.add_action("__EXCEPTION__", self._hook_exception_handler, no_help=True)
+        self.private_msg_handler.add_action(EXCEPTION_REACTION_HANDLER, self._hook_exception_handler, no_help=True)
         self.private_msg_handler.add_action("!join <channel>", self._hook_join_by_name, "Bot joins channel", "admin", "Bot (Admin)")
         self.private_msg_handler.add_action("!leave <channel>", self._hook_leave, "Bot leaves channel", "admin", "Bot (Admin)")
         self.private_msg_handler.add_action("!add_admin <name>" , self._hook_add_admin, "add a User to admins", "admin", "Bot (Admin)")

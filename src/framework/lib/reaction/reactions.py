@@ -1,4 +1,5 @@
 import inspect
+from .reaction import EXCEPTION_REACTION_HANDLER
 
 
 class Multi_Reaction(): 
@@ -7,9 +8,9 @@ class Multi_Reaction():
         self.actions = {}
         self.index = 0
         if defaultExceptionFunction and (inspect.isfunction(defaultExceptionFunction) or inspect.ismethod(defaultExceptionFunction)):
-            self.add_action('EXCEPTION', defaultExceptionFunction)
+            self.add_action(EXCEPTION_REACTION_HANDLER, defaultExceptionFunction)
         else:
-            self.add_action('EXCEPTION', self.__defaultException)
+            self.add_action(EXCEPTION_REACTION_HANDLER, self.__defaultException)
         
     def add_action(self, handler, function):
         if handler not in self.actions:

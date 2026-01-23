@@ -7,6 +7,8 @@ import asyncio
 from collections import deque
 from typing import Deque, Optional, Tuple
 
+COMM_ERROR = "__ERROR"
+
 
 class Communication:
 
@@ -97,7 +99,7 @@ class Communication:
                 return self._recv_queue.popleft()
         except Exception as e:
             print(f"Connection Error: {e}")
-            return "__ERROR", ""
+            return COMM_ERROR, ""
 
     async def get_api_ticket(self) -> str:
         return await get_ticket(self.bot.config.account, self.bot.config.password)
@@ -125,7 +127,7 @@ class Communication:
             except Exception as e:
                 print(f"could not split message: {message_str}")
                 print(e)
-                data = ("__ERROR", "")
+                data = (COMM_ERROR, "")
             
             async with self._recv_condition:
                 if data[0] == opcode.PING:
