@@ -87,8 +87,9 @@ class Communication:
             return await self.connection.recv()
 
         except Exception as e:
-            print("could not read from stream ...")
-            print(e)
+            # print("could not read from stream")
+            # print(e)
+            return f"{COMM_ERROR} could not read from stream"
             
     async def receive(self) -> tuple[str, str]:
         try:
@@ -97,9 +98,10 @@ class Communication:
                     await self._recv_condition.wait()
         
                 return self._recv_queue.popleft()
+            
         except Exception as e:
-            print(f"Connection Error: {e}")
-            return COMM_ERROR, ""
+            # print(f"Connection Error: {e}")
+            return COMM_ERROR, "Connection closed"
 
     async def get_api_ticket(self) -> str:
         return await get_ticket(self.bot.config.account, self.bot.config.password)

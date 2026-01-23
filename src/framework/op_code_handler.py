@@ -8,7 +8,7 @@ from framework.lib.counter import Counter
 import json, asyncio, time
 from framework.lib.channel import Channel
 from framework.lib.config.config import Config
-
+from framework.communicaton import COMM_ERROR
 
 class OpCodeHandler(ChatCodeHandler):
     """
@@ -29,6 +29,7 @@ class OpCodeHandler(ChatCodeHandler):
         # Register Opcode Actions
         self.opcodes_handler = Reactions()
         self.opcodes_handler.add_action(EXCEPTION_REACTION_HANDLER, self._opcode_handler_except)
+        self.opcodes_handler.add_action(COMM_ERROR, self._opcode_handler_connection_errors)
         self.opcodes_handler.add_action(opcode.PING               , self._opcode_handler_ping)
         self.opcodes_handler.add_action(opcode.PRIVATE_MESSAGE    , self._opcode_handler_private_message)
         self.opcodes_handler.add_action(opcode.CHANNEL_MESSAGE    , self._opcode_handler_channel_message)
@@ -157,6 +158,9 @@ class OpCodeHandler(ChatCodeHandler):
     async def _opcode_handler_except(self, json_object:str) -> None:
         # silent
         pass
+    
+    async def _opcode_handler_connection_errors(self, message:str):
+        print(f"Connection Error: {message}")
 
     async def _opcode_handler_invite(self, json_object:str) -> None:
         data = json.loads(json_object)
