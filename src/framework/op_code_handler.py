@@ -56,57 +56,9 @@ class OpCodeHandler(ChatCodeHandler):
 
     async def dispatcher(self, op:str, json_object:str="") -> None:
         await self.opcodes_handler.react(op, json_object)
-
-    async def connect(self) -> None:
-        await self.comm.start_sender()
-        if await self.comm.connect():
-            await self.comm.identify()
-            await self.comm.start_receiver()
-
-    async def _restart(self) -> None:
-        # print("MSG: restart chatbot")
-        await self.comm.stop()
-        await self.connect()
-        if self.comm.connection:
-            await self.channel_manager.rejoin_channels()
-        self.restarts += 1
-
-    async def _prepare(self) -> None:
-        await self._load_all_settings(self.owner)
-
-        await self._order_list_of_open_private_channels()
-        await self._order_list_of_official_channels()
-
-        await self.join_default_channels(self.config.default_channels)
-
-    def start(self) -> None:
-        self.loop.run_until_complete(self.connect())
-        self.loop.run_until_complete(self._prepare())
-        self.loop.run_until_complete(self._run())
-
-        self.loop.run_forever()
         
     def get_user_gender(self, user:str) -> str:
         return self.all_users[user.lower()]['gender']
-
-    async def _run (self) -> None:
-        while True:
-            if self.comm.connection != None and self.comm.status() == "OPEN":
-                data = await self.comm.receive()
-                
-                await self.dispatcher(*data)
-
-                if self.stop_impulse:
-                    print("FULL STOP")
-                    exit()
-
-            else:
-                print(f"!!!!!!!! RECONNECT ({self.restarts+1}) !!!!!!!!")
-                await self._save_all_settings(self.owner)
-                time.sleep(30)
-                await self._restart()
-                await self._load_all_settings(self.owner)
-
     async def _opcode_handler_private_message(self, json_object:str) -> None:
         # Private Message Dispatcher
         
