@@ -15,6 +15,7 @@ client = Client(config, str(data_path))
 
 plugins_path = PROJECT_ROOT / 'plugins'
 client.enable_plugin_loader(plugins_dir=plugins_path)
+
 client.load_plugins()
 
 # start webserver in thread

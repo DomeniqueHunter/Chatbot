@@ -10,6 +10,7 @@ from framework.lib.time import AdvTime
 from framework.lib.channel import ChannelManager, ChannelCreationQueue
 
 from time import time
+from pathlib import Path
 
 import os
 from framework.communicaton import Communication
@@ -32,7 +33,10 @@ class Core():
         self.channel_creation_queue = ChannelCreationQueue()
 
         self.admins = []
-
+        
+        core_module_path = Path(root_path) / ".." / "framework" / "core_modules"
+        self.core_plugins:PluginLoader = PluginLoader(core_module_path, self, "framework.core_modules")
+        self.core_plugins.load_plugins()
         self.plugin_loader:PluginLoader = None
         self.restarts = 0
         self.start_time = AdvTime()
@@ -224,7 +228,12 @@ class Core():
         else:
             print ("no plugin loader!")
         print("Deprecated: use 'enable_plugin_loader' instead")
-
+    
+    def load_core_plugins(self) -> None:
+        if self.core_plugins:
+            print("load Core Plugins")
+            self.core_plugins.load_plugins()
+        
     def load_plugins(self) -> None:
         if self.plugin_loader:
             print ('Load Plugins:')
@@ -259,6 +268,11 @@ class Core():
             f"Restarts: {self.restarts}\n"
             f"Help calls: {self.manpage.counter()}\n"
         )
+        
+        if self.core_plugins:
+            sysinfo += "Core Plugins:\n"
+            for key, plugin in self.core_plugins.plugins.items():
+                sysinfo += f"-- [{key}] {plugin.module_name} ({plugin.module_version})\n"
 
         sysinfo += "Plugins:\n"
         for key, plugin in self.plugin_loader.plugins.items():

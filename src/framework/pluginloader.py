@@ -5,10 +5,11 @@ import importlib
 
 class PluginLoader():
     
-    def __init__(self, plugins_dir:str='plugins', client=None):
-        self.plugins_dir = plugins_dir
+    def __init__(self, plugins_dir:str='plugins', client=None, module_path:str="plugins"):
+        self.plugins_dir = plugins_dir # can be str opr Path
         self.plugins = {}
         self.client = client
+        self.module_path = module_path
     
     def set_client(self, client):
         self.client = client
@@ -21,14 +22,19 @@ class PluginLoader():
                 continue
 
             try:
-                module_path = f"plugins.{plugin_name}.{plugin_name}"
+                module_path = f"{self.module_path}.{plugin_name}.{plugin_name}"
                 module: ModuleType = importlib.import_module(module_path)
 
-                plugin_class = getattr(module, plugin_name)
-                plugin_instance = plugin_class()
-
+                # if plugin name == folder name (old style)
+                if hasattr(module, plugin_name):
+                    plugin_class = getattr(module, plugin_name)
+                    plugin_instance = plugin_class()
+                    plugin_instance.set_client(self.client)
+                
+                elif hasattr(module, "setup"):
+                    plugin_instance = module.setup(self.client)                    
+                
                 self.plugins[plugin_name] = plugin_instance
-                plugin_instance.set_client(self.client)
                 plugin_instance.setup()
                 plugin_instance.register_actions()
 

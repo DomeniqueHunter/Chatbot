@@ -83,7 +83,7 @@ class ChatCodeHandler(Core):
         if channel in self.channels:
             self.channels[channel].change_desciption(description)
 
-    async def _save_all_settings(self, user:str="") -> None:
+    async def save_all_settings(self, user:str="") -> None:
         await self._hook_save_admins(user)
         await self._hook_save_channels(user)
         await self._hook_save_status(user)
@@ -91,7 +91,7 @@ class ChatCodeHandler(Core):
 
         self.trigger_plugins_save()
 
-    async def _load_all_settings(self, user:str="") -> None:
+    async def load_all_settings(self, user:str="") -> None:
         await self._hook_load_admins(user)
         await self._hook_load_channels(user)
         await self._hook_load_status(user)
@@ -106,11 +106,11 @@ class ChatCodeHandler(Core):
     async def _hook_save_all(self, user:str="") -> None:
         if self.is_owner(user):
             print ("save settings")
-            await self._save_all_settings(user)
+            await self.save_all_settings(user)
 
     async def _hook_load_all(self, user:str="") -> None:
         if self.is_owner(user):
-            await self._load_all_settings(user)
+            await self.load_all_settings(user)
 
     async def _hook_exception_handler(self, handler, *args) -> None:
         # silent - we do not spam the log with people chatting to the bot
@@ -293,7 +293,7 @@ class ChatCodeHandler(Core):
 
     async def _hook_die(self, user:str="") -> None:
         if self.is_owner(user):
-            await self._save_all_settings(user)
+            await self.save_all_settings(user)
             await self.send_private_message("I'm out, Bye!", user)
             self.stop_impulse = True
             exit()

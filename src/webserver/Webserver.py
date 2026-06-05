@@ -43,7 +43,7 @@ def Webserver(bot):
         secret = request.headers.get("secret")
         
         if secret == bot.config.webserver['secret']:
-            await bot._save_all_settings(bot.config.owner)
+            await bot.save_all_settings(bot.config.owner)
             raise web.HTTPSuccessful()
             return web.Response("{'response: 'success'")
         else:

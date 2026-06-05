@@ -1,11 +1,12 @@
 from framework.op_code_handler import OpCodeHandler
+
 import time
 
 
 class Bot(OpCodeHandler):
 
     def __init__(self, config, root_path="./"):
-        super().__init__(config, root_path)
+        super().__init__(config, root_path)        
 
     async def connect(self) -> None:
         await self.comm.start_sender()
@@ -21,7 +22,7 @@ class Bot(OpCodeHandler):
         self.restarts += 1
 
     async def _prepare(self) -> None:
-        await self._load_all_settings(self.owner)
+        await self.load_all_settings(self.owner)
 
         await self._order_list_of_open_private_channels()
         await self._order_list_of_official_channels()
@@ -41,10 +42,10 @@ class Bot(OpCodeHandler):
 
             else:
                 print(f"!!!!!!!! RECONNECT ({self.restarts+1}) !!!!!!!!")
-                await self._save_all_settings(self.owner)
+                await self.save_all_settings(self.owner)
                 time.sleep(30)
                 await self._restart()
-                await self._load_all_settings(self.owner)
+                await self.load_all_settings(self.owner)
 
     def start(self) -> None:
         self.loop.run_until_complete(self.connect())
