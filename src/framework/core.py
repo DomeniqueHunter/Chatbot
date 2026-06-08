@@ -25,7 +25,7 @@ class Core():
     def __init__(self, config:Config, root_path:str="./") -> None:
         self.account = config.account
         self.password = config.password
-        self.version = "0.9.15"
+        self.version = "0.9.16"
 
         self.channel_manager = ChannelManager(self.join)
         self.channels = self.channel_manager.joined_channels
@@ -36,8 +36,8 @@ class Core():
         
         core_module_path = Path(root_path) / ".." / "framework" / "core_modules"
         self.core_plugins:PluginLoader = PluginLoader(core_module_path, self, "framework.core_modules")
-        self.core_plugins.load_plugins()
         self.plugin_loader:PluginLoader = None
+        
         self.restarts = 0
         self.start_time = AdvTime()
 
@@ -57,6 +57,9 @@ class Core():
         self.file_manager.add('admins', 'admins.json', 'json')
         self.file_manager.add('all_users', 'all_users.bin', 'binary')
         self.file_manager.add('channels', 'channels2.json', 'json')
+        
+        # load core plugins after all tools are instanced
+        self.core_plugins.load_plugins()
 
     async def join(self, channel_code:str, channel_name:str="", force:bool=False) -> None:
         data = {'channel': channel_code}

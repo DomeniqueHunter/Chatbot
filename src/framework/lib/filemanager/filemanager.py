@@ -91,7 +91,7 @@ class FileManager:
         
     def __save_json(self, f_location, content) -> None:
         with open(f_location, 'w') as fp:
-            json.dump(content, fp)
+            json.dump(content, fp, indent=4)
         
     def __load_plain(self, f_location) -> str:
         with open(f_location, 'r') as fp:
