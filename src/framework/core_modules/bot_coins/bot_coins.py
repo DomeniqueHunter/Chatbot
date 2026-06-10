@@ -43,7 +43,6 @@ class BotCoins(PluginPrototype):
         self.user_wallet_db.transfer_amount(from_user, to_user, number)
 
     def add_coins(self, user:str, number:int):
-        print(f"add {user} {number}")
         self.user_wallet_db.add_amount(user, number)
 
     def remove_coins(self, user:str, number:int):
