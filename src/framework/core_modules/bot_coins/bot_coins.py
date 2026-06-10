@@ -28,14 +28,14 @@ class BotCoins(PluginPrototype):
     def __get_users_in_channels(self):
         current_users = []
         for _, channel in self.bot.channel_manager.joined_channels.items():
-            channel_users = channel.characters
-            current_users.extend(channel_users.items)
+            channel_users = channel.characters.get()
+            current_users.extend(channel_users)
 
         # remove doubles
         current_users = list(set(current_users))
 
         for user in current_users:
-            self.add_coins(user, self.coins_per_interval)
+            self.add_coins(str(user), self.coins_per_interval)
 
         self.save()
 
@@ -43,6 +43,7 @@ class BotCoins(PluginPrototype):
         self.user_wallet_db.transfer_amount(from_user, to_user, number)
 
     def add_coins(self, user:str, number:int):
+        print(f"add {user} {number}")
         self.user_wallet_db.add_amount(user, number)
 
     def remove_coins(self, user:str, number:int):
@@ -64,7 +65,6 @@ class BotCoins(PluginPrototype):
             self.bot.private_msg_handler.add_action("!admin_add_coins <user:str> <amount:int>", self.hooks.admin_add_coins, "DEBUG add coins to user wallet", "admin", f"{self.module_name} (Admin)")
         else:
             print("no client")
-
 
     async def clock(self):
         if self.counter.tick():

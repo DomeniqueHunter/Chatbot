@@ -56,6 +56,7 @@ class OpCodeHandler(ChatCodeHandler):
         
     def get_user_gender(self, user:str) -> str:
         return self.all_users[user.lower()]['gender']
+    
     async def _opcode_handler_private_message(self, json_object:str) -> None:
         # Private Message Dispatcher
         
@@ -142,7 +143,7 @@ class OpCodeHandler(ChatCodeHandler):
                         self.channels[code].add_admin(channel_object["user"])
                         self.channels[code].persistent = channel_object["persistent"]
         else:
-            self.channels[code].add_character(user.lower())
+            self.channels[code].add_character(user)
 
     async def _opcode_hander_user_left_channel(self, json_object:str) -> None:
         data = json.loads(json_object)
@@ -184,7 +185,7 @@ class OpCodeHandler(ChatCodeHandler):
         # print (data)
         channel = data['channel']
         for user in data['users']:
-            self.channels[channel].add_character(user['identity'].lower())
+            self.channels[channel].add_character(user['identity'])
 
     async def _opcode_handler_receive_list_of_open_public_channels(self, json_object):
         self.channel_manager.add_open_private_channels(json_object)
