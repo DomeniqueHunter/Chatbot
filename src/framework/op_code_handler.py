@@ -27,7 +27,7 @@ class OpCodeHandler(ChatCodeHandler):
         self.counter_save_all = Counter (60)
 
         # Register Opcode Actions
-        self.opcodes_handler = Reactions()
+        self.opcodes_handler = Reactions() # maybe move to core
         self.opcodes_handler.add_action(EXCEPTION_REACTION_HANDLER, self._opcode_handler_except)
         self.opcodes_handler.add_action(COMM_ERROR, self._opcode_handler_connection_errors)
         self.opcodes_handler.add_action(opcode.PING               , self._opcode_handler_ping)

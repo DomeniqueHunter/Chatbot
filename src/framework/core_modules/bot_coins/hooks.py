@@ -11,9 +11,10 @@ class BotCoinHooks():
         
         if self.bot_coin.bot.is_owner(user) and for_user and amount != 0:
             print(for_user, amount)
+            for_user = for_user.lower()
             
             if amount > 0:
-                self.bot_coin.add_coins(user, amount)
+                self.bot_coin.add_coins(for_user, amount)
                 
             else:
-                self.bot_coin.remove_coins(user, amount)
+                self.bot_coin.remove_coins(for_user, amount)

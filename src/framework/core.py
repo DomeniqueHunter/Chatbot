@@ -15,6 +15,7 @@ from pathlib import Path
 import os
 from framework.communicaton import Communication
 from framework.lib.timeout.timeout import Timeout
+from framework.lib.command_manager.command_manager import CommandManager
 
 
 class Core():
@@ -42,6 +43,7 @@ class Core():
         self.start_time = AdvTime()
 
         self.manpage = Manpage(self)
+        self.private_msg_handler = CommandManager(self.manpage)
 
         self.config = config
         self.root_path = root_path

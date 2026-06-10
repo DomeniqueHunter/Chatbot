@@ -58,9 +58,13 @@ class BotCoins(PluginPrototype):
     def save(self):
         if self.module_enabled:
             self.user_wallet_db.save_all()
-            
+
     def register_actions(self):
-        self.bot.private_msg_handler("!admin_add_coins <user:str> <amount:int>", self.hooks.admin_add_coins, "DEBUG add coins to user wallet", "admin", f"{self.module_name} (Admin)")
+        if self.bot:
+            self.bot.private_msg_handler.add_action("!admin_add_coins <user:str> <amount:int>", self.hooks.admin_add_coins, "DEBUG add coins to user wallet", "admin", f"{self.module_name} (Admin)")
+        else:
+            print("no client")
+
 
     async def clock(self):
         if self.counter.tick():
