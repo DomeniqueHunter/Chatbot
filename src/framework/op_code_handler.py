@@ -1,6 +1,6 @@
 from framework.chat_code_handler import ChatCodeHandler
 from framework.lib.command_manager import CommandManager
-from framework.lib.reaction import Multi_Reaction as Reactions, EXCEPTION_REACTION_HANDLER
+from framework.lib.reaction import EXCEPTION_REACTION_HANDLER
 from framework import opcode
 
 from framework.lib.counter import Counter
@@ -27,7 +27,6 @@ class OpCodeHandler(ChatCodeHandler):
         self.counter_save_all = Counter (60)
 
         # Register Opcode Actions
-        self.opcodes_handler = Reactions() # maybe move to core
         self.opcodes_handler.add_action(EXCEPTION_REACTION_HANDLER, self._opcode_handler_except)
         self.opcodes_handler.add_action(COMM_ERROR, self._opcode_handler_connection_errors)
         self.opcodes_handler.add_action(opcode.PING               , self._opcode_handler_ping)
@@ -51,8 +50,6 @@ class OpCodeHandler(ChatCodeHandler):
         self.public_msg_handler.add_action("!help", self._hook_help_page, no_help=True)
 
         self.public_msg_handler.add_action("!debug_users", self._debug_users, "DEBUG show all users in channel", "owner", "Bot (Admin)")
-
-        self.all_users = {}
 
     async def dispatcher(self, op:str, json_object:str="") -> None:
         await self.opcodes_handler.react(op, json_object)

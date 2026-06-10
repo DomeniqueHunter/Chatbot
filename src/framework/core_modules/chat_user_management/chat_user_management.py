@@ -93,18 +93,21 @@ class ChatUserManagement(PluginPrototype):
     
     async def _opcode_user_connected(self, json_object):
         data = json.loads(json_object)
-        self.client.all_users[data['identity'].lower()] = data   
+        self.client.all_users[data['identity'].lower()] = data
+        # print(data)
         
     def register_actions(self):
         if self.client:
             print ("CUM register actions")
             self.client.opcodes_handler.add_action('NLN', self._opcode_user_connected)
-            
+
             self.client.private_msg_handler.add_action("!users <tool>",
                                                        self.choose_tool,
                                                        "list <gender:all> <page:1>| find <name>",
                                                        "owner",
                                                        "Bot (Admin)")
             self.client.private_msg_handler.add_action("!userstats", self.gender_stats, "show gender stats of known users", "owner", "Bot (Admin)")
-            
-            
+
+
+def setup(bot):
+    return ChatUserManagement(bot)

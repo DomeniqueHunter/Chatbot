@@ -15,7 +15,8 @@ from pathlib import Path
 import os
 from framework.communicaton import Communication
 from framework.lib.timeout.timeout import Timeout
-from framework.lib.command_manager.command_manager import CommandManager
+from framework.lib.command_manager import CommandManager
+from framework.lib.reaction import Multi_Reaction as Reactions
 
 
 class Core():
@@ -34,6 +35,7 @@ class Core():
         self.channel_creation_queue = ChannelCreationQueue()
 
         self.admins = []
+        self.all_users = {}
         
         core_module_path = Path(root_path) / ".." / "framework" / "core_modules"
         self.core_plugins:PluginLoader = PluginLoader(core_module_path, self, "framework.core_modules")
@@ -43,6 +45,7 @@ class Core():
         self.start_time = AdvTime()
 
         self.manpage = Manpage(self)
+        self.opcodes_handler = Reactions()
         self.private_msg_handler = CommandManager(self.manpage)
 
         self.config = config
