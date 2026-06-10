@@ -3,6 +3,18 @@ from framework.lib.list import AdvList
 import json
 
 
+class Character:
+    
+    def __init__(self, name:str):
+        self.name = name
+        
+    def __str__(self):
+        return self.name
+        
+    def __repr__(self):
+        return self.name.lower()
+
+
 class Channel(object):
 
     def __init__(self, name:str, code:str, description='') -> None:
@@ -35,7 +47,7 @@ class Channel(object):
 
     def add_character(self, name:str) -> None:
         if name.lower() not in self.characters.get():
-            self.characters.append(name.lower())
+            self.characters.append(name)
         else:
             print("CHARACTER ALREADY IN CHANNEL")
 

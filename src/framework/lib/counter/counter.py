@@ -1,7 +1,7 @@
 
 class Counter:
     
-    def __init__(self, target:str=20):
+    def __init__(self, target:int=20):
         self.counter = 0
         self.target = target
         

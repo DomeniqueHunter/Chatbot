@@ -45,9 +45,12 @@ class FileManager:
     
     def add(self, handle:str, file:str, type:str='json', 
                     get_func:Union[FunctionType, MethodType]=None,
-                    set_func:Union[FunctionType, MethodType]=None) -> None:
+                    set_func:Union[FunctionType, MethodType]=None) -> ManagedFile | None:
         if handle not in self.managed_files:
-            self.managed_files[handle] = ManagedFile(handle, os.path.join(self.file_root, file), type, get_func, set_func)
+            managed_file = ManagedFile(handle, os.path.join(self.file_root, file), type, get_func, set_func)
+            self.managed_files[handle] = managed_file
+            return managed_file 
+        return None
             
     def save(self, handle:str, content=None) -> None:
         try:

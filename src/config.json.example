@@ -8,6 +8,15 @@
 	"character" : "",
 	"owner"		: "",
 	"default_channels": ["Development"],
+	"core_modules": {
+		"bot_coins": {
+			"enabled": true,
+			"currency": "coin",
+			"symbol": "c",
+			"interval_min": 15,
+			"coins_per_tick": 1
+		}
+	},
 	"webserver" : {
 	    "protocol" : "http",
 		"host"     : "127.0.0.1",

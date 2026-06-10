@@ -7,8 +7,8 @@ class UserWalletDB:
 
     def __init__(self, file_manager:FileManager):
         self.file_manager = file_manager
-        self.file_manager.add("cc_users", "cc_users.json", "json")
-        self.file_manager.add("cc_wallets", "cc_wallets.json", "json")
+        self.users_file = self.file_manager.add("bc_users", "bc_users.json", "json")
+        self.wallets_file = self.file_manager.add("bc_wallets", "bc_wallets.json", "json")
 
         self.users = {}
         self.wallets = {}
@@ -84,18 +84,18 @@ class UserWalletDB:
         print(self.users_changed, self.wallets_changed)
 
     def load_all(self):
-        # only done on start
-        self.users = self.file_manager.load("cc_users") or {}
-        self.wallets = self.file_manager.load("cc_wallets") or {}
+        # only done on start - I hope :D
+        self.users = self.file_manager.load(self.users_file.handle) or {}
+        self.wallets = self.file_manager.load(self.wallets_file.handle) or {}
 
     def save_users(self):
         if self.users_changed:
-            self.file_manager.save("cc_users", self.users)
+            self.file_manager.save(self.users_file.handle, self.users)
             self.users_changed = False
 
     def save_wallets(self):
         if self.wallets_changed:
-            self.file_manager.save("cc_wallets", self.wallets)
+            self.file_manager.save(self.wallets_file.handle, self.wallets)
             self.wallets_changed = False
 
     def save_all(self):

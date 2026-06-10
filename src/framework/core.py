@@ -46,6 +46,7 @@ class Core():
         self.config = config
         self.root_path = root_path
         self.data_path = self.root_path + "/" + self.config.server + self.config.endpoint
+        
         if not os.path.exists(self.data_path):
             os.makedirs(self.data_path, exist_ok=True)
         
@@ -255,11 +256,18 @@ class Core():
             self.plugin_loader.plugins[key].save()
 
     async def trigger_clock(self) -> None:
-        for key in self.plugin_loader.plugins:
+        for key, plugin in self.core_plugins.plugins.items():
             try:
-                await self.plugin_loader.plugins[key].clock()
+                await plugin.clock()
             except:
-                pass
+                print(f"error running clock in core plugin {key}")
+            
+        
+        for key, plugin in self.plugin_loader.plugins.items():
+            try:
+                await plugin.clock()
+            except:
+                print(f"error running clock in plugin {key}")
 
     def _sysinfo(self) -> str:
         _now = AdvTime()
