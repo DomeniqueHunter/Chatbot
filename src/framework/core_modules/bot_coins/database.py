@@ -44,14 +44,15 @@ class UserWalletDB:
     def __is_positive(self, number:Union[float, int]):
         return number > 0
 
-    def add_amount(self, user:str, number:Union[float, int]) -> bool:
-        wallet_id = self.get_wallet_id(user, create_if_not_exists=True)
+    def is_user(self, user:str) -> bool:
+        return user in self.users
 
+    def add_amount(self, user:str, number:Union[float, int], create_if_not_exists=True) -> bool:
+        wallet_id = self.get_wallet_id(user, create_if_not_exists=create_if_not_exists)
         if wallet_id and self.__is_positive(number):
             self.wallets[wallet_id] += number
             self.wallets_changed = True
             return True
-
         return False
 
     def remove_amount(self, user:str, number:Union[float, int]) -> bool:
@@ -63,10 +64,10 @@ class UserWalletDB:
         return False
 
     def check_amount(self, user:str, number:Union[float, int]) -> bool:
-        return self.get_wallet(user) > number
+        return self.get_wallet(user) >= number
 
     def transfer_amount(self, from_user:str, to_user:str, number:Union[float, int]) -> bool:
-        if not from_user in self.users and self.check_amount(from_user, number):
+        if not self.is_user(from_user) and not self.is_user(to_user) and self.check_amount(from_user, number):
             return False
 
         print(f"move {number} from {from_user} to {to_user}")
@@ -124,7 +125,7 @@ def test():
     print(uwdb.get_wallet("test1"))
     print(uwdb.check_amount("test1", 1000))
     print(uwdb.check_amount("test1", 10000))
-    
+
     # uwdb.save_all()
 
 

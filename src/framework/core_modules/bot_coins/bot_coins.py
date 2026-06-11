@@ -35,18 +35,34 @@ class BotCoins(PluginPrototype):
         current_users = list(set(current_users))
 
         for user in current_users:
-            self.add_coins(str(user), self.coins_per_interval)
+            self.add_coins(str(user), self.coins_per_interval, create_if_not_exists=True)
 
+        print("give coins!")  # TODO: remove debug print
         self.save()
+
+    def has_wallet(self, user:str) -> bool:
+        if self.user_wallet_db.get_wallet_id(user):
+            return True
+        return False
+
+    def get_wallet(self, user:str) -> tuple:
+        if wallet_id := self.user_wallet_db.get_wallet_id(user):
+            return wallet_id, self.user_wallet_db.get_wallet_by_id(wallet_id)
+        else:
+            return None, None
 
     def give_coins_to(self, from_user:str, to_user:str, number:int):
         self.user_wallet_db.transfer_amount(from_user, to_user, number)
 
-    def add_coins(self, user:str, number:int):
-        self.user_wallet_db.add_amount(user, number)
+    def add_coins(self, user:str, number:int, create_if_not_exists=False):
+        check = self.user_wallet_db.add_amount(user, number, create_if_not_exists)
+        if not check:
+            print(f"{user} does not exist")
 
     def remove_coins(self, user:str, number:int):
-        self.user_wallet_db.remove_amount(user, number)
+        check = self.user_wallet_db.remove_amount(user, number)
+        if not check:
+            print(f"{user} does not exist")
 
     def setup(self):
         self.user_wallet_db.load_all()
@@ -61,14 +77,14 @@ class BotCoins(PluginPrototype):
 
     def register_actions(self):
         if self.bot:
+            self.bot.private_msg_handler.add_action("!mywallet", self.hooks.show_wallet, "shows your wallet", "user", f"{self.module_name}")
             self.bot.private_msg_handler.add_action("!admin_add_coins <user:str> <amount:int>", self.hooks.admin_add_coins, "DEBUG add coins to user wallet", "admin", f"{self.module_name} (Admin)")
+
         else:
             print("no client")
 
     async def clock(self):
         if self.counter.tick():
-            # TODO: give coins
-            print("give coins!")
             self.__get_users_in_channels()
 
 

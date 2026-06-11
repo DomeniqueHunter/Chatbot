@@ -1,7 +1,6 @@
 import os
 from types import ModuleType
 import importlib
-from plugins import plugin
 
 
 class PluginLoader():
