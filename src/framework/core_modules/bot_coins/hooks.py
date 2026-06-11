@@ -41,5 +41,9 @@ class BotCoinHooks():
             await self.bot_coin.bot.send_private_message("you have no wallet", user)
 
     async def create_wallet(self, user:str):
-        pass
-
+        check = self.bot_coin.create_wallet(user)
+        if check:
+            response = "Your Wallet was created!"
+        else:
+            response = "You already have a wallet!"
+        await self.bot_coin.bot.send_private_message(response, user)

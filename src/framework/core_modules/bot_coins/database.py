@@ -18,13 +18,16 @@ class UserWalletDB:
 
         self.load_all()
 
-    def add_user(self, user:str):
+    def add_user(self, user:str) -> bool:
         if user not in self.users:
             wallet_id = str(uuid.uuid4())
             self.users[user] = wallet_id
             self.wallets[wallet_id] = 0
             self.users_changed = True
             self.wallets_changed = True
+            return True
+        
+        return False
 
     def get_wallet_id(self, user:str, create_if_not_exists:bool=False):
         wallet_id = self.users.get(user, None)

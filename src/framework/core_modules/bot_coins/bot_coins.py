@@ -14,16 +14,20 @@ class BotCoins(PluginPrototype):
 
         self.module_name = "BotCoin"
         self.module_version = "0.1.7"
-        self.module_enabled = self.config.get("enabled") or True
 
         print(f"initializing Bot Coin Plugin")
         self.user_wallet_db = UserWalletDB(self.bot.file_manager)
 
-        self.coins_per_interval = int(self.config.get("coins_per_tick", 0))
-        interval = int(self.config.get("interval_min", 42))
+        # from config
+        self.module_enabled = self.config.get("enabled") or True
+        self.currency = self.config.get("currency", "coin")
+        self.symbol = self.config.get("symbol", "c")
+        self.coins_per_tick = int(self.config.get("coins_per_tick", 0))
+        self.interval = int(self.config.get("interval_min", 42))
 
-        # count_to = interval * 30
-        self.counter = Counter(1)
+        # count_to = self.interval * 2
+        if self.module_enabled:
+            self.counter = Counter(1)
 
     def __get_users_in_channels(self):
         current_users = []
@@ -41,28 +45,35 @@ class BotCoins(PluginPrototype):
         self.save()
 
     def has_wallet(self, user:str) -> bool:
+        if not self.module_enabled: return False
         if self.user_wallet_db.get_wallet_id(user):
             return True
         return False
 
     def get_wallet(self, user:str) -> tuple:
+        if not self.module_enabled: return None, None
         if wallet_id := self.user_wallet_db.get_wallet_id(user):
             return wallet_id, self.user_wallet_db.get_wallet_by_id(wallet_id)
         else:
             return None, None
 
     def give_coins_to(self, from_user:str, to_user:str, number:int):
+        if not self.module_enabled: return
         self.user_wallet_db.transfer_amount(from_user, to_user, number)
 
     def add_coins(self, user:str, number:int, create_if_not_exists=False):
+        if not self.module_enabled: return
         check = self.user_wallet_db.add_amount(user, number, create_if_not_exists)
         if not check:
             print(f"{user} does not exist")
 
-    def remove_coins(self, user:str, number:int):
-        check = self.user_wallet_db.remove_amount(user, number)
-        if not check:
-            print(f"{user} does not exist")
+    def remove_coins(self, user:str, number:int) -> bool:
+        if not self.module_enabled: return
+        return self.user_wallet_db.remove_amount(user, number)
+
+    def create_wallet(self, user:str) -> bool:
+        if not self.module_enabled: return
+        return self.user_wallet_db.add_user(user)
 
     def setup(self):
         self.user_wallet_db.load_all()
@@ -77,7 +88,9 @@ class BotCoins(PluginPrototype):
 
     def register_actions(self):
         if self.bot:
-            self.bot.private_msg_handler.add_action("!mywallet", self.hooks.show_wallet, "shows your wallet", "user", f"{self.module_name}")
+            self.bot.private_msg_handler.add_action("!mywallet", self.hooks.show_wallet, "shows your wallet", "user", f"{self.module_name} (Direct)")
+            self.bot.private_msg_handler.add_action("!create_wallet", self.hooks.create_wallet, "creates your wallet", "user", f"{self.module_name} (Direct)")
+
             self.bot.private_msg_handler.add_action("!admin_add_coins <user:str> <amount:int>", self.hooks.admin_add_coins, "DEBUG add coins to user wallet", "admin", f"{self.module_name} (Admin)")
 
         else:
