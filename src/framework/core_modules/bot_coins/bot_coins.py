@@ -41,7 +41,7 @@ class BotCoins(PluginPrototype):
         current_users = list(set(current_users))
 
         for user in current_users:
-            self.add_coins(str(user), self.coins_per_interval, create_if_not_exists=True)
+            self.add_coins(str(user), self.coins_per_tick, create_if_not_exists=True)
 
         print("give coins!")  # TODO: remove debug print
         self.save()

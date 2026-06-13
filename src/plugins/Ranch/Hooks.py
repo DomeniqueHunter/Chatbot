@@ -531,7 +531,7 @@ class Hooks():
 
             await self.__start_session(user, channel, session_duration, ep)
 
-    async def __start_session(self, user, channel_name:str, session_duration:int, ep:int):
+    async def __start_session(self, user, channel_name:str, session_duration:int, ep:int, message_override:str=""):
         # get channel_id for channel
         channel = self.ranch.client.channel_manager.find_channel(channel_name)
         if channel and self.ranch.is_milking_channel(channel):
@@ -559,12 +559,15 @@ class Hooks():
                 session.reward = ep
 
                 # prompt to channel
-                prompts = [
-                    f"A Moo Session was started! Cows, show us your best Moo!",
-                    f"Announcement: All cows, please show us your best Moo!"
-                    ]
                 info = f"\n[i]The Session will run for {bbcode.bold(str(session_duration//60))} min.\nAll participating cows will be rewarded with {bbcode.bold(str(ep))} exp.\nPlease [b]moo[/b] as clear as possible so the system can register your moo![/i]"
-                message = random.choice(prompts) + info
+                if not message_override:
+                    prompts = [
+                        f"A Moo Session was started! Cows, show us your best Moo!",
+                        f"Announcement: All cows, please show us your best Moo!"
+                        ]
+                    message = random.choice(prompts) + info
+                else:
+                    message = message_override + info
 
                 await self.ranch.client.send_public_message(message, session.channel_id)
 
@@ -609,12 +612,14 @@ class Hooks():
                 self.last_moo_session_purchase = datetime.now()
                 
                 session_duration = 300 # 5min
-                await self.__start_session(user, channel.name, session_duration, 1)
+                channel_message = f"{user} bought a moo session for 5min!"
+                await self.__start_session(user, channel.name, session_duration, 1, message_override=channel_message)
                 
                 bot_coins.remove_coins(user, price)
+                bot_coins.save()
                 
-                message = f"{user} bought a moo session for 5min!"
-                await self.ranch.client.send_public_message(message, channel.code)
+                # message = f"{user} bought a moo session for 5min!"
+                # await self.ranch.client.send_public_message(message, channel.code)
         
             else:
                 await self.ranch.client.send_private_message("too soon, wait for a few minutes", user)
