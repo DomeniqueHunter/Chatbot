@@ -68,7 +68,7 @@ class Channel(object):
     def remove_character(self, name:str) -> bool:
         if name.lower() in self.characters.get():
             self.characters.drop(name.lower())
-            print(f"{name} left channel {self.name}")
+            # print(f"{name} left channel {self.name}")
 
         if not self.persistent and len(self.characters) == 1:
             # just me left, it's time to leave

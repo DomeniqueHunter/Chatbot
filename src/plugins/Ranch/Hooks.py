@@ -8,6 +8,7 @@ import random
 from plugins.Ranch.statuscodes import MilkingStatus
 from plugins.Ranch.response import MilkJobResponse
 from framework.lib.argument.parser import parse
+from _datetime import timedelta
 
 
 class Hooks():
@@ -17,12 +18,13 @@ class Hooks():
 
     def __init__(self, ranch):
         self.ranch = ranch
+        self.last_moo_session_purchase = None
 
     async def get_cow(self, user, channel, name=None):
         if self.ranch.is_milking_channel(channel):
             if name == None:
                 name = user
-                
+
             name = bbcode.get_name(name)
             is_cow = self.ranch.logic.is_cow(name)
             message = "ERROR"
@@ -117,7 +119,7 @@ class Hooks():
         if self.ranch.is_milking_channel(channel):
             if name == None:
                 name = user
-            
+
             name = bbcode.get_name(name)
 
             is_worker = self.ranch.logic.is_worker(name)
@@ -136,7 +138,7 @@ class Hooks():
                 message = "[user]{}[/user] is not a worker".format(name)
 
             await self.ranch.client.send_public_message(message, channel)
-            
+
     async def get_person(self, user:str, name:str):
         if self.ranch.client.has_admin_rights(user):
             response = await self.ranch.logic.get_person_info(name)
@@ -154,11 +156,11 @@ class Hooks():
         """
         if self.ranch.is_milking_channel(channel):
             cow_name = bbcode.get_name(cow_name)
-            
+
             if cow_name.lower() == "all":
                 await self.milkall(worker, channel)
                 return
-            
+
             is_worker = self.ranch.logic.is_worker(worker)
             is_cow = self.ranch.logic.is_cow(cow_name)
             is_online = self.ranch.client.channels[channel].is_online(cow_name)
@@ -167,14 +169,14 @@ class Hooks():
             if worker.lower() != cow_name.lower() and is_cow and is_worker and is_online:
                 # (success, amount, lvlup, _, lvlup_worker) = await self.ranch.logic.milk_cow(worker, cow_name)  # (success, amount, lvlup, milk)
                 response: MilkJobResponse = await self.ranch.logic.milk_cow(worker, cow_name)  # (success, amount, lvlup, milk)
-                
+
                 # print(f"STATUS: {response.status}")
-                
+
                 message = ""
 
                 if response.status == MilkingStatus.SUCCESS:
                     message = f"[user]{worker}[/user] milked [user]{cow_name}[/user] and got {response.amount}l of milk!"
-                    
+
                     if response.amount == 69: message += " - nice!"
 
                     if response.cow_lvl_up:
@@ -182,13 +184,13 @@ class Hooks():
 
                     if response.worker_lvl_up:
                         message += f"\n[user]{worker}[/user] is more skilled now!"
-                
+
                 elif response.status == MilkingStatus.MILKING_ON_COOLDOWN:
                     message = f"You can milk [user]{cow_name}[/user] again later, [user]{worker}[/user]"
-                
+
                 elif response.status == MilkingStatus.COW_EMPTY:
                     message = f"[user]{cow_name}[/user] is totally drained now, you can milk them again tomorrow."
-                
+
                 else:
                     message = f"You can milk [user]{cow_name}[/user] again on the next day, [user]{worker}[/user]"
 
@@ -214,7 +216,7 @@ class Hooks():
         if self.ranch.client.is_owner(user.strip()):
             cow, worker_exp = parse(input_str, str, int)
             if worker_exp == 0: worker_exp = 1
-                
+
             cow_name = bbcode.get_name(cow)
             is_worker = self.ranch.logic.is_worker(user)
             is_cow = self.ranch.logic.is_cow(cow_name, False)
@@ -227,7 +229,7 @@ class Hooks():
 
             if worker.lower() != cow_name.lower() and is_worker and is_cow:
                 response: MilkJobResponse = await self.ranch.logic.power_milk_cow(worker, cow_name, worker_exp)
-                
+
                 if response.status == MilkingStatus.SUCCESS:
                     message = f"You milked [user]{cow_name}[/user] against it's will and got {response.amount}l of milk!"
 
@@ -255,13 +257,13 @@ class Hooks():
             message = ""
             milked_cows, not_milkable, lvlup_worker = await self.ranch.logic.milk_all(user, channel)
             bb_user = bbcode.user(user)
-            
+
             for cow, amount, lvlup in milked_cows:
                 bb_cow = bbcode.user(cow)
                 message += f"\n{bb_user} milked {bb_cow} and got {amount} liters of Milk"
-                
+
                 if amount == 69: message += " - nice!"
-                
+
                 if lvlup:
                     message += f"\n{bb_cow}  has leveled up!"
 
@@ -275,7 +277,7 @@ class Hooks():
 
                 milkable_in = time_until_tomorrow()
                 message += f"\nThere {i} {not_milkable} {c} who {i} milkable in {milkable_in}."
-            
+
             if lvlup_worker:
                 message += f"\n{bb_user} has leveled up!"
 
@@ -481,34 +483,34 @@ class Hooks():
             year, total, month_stats = await self.ranch.logic.get_buisines_year(year)
             message = f"In year {year} we produced {total} l of milk:\n"
             message += f"Month: milk amount in l [milk per day in l]\n"
-            for month, (amount, mpd) in month_stats.items(): 
+            for month, (amount, mpd) in month_stats.items():
                 message += f" - {calendar.month_name[month]}: {amount}l [{mpd}l]\n"
 
             await self.ranch.client.send_public_message(message, channel)
-    
+
     async def moo_show_sessions(self, user:str, input_string:str=None):
         if self.ranch.client.has_admin_rights(user):
-            
+
             running_sessions = ""
             for channel_id, session in self.ranch.session_manager.running_sessions.items():
                 channel = self.ranch.client.channel_manager.find_channel_by_id(channel_id)
-                
+
                 started_dt = int_to_datetime_string(session.started)
                 running_sessions += f"- {channel.bbcode()}: {started_dt}\n"
-            
+
             closed_sessions = ""
             for channel_id, session in self.ranch.session_manager.closed_sessions.items():
                 channel = self.ranch.client.channel_manager.find_channel_by_id(channel_id)
-                
+
                 started_dt = int_to_datetime_string(session.started)
                 ended_dt = int_to_datetime_string(session.started + session.duration)
                 closed_sessions += f"- {channel.bbcode()}: {started_dt} - {ended_dt}\n"
-            
+
             message = f"Running Sessions:\n{running_sessions}\nClosed Sessions:\n{closed_sessions}"
             await self.ranch.client.send_private_message(message, user)
-            
+
         await self.ranch.client.send_private_message(user, f"you have no permissions for this!")
-            
+
     async def start_session(self, user:str, input_string:str=None):
         if self.ranch.client.has_admin_rights(user) and input_string:
             parameters = input_string.split(",")
@@ -516,46 +518,46 @@ class Hooks():
                 channel = parameters[0]
                 session_duration = 60 * 15
                 ep = 1
-            
+
             elif len(parameters) == 2:
                 channel = parameters[0]
                 session_duration = int(parameters[1]) * 60
                 ep = 1
-                
+
             else:
                 channel = parameters[0]
                 session_duration = int(parameters[1]) * 60
-                ep = int(parameters[2])           
-            
+                ep = int(parameters[2])
+
             await self.__start_session(user, channel, session_duration, ep)
-    
+
     async def __start_session(self, user, channel_name:str, session_duration:int, ep:int):
         # get channel_id for channel
         channel = self.ranch.client.channel_manager.find_channel(channel_name)
         if channel and self.ranch.is_milking_channel(channel):
             channel_id = channel.code
-            
+
             if self.ranch.session_manager.has_session(channel_id):
                 message = f"A session is alreay running in the channel {channel.bbcode()}"
                 await self.ranch.client.send_private_message(message, user)
                 return
-            
+
             if session_duration > 30 * 60:
                 session_duration = 30 * 60
-                
+
             if ep > 10:
                 ep = 10  # still insane..
-            
+
             # create session
             self.ranch.session_manager.start_session(session_duration, channel_id, self.ranch.logic.moo_function)
-            
+
             if self.ranch.session_manager.has_session(channel_id):
                 session = self.ranch.session_manager.get_session(channel_id)
-                
+
                 # add set as data storage
                 session.storage = set()
                 session.reward = ep
-                
+
                 # prompt to channel
                 prompts = [
                     f"A Moo Session was started! Cows, show us your best Moo!",
@@ -563,29 +565,78 @@ class Hooks():
                     ]
                 info = f"\n[i]The Session will run for {bbcode.bold(str(session_duration//60))} min.\nAll participating cows will be rewarded with {bbcode.bold(str(ep))} exp.\nPlease [b]moo[/b] as clear as possible so the system can register your moo![/i]"
                 message = random.choice(prompts) + info
-                
+
                 await self.ranch.client.send_public_message(message, session.channel_id)
-        
+
         else:
             await self.ranch.client.send_private_message("This is no milking channel!", user)
-            
+
     async def check_milkable(self, user:str, parameter_str:str="") -> None:
-        if self.ranch.logic.is_worker(user): # self.ranch.client.has_admin_rights(user)
+        if self.ranch.logic.is_worker(user):  # self.ranch.client.has_admin_rights(user)
             channel = parse(parameter_str, str)[0]
-            
+
             channel_obj = self.ranch.client.channel_manager.find_channel(channel)
             is_milking_channel = self.ranch.is_milking_channel(channel_obj.code) if channel_obj else False
-            
+
             if not is_milking_channel:
                 await self.ranch.client.send_private_message(f"{channel} is not a milking channel", user)
                 return
-            
+
             milkable_cows = self.ranch.logic.check_milkable_cows(user, channel)
-            
+
             if milkable_cows:
                 answer = "\nMilkable cows:\n" + "\n".join([" !milk " + bbcode.user(cow) for cow in milkable_cows])
             else:
                 answer = f"No milkable cows in channel {channel}"
-            
+
             await self.ranch.client.send_private_message(answer, user)
-            
+
+    async def buy_moo_session(self, user:str, channel_id:str, parameter_str:str="") -> None:        
+        bot_coins = self.ranch.client.core_plugins.get_plugin("bot_coins")
+        
+        if not bot_coins.module_enabled:
+            await self.ranch.client.send_private_message("coin module is not active", user)
+            return
+        
+        if not self.ranch.is_milking_channel(channel_id):
+            await self.ranch.client.send_private_message("wrong channel", user)
+            return
+        
+        price = 10
+        if bot_coins.check_balance(user, price):
+            if self.last_moo_session_purchase == None or datetime.now() - self.last_moo_session_purchase > timedelta(minutes=15):
+                channel = self.ranch.client.channel_manager.find_channel_by_id(channel_id)
+                self.last_moo_session_purchase = datetime.now()
+                
+                session_duration = 300 # 5min
+                await self.__start_session(user, channel.name, session_duration, 1)
+                
+                bot_coins.remove_coins(user, price)
+                
+                message = f"{user} bought a moo session for 5min!"
+                await self.ranch.client.send_public_message(message, channel.code)
+        
+            else:
+                await self.ranch.client.send_private_message("too soon, wait for a few minutes", user)
+                
+        else:
+            await self.ranch.client.send_private_message(f"you need at least {price} {bot_coins.symbol}", user)
+        
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+

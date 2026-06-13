@@ -1,4 +1,5 @@
 
+from framework.lib.bbcode import bbcode
 from framework.lib.argument.parser import parse
 
 
@@ -19,7 +20,8 @@ class BotCoinHooks():
             await self.bot_coin.bot.send_private_message(response, user)
 
     async def give_coins_to(self, user:str, input_str:str=" , "):
-        to_user, amount = parse(input_str, str, int)
+        to_user, amount = parse(input_str, str, float)
+        to_user= bbcode.get_name(to_user)
         if self.bot_coin.has_wallet(user) and self.bot_coin.has_wallet(to_user):
             self.bot_coin.give_coins_to(user, to_user, amount)
             print(f"{user} > {to_user} : {amount}")

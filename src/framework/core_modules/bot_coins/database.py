@@ -22,7 +22,7 @@ class UserWalletDB:
         if user not in self.users:
             wallet_id = str(uuid.uuid4())
             self.users[user] = wallet_id
-            self.wallets[wallet_id] = 0
+            self.wallets[wallet_id] = 0.0
             self.users_changed = True
             self.wallets_changed = True
             return True

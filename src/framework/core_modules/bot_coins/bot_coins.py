@@ -11,9 +11,11 @@ class BotCoins(PluginPrototype):
         self.hooks = BotCoinHooks(self)
 
         self.config = self.bot.config.get("core_modules", dict()).get("bot_coins", dict())
+        if not self.config:
+            print("could not find the core_modules config for bot_coins")
 
         self.module_name = "BotCoin"
-        self.module_version = "0.1.7"
+        self.module_version = "0.1.8"
 
         print(f"initializing Bot Coin Plugin")
         self.user_wallet_db = UserWalletDB(self.bot.file_manager)
@@ -25,9 +27,9 @@ class BotCoins(PluginPrototype):
         self.coins_per_tick = int(self.config.get("coins_per_tick", 0))
         self.interval = int(self.config.get("interval_min", 42))
 
-        # count_to = self.interval * 2
+        count_to = self.interval * 2
         if self.module_enabled:
-            self.counter = Counter(1)
+            self.counter = Counter(count_to)
 
     def __get_users_in_channels(self):
         current_users = []
@@ -74,6 +76,9 @@ class BotCoins(PluginPrototype):
     def create_wallet(self, user:str) -> bool:
         if not self.module_enabled: return
         return self.user_wallet_db.add_user(user)
+    
+    def check_balance(self, user:str, number:int|float) -> bool:
+        return self.user_wallet_db.check_amount(user, number)
 
     def setup(self):
         self.user_wallet_db.load_all()
@@ -90,6 +95,7 @@ class BotCoins(PluginPrototype):
         if self.bot:
             self.bot.private_msg_handler.add_action("!mywallet", self.hooks.show_wallet, "shows your wallet", "user", f"{self.module_name} (Direct)")
             self.bot.private_msg_handler.add_action("!create_wallet", self.hooks.create_wallet, "creates your wallet", "user", f"{self.module_name} (Direct)")
+            self.bot.private_msg_handler.add_action("!send_coins <person>, <amount>", self.hooks.give_coins_to, "send coins to ther person", "user", f"{self.module_name} (Direct)")
 
             self.bot.private_msg_handler.add_action("!admin_add_coins <user:str> <amount:int>", self.hooks.admin_add_coins, "DEBUG add coins to user wallet", "admin", f"{self.module_name} (Admin)")
 
