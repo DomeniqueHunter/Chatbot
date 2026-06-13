@@ -8,6 +8,9 @@ class Character:
     def __init__(self, name:str):
         self.name = name
         
+    def lower(self) -> str:
+        return self.name.lower()
+        
     def __str__(self):
         return self.name
     
