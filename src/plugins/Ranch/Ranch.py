@@ -55,7 +55,7 @@ class Ranch(PluginPrototype):
             self.client.public_msg_handler.add_action("!makemecow", self.hooks.makemecow, no_help=True)
             self.client.public_msg_handler.add_action("!becomeacow", self.hooks.makemecow, "you will beome a cow", "user", self.module_name)
             self.client.public_msg_handler.add_action("!becomeaworker", self.hooks.becomeaworker, "you will beome a worker", "user", self.module_name)
-            self.client.public_msg_handler.add_action("!buymoo", self.hooks.buy_moo_session, "buy a moo session for 5min", "user", self.module_name) 
+            self.client.public_msg_handler.add_action("!buymoo", self.hooks.buy_moo_session, "buy a 5min moo session with reward=1exp for 10 coins", "user", self.module_name) 
 
             self.client.private_msg_handler.add_action("!ranch_milkablecows <channel>", self.hooks.check_milkable, "Check if cows are milkable", "user", f"{self.module_name} (Direct)")
 

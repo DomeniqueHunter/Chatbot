@@ -7,6 +7,7 @@ class BotCoinHooks():
 
     def __init__(self, module):
         self.bot_coin:"BotCoins" = module
+        self.logic = self.bot_coin.logic
 
     async def admin_add_coins(self, user:str, input_str:str=" , "):
         for_user, amount = parse(input_str, str, int)
@@ -18,13 +19,19 @@ class BotCoinHooks():
                 self.bot_coin.remove_coins(for_user, amount)
             response = f"You ceated in {amount} for user {for_user}"
             await self.bot_coin.bot.send_private_message(response, user)
+            
+    async def admin_coin_statistics(self, user:str, input_str:str=" , "):
+        if self.bot_coin.bot.is_owner(user):
+            _len, _min, _max, _mean, _total = self.logic.admin_statistics()
+            response = f"STATISTICS\n{_len} wallets\nmin: {_min}\nmax: {_max}\nmean: {_mean}\ntotal: {_total}"
+            await self.bot_coin.bot.send_private_message(response, user)
 
     async def give_coins_to(self, user:str, input_str:str=" , "):
         to_user, amount = parse(input_str, str, float)
         to_user= bbcode.get_name(to_user)
         if self.bot_coin.has_wallet(user) and self.bot_coin.has_wallet(to_user):
             self.bot_coin.give_coins_to(user, to_user, amount)
-            print(f"{user} > {to_user} : {amount}")
+            # print(f"{user} > {to_user} : {amount}")
             response = f"Send {amount} to {user}"
             await self.bot_coin.bot.send_private_message(response, user)
 
