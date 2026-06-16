@@ -19,6 +19,9 @@ class Hooks():
     def __init__(self, ranch):
         self.ranch = ranch
         self.last_moo_session_purchase = None
+        
+        self._manual_moo_session_price = 15    # coins
+        self._manual_moo_session_cooldown = 45 # min
 
     async def get_cow(self, user, channel, name=None):
         if self.ranch.is_milking_channel(channel):
@@ -605,9 +608,9 @@ class Hooks():
             await self.ranch.client.send_private_message("wrong channel", user)
             return
         
-        price = 10
+        price = self._manual_moo_session_price
         if bot_coins.check_balance(user, price):
-            if self.last_moo_session_purchase == None or datetime.now() - self.last_moo_session_purchase > timedelta(minutes=15):
+            if self.last_moo_session_purchase == None or datetime.now() - self.last_moo_session_purchase > timedelta(minutes=self._manual_moo_session_cooldown):
                 channel = self.ranch.client.channel_manager.find_channel_by_id(channel_id)
                 self.last_moo_session_purchase = datetime.now()
                 
@@ -616,13 +619,13 @@ class Hooks():
                 await self.__start_session(user, channel.name, session_duration, 1, message_override=channel_message)
                 
                 bot_coins.remove_coins(user, price)
-                bot_coins.save()
+                # bot_coins.save()
                 
                 # message = f"{user} bought a moo session for 5min!"
                 # await self.ranch.client.send_public_message(message, channel.code)
         
             else:
-                await self.ranch.client.send_private_message("too soon, wait for a few minutes", user)
+                await self.ranch.client.send_private_message(f"too soon, wait for a few minutes, there has to be a {self._manual_moo_session_cooldown} cooldown between sessions!", user)
                 
         else:
             await self.ranch.client.send_private_message(f"you need at least {price} {bot_coins.symbol}", user)

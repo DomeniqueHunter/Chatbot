@@ -15,7 +15,7 @@ class BotCoins(PluginPrototype):
             print("could not find the core_modules config for bot_coins")
 
         self.module_name = "BotCoin"
-        self.module_version = "0.1.9"
+        self.module_version = "0.1.10"
 
         print(f"initializing Bot Coin Plugin")
         self.user_wallet_db = UserWalletDB(self.bot.file_manager)

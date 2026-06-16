@@ -50,32 +50,32 @@ class UserWalletDB:
     def is_user(self, user:str) -> bool:
         return user in self.users
 
-    def add_amount(self, user:str, number:Union[float, int], create_if_not_exists=True) -> bool:
+    def add_amount(self, user:str, value:Union[float, int], create_if_not_exists=True) -> bool:
         wallet_id = self.get_wallet_id(user, create_if_not_exists=create_if_not_exists)
-        if wallet_id and self.__is_positive(number):
-            self.wallets[wallet_id] += number
+        if wallet_id and self.__is_positive(value):
+            self.wallets[wallet_id] += value
             self.wallets_changed = True
             return True
         return False
 
-    def remove_amount(self, user:str, number:Union[float, int]) -> bool:
+    def remove_amount(self, user:str, value:Union[float, int]) -> bool:
         wallet_id = self.get_wallet_id(user)
-        if wallet_id and self.wallets[wallet_id] >= number and self.__is_positive(number):
-            self.wallets[wallet_id] -= number
+        if wallet_id and self.wallets[wallet_id] >= value and self.__is_positive(value):
+            self.wallets[wallet_id] -= value
             self.wallets_changed = True
             return True
         return False
 
-    def check_amount(self, user:str, number:Union[float, int]) -> bool:
-        return self.get_wallet(user) >= number
+    def check_amount(self, user:str, value:Union[float, int]) -> bool:
+        return self.get_wallet(user) >= value
 
-    def transfer_amount(self, from_user:str, to_user:str, number:Union[float, int]) -> bool:
-        if not self.is_user(from_user) and not self.is_user(to_user) and self.check_amount(from_user, number):
+    def transfer_amount(self, from_user:str, to_user:str, value:Union[float, int]) -> bool:
+        if not self.is_user(from_user) and not self.is_user(to_user) and self.check_amount(from_user, value):
             return False
 
-        print(f"move {number} from {from_user} to {to_user}")
-        if self.remove_amount(from_user, number):
-            self.add_amount(to_user, number)
+        print(f"move {value} from {from_user} to {to_user}")
+        if self.remove_amount(from_user, value):
+            self.add_amount(to_user, value)
 
         return False
 
