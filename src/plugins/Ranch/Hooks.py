@@ -266,7 +266,7 @@ class Hooks():
             for cow, amount, lvlup in milked_cows:
                 bb_cow = bbcode.user(cow)
                 total_milked += amount
-                spoiler_message += f"\n{bb_user} milked {bb_cow} and got {amount} liters of Milk"
+                spoiler_message += f"\n{bb_cow} produced {amount} liters of Milk"
 
                 if amount == 69: message += " - nice!"
 
