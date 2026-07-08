@@ -19,9 +19,9 @@ class Hooks():
     def __init__(self, ranch):
         self.ranch = ranch
         self.last_moo_session_purchase = None
-        
-        self._manual_moo_session_price = 15    # coins
-        self._manual_moo_session_cooldown = 45 # min
+
+        self._manual_moo_session_price = 15  # coins
+        self._manual_moo_session_cooldown = 45  # min
 
     async def get_cow(self, user, channel, name=None):
         if self.ranch.is_milking_channel(channel):
@@ -260,15 +260,33 @@ class Hooks():
             message = ""
             milked_cows, not_milkable, lvlup_worker = await self.ranch.logic.milk_all(user, channel)
             bb_user = bbcode.user(user)
+            total_milked = 0
 
+            spoiler_message = "Details:\n[spoiler]"
             for cow, amount, lvlup in milked_cows:
                 bb_cow = bbcode.user(cow)
-                message += f"\n{bb_user} milked {bb_cow} and got {amount} liters of Milk"
+                total_milked += amount
+                spoiler_message += f"\n{bb_user} milked {bb_cow} and got {amount} liters of Milk"
 
                 if amount == 69: message += " - nice!"
 
                 if lvlup:
-                    message += f"\n{bb_cow}  has leveled up!"
+                    spoiler_message += f"\n{bb_cow}  has leveled up!"
+            spoiler_message += "[/spoiler]"
+
+            n = len(milked_cows)
+            if n == 0:
+                pass
+            elif n == 1:
+                message = f"{bb_user} milked {n} cow for a total of {total_milked} liters"
+            else:
+                message = f"{bb_user} milked {n} cows for a total of {total_milked} liters"
+
+            if lvlup_worker:
+                message += f"\n{bb_user} has leveled up!"
+            
+            if n > 0:
+                message += spoiler_message
 
             if not_milkable > 0:
                 if not_milkable == 1:
@@ -280,9 +298,6 @@ class Hooks():
 
                 milkable_in = time_until_tomorrow()
                 message += f"\nThere {i} {not_milkable} {c} who {i} milkable in {milkable_in}."
-
-            if lvlup_worker:
-                message += f"\n{bb_user} has leveled up!"
 
             await self.ranch.client.send_public_message(message, channel)
 
@@ -597,54 +612,36 @@ class Hooks():
 
             await self.ranch.client.send_private_message(answer, user)
 
-    async def buy_moo_session(self, user:str, channel_id:str, parameter_str:str="") -> None:        
+    async def buy_moo_session(self, user:str, channel_id:str, parameter_str:str="") -> None:
         bot_coins = self.ranch.client.core_plugins.get_plugin("bot_coins")
-        
+
         if not bot_coins.module_enabled:
             await self.ranch.client.send_private_message("coin module is not active", user)
             return
-        
+
         if not self.ranch.is_milking_channel(channel_id):
             await self.ranch.client.send_private_message("wrong channel", user)
             return
-        
+
         price = self._manual_moo_session_price
         if bot_coins.check_balance(user, price):
             if self.last_moo_session_purchase == None or datetime.now() - self.last_moo_session_purchase > timedelta(minutes=self._manual_moo_session_cooldown):
                 channel = self.ranch.client.channel_manager.find_channel_by_id(channel_id)
                 self.last_moo_session_purchase = datetime.now()
-                
-                session_duration = 300 # 5min
+
+                session_duration = 300  # 5min
                 channel_message = f"{user} bought a moo session for 5min!"
                 await self.__start_session(user, channel.name, session_duration, 1, message_override=channel_message)
-                
+
                 bot_coins.remove_coins(user, price)
                 # bot_coins.save()
-                
+
                 # message = f"{user} bought a moo session for 5min!"
                 # await self.ranch.client.send_public_message(message, channel.code)
-        
+
             else:
                 await self.ranch.client.send_private_message(f"too soon, wait for a few minutes, there has to be a {self._manual_moo_session_cooldown} cooldown between sessions!", user)
-                
+
         else:
             await self.ranch.client.send_private_message(f"you need at least {price} {bot_coins.symbol}", user)
-        
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 
