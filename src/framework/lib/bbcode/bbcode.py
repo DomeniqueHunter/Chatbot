@@ -27,6 +27,7 @@ def user(user:str) -> str:
 def icon(user:str) -> str:
     return f"[icon]{user}[/icon]"
 
+
 def url(string:str, text:str = "") -> str:
     '''
     Wraps the input string in BBCode-style URL tags.
@@ -40,6 +41,10 @@ def url(string:str, text:str = "") -> str:
 
 def bold(string:str) -> str:
     return f"[b]{string}[/b]"
+
+
+def spoiler(string:str) -> str:
+    return f"[spoiler]{string}[/spoiler]"
 
 
 def italic(string: str) -> str:

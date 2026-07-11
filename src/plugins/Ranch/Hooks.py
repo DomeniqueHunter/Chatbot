@@ -262,31 +262,31 @@ class Hooks():
             bb_user = bbcode.user(user)
             total_milked = 0
 
-            spoiler_message = "Details:\n[spoiler]"
+            spoiler_message = ""
             for cow, amount, lvlup in milked_cows:
                 bb_cow = bbcode.user(cow)
                 total_milked += amount
-                spoiler_message += f"\n{bb_cow} produced {amount} liters of Milk"
+                spoiler_message += f"{bb_cow} produced {amount} liters of Milk"
 
-                if amount == 69: message += " - nice!"
+                if amount == 69: spoiler_message += " - nice!"
+                spoiler_message += "\n"
 
                 if lvlup:
-                    spoiler_message += f"\n{bb_cow}  has leveled up!"
-            spoiler_message += "[/spoiler]"
-
-            n = len(milked_cows)
-            if n == 0:
+                    spoiler_message += f"{bb_cow} has leveled up!\n"
+            
+            n_milkable_cows = len(milked_cows)
+            if n_milkable_cows == 0:
                 pass
-            elif n == 1:
-                message = f"{bb_user} milked {n} cow for a total of {total_milked} liters"
+            elif n_milkable_cows == 1:
+                message = f"{bb_user} milked {bbcode.bold(str(n_milkable_cows))} cow for a total of {bbcode.bold(str(total_milked))} liters\n"
             else:
-                message = f"{bb_user} milked {n} cows for a total of {total_milked} liters"
+                message = f"{bb_user} milked {bbcode.bold(str(n_milkable_cows))} cows for a total of {bbcode.bold(str(total_milked))} liters\n"
 
             if lvlup_worker:
-                message += f"\n{bb_user} has leveled up!"
+                message += f"{bb_user} has leveled up!\n"
             
-            if n > 0:
-                message += spoiler_message
+            if n_milkable_cows > 0:
+                message += f"Details:\n{bbcode.spoiler(spoiler_message)}"
 
             if not_milkable > 0:
                 if not_milkable == 1:
