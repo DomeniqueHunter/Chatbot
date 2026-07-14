@@ -36,11 +36,11 @@ class Core():
 
         self.admins = []
         self.all_users = {}
-        
+
         core_module_path = Path(root_path) / ".." / "framework" / "core_modules"
         self.core_plugins:PluginLoader = PluginLoader(core_module_path, self, "framework.core_modules")
         self.plugin_loader:PluginLoader = None
-        
+
         self.restarts = 0
         self.start_time = AdvTime()
 
@@ -51,10 +51,10 @@ class Core():
         self.config = config
         self.root_path = root_path
         self.data_path = self.root_path + "/" + self.config.server + self.config.endpoint
-        
+
         if not os.path.exists(self.data_path):
             os.makedirs(self.data_path, exist_ok=True)
-        
+
         self.comm = Communication(self)
         self.timeouts = Timeout()
 
@@ -63,7 +63,7 @@ class Core():
         self.file_manager.add('admins', 'admins.json', 'json')
         self.file_manager.add('all_users', 'all_users.bin', 'binary')
         self.file_manager.add('channels', 'channels2.json', 'json')
-        
+
         # load core plugins after all tools are instanced
         self.core_plugins.load_plugins()
 
@@ -71,7 +71,7 @@ class Core():
         data = {'channel': channel_code}
         if channel_code not in self.channels and channel_code or (channel_code and force):
             await self.message(opcode.JOIN_CHANNEL, data)
-            
+
     async def ping(self) -> None:
         # print("ping back")
         self.ping_time = int(time())
@@ -86,7 +86,7 @@ class Core():
         # channel_code = Channel.find_channel_by_name(self.channels, room)
         channel = self.channel_manager.find_channel(room)
         channel_code = channel.code
-        
+
         data = {"channel": channel_code, "message": "/openroom"}
         await self.message(opcode.CHANNEL_MESSAGE, data)
 
@@ -124,7 +124,7 @@ class Core():
             if (name.lower() == self.channels[channel].name.lower()):
                 self.remove_channel_from_list(self.channels[channel].code)
                 break  # stop after finding the first one
-            
+
     def remove_channel_from_list_by_code(self, code:str) -> None:
         for _, channel in self.channels.items():
             if (code.lower() == channel.code.lower()):
@@ -158,7 +158,7 @@ class Core():
         print(f'load Channels from file: {file}')
         for channel in channels:
             await self.channel_manager.join(channel['name'], channel['code'])
-            
+
     async def _join_channels(self, channels:dict) -> None:
         print('Load Channels:')
         for channel in channels.values():
@@ -219,7 +219,7 @@ class Core():
 
         else:
             return False
-        
+
     def enable_plugin_loader(self, plugins_dir:str='plugins') -> None:
         """
             Enable the plugin loader
@@ -237,12 +237,12 @@ class Core():
         else:
             print ("no plugin loader!")
         print("Deprecated: use 'enable_plugin_loader' instead")
-    
+
     def load_core_plugins(self) -> None:
         if self.core_plugins:
             print("load Core Plugins")
             self.core_plugins.load_plugins()
-        
+
     def load_plugins(self) -> None:
         if self.plugin_loader:
             print ('Load Plugins:')
@@ -251,11 +251,19 @@ class Core():
             print ("no plugin loader")
 
     def trigger_plugins_load(self) -> None:
+        for key in self.core_plugins.plugins:
+            print (f"autoload: {key}.load()")
+            self.core_plugins.plugins[key].load()
+
         for key in self.plugin_loader.plugins:
             print (f"autoload: {key}.load()")
             self.plugin_loader.plugins[key].load()
 
     def trigger_plugins_save(self) -> None:
+        for key in self.core_plugins.plugins:
+            print (f"autosave: {key}.save()")
+            self.core_plugins.plugins[key].save()
+
         for key in self.plugin_loader.plugins:
             print (f"autosave: {key}.save()")
             self.plugin_loader.plugins[key].save()
@@ -266,8 +274,7 @@ class Core():
                 await plugin.clock()
             except:
                 print(f"error running clock in core plugin {key}")
-            
-        
+
         for key, plugin in self.plugin_loader.plugins.items():
             try:
                 await plugin.clock()
@@ -284,7 +291,7 @@ class Core():
             f"Restarts: {self.restarts}\n"
             f"Help calls: {self.manpage.counter()}\n"
         )
-        
+
         if self.core_plugins:
             sysinfo += "Core Plugins:\n"
             for key, plugin in self.core_plugins.plugins.items():
