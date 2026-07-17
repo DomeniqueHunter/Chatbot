@@ -61,7 +61,7 @@ class Logic():
         if not self.is_cow(cow_name): return False
         if cow_name.lower() == worker_name.lower(): return False
         
-        cow_name, _y, cow_level, _e, _a = self.get_cow(cow_name)
+        cow_name, cow_level, _e, _a = self.get_cow(cow_name)
         
         date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         count_milking = self.ranch.database.check_milking(cow_name, worker_name, date)[0]

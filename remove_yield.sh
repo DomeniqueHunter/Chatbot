@@ -1,4 +1,5 @@
 #!/bin/bash
+# 2026-07-17 - remove yield update
 set -e
 
 DB_HOST="localhost"
