@@ -63,11 +63,11 @@ class Ranch(PluginPrototype):
 
             # admin commands
             self.client.private_msg_handler.add_action("!power_milk <cowname>, <exp gain (int) : optional>", self.hooks.power_milk, "DEBUG power milk a cow", "admin", f"{self.module_name} (Admin)")
-            self.client.private_msg_handler.add_action("!ranch_add_cow <name>, <milkoutput (int): optional>", self.hooks.add_cow, "Add a cow to the Ranch", "admin", f"{self.module_name} (Admin)")
+            self.client.private_msg_handler.add_action("!ranch_add_cow <name>", self.hooks.add_cow, "Add a cow to the Ranch", "admin", f"{self.module_name} (Admin)")
             self.client.private_msg_handler.add_action("!ranch_rename_person <old name>, <new name>", self.hooks.rename_person, "Rename a cow from old name ot new name", "admin", f"{self.module_name} (Admin)")
             self.client.private_msg_handler.add_action("!ranch_remove_cow <cow_name>", self.hooks.remove_cow, "Disables a cow", "admin", f"{self.module_name} (Admin)")
             self.client.private_msg_handler.add_action("!ranch_remove_worker <worker_name>", self.hooks.remove_worker, "Disables a worker", "admin", f"{self.module_name} (Admin)")
-            self.client.private_msg_handler.add_action("!ranch_set_cow_milk <cow_name>, <yield>", self.hooks.set_cow_milk, "DEBUG sets a new milk yield for a cow", "admin", f"{self.module_name} (Admin)")
+            # self.client.private_msg_handler.add_action("!ranch_set_cow_milk <cow_name>, <yield>", self.hooks.set_cow_milk, "DEBUG sets a new milk yield for a cow", "admin", f"{self.module_name} (Admin)")
             self.client.private_msg_handler.add_action("!ranch_cow_stats <cow_name>", self.hooks.get_cow_stats, "Shows stats of a cow", "admin", f"{self.module_name} (Admin)")
             self.client.private_msg_handler.add_action("!ranch_milking_channels", self.hooks.get_milking_channels, "Show milking channels", "admin", f"{self.module_name} (Admin)")
             self.client.private_msg_handler.add_action("!ranch_remove_milking_channel <index>", self.hooks.remove_milking_channel_by_index, "Disable milking in the Channel", "admin", f"{self.module_name} (Admin)")

@@ -367,23 +367,18 @@ class Hooks():
 
             await self.ranch.client.send_private_message(message, user)
 
-    async def add_cow(self, user, input_string=" , "):
+    async def add_cow(self, user, input_string):
         """
-        add a cow the the farm
+        add a cow to the farm
         :user: user who sends the request
         :input_string: cow,milk
         """
-        if "," in input_string:
-            name, milk = input_string.strip().split(',')
-        else:
-            name = input_string.strip()
-            milk = 10
-
+        name = input_string.strip()
         name = bbcode.get_name(name)
 
         if self.ranch.client.has_admin_rights(user.strip()):
 
-            status = await self.ranch.logic.add_cow(name, milk)
+            status = await self.ranch.logic.add_cow(name)
             if status == True:
                 message = f"[user]{name}[/user] is now a Cow at H-Milk!"
                 message_4_cow = "Now you are a cow at H-Milk, offer you udders to all the workers!"
