@@ -57,8 +57,8 @@ class Hooks():
             is_cow = self.ranch.logic.is_cow(name, False)
             message = ""
             if is_cow:
-                _, amount, lvl, exp, active = self.ranch.logic.get_cow(name, False)
-                message = f"[user]{name}[/user] is lvl {lvl} and yields {amount}l and has {exp} ep - active: {active}"
+                _, lvl, exp, active = self.ranch.logic.get_cow(name, False)
+                message = f"[user]{name}[/user] is lvl {lvl} and yields {lvl+10}l and has {exp} ep - active: {active}"
 
             else:
                 message = f"[user]{name}[/user] is not a cow!"
