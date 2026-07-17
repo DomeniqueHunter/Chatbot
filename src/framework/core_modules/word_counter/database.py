@@ -11,7 +11,7 @@ class WordCounterDB:
 
     def add(self, channel:str, user:str, number:int) -> None:
         today = WordCounterDB.today_key()
-        self._ensure_day(today)
+        self.ensure_day(today)
         channel_data = self.data[today].setdefault(channel, {})
         channel_data[user] = channel_data.get(user, 0) + number
 
@@ -30,10 +30,16 @@ class WordCounterDB:
                     
         return sorted(totals.items(), key=lambda item: item[1], reverse=True)
 
-    def _ensure_day(self, date_key:str) -> None:
+    def ensure_day(self, date_key:str=None) -> bool:
+        if date_key == None:
+            date_key = self.today_key()
+            
         if date_key not in self.data:
             self.data[date_key] = {}
             self._cleanup()
+            return True
+        
+        return False
 
     def _cleanup(self) -> None:
         while len(self.data) > self.window_size:

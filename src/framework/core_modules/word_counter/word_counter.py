@@ -1,6 +1,8 @@
 from plugins import PluginPrototype
 from framework.core_modules.word_counter.database import WordCounterDB
 from framework import opcode
+from framework.lib.counter import Counter
+
 import json
 
 
@@ -13,6 +15,10 @@ class WordCounter(PluginPrototype):
         self.module_version = "0.1.10"
 
         self.db = WordCounterDB()
+
+        count_to = 120  # 120 pings -> 60 min
+        self.counter = Counter(count_to)
+
         self.load()
 
     def get_user_count(self, channel, user) -> int:
@@ -57,7 +63,11 @@ class WordCounter(PluginPrototype):
     def register_actions(self):
         if self.bot:
             self.bot.opcodes_handler.add_action(opcode.CHANNEL_MESSAGE, self.on_channel_message)
-            pass
+
+    async def clock(self):
+        if self.counter.tick():
+            if self.db.ensure_day(date_key=None):
+                self.save()
 
 
 def setup(bot):
