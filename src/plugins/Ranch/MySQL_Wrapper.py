@@ -14,7 +14,6 @@ class RANCH_DB(DB_WRAPPER):
         self.tables["cow"].add_column("id", "int unsigned", "PRIMARY KEY AUTO_INCREMENT")
         self.tables["cow"].add_column("person_id", "int unsigned", "NOT NULL UNIQUE")
         self.tables["cow"].add_column("active", "int", "NOT NULL DEFAULT 1")
-        self.tables["cow"].add_column("yield", "int", "NOT NULL")
         self.tables["cow"].foreign_key(["person_id"], "person", ["id"])
 
         self.add_table("worker", True)
@@ -108,7 +107,7 @@ class RANCH_DB(DB_WRAPPER):
         except:
             return None
 
-    def add_cow(self, name, amount=10):
+    def add_cow(self, name):
         status = self._add_person(name)
 
         if status:
@@ -116,12 +115,8 @@ class RANCH_DB(DB_WRAPPER):
         else:
             print("person already exists")
 
-        statement = f"INSERT INTO cow(person_id, yield) VALUES((SELECT id from person where lower(name) = lower('{name}')),{amount})"
+        statement = f"INSERT INTO cow(person_id) VALUES((SELECT id from person where lower(name) = lower('{name}')))"
         return self.execute(statement) and self.set_level(name, 'cow')
-
-    def update_cow_milk(self, name, milk=10):
-        statement = f"UPDATE cow set yield={milk} WHERE lower(person_id)=(SELECT id from person where lower(name) = lower('{name}'))"
-        return self.execute(statement)
 
     def add_worker(self, name):
         status = self._add_person(name)
@@ -321,7 +316,7 @@ class RANCH_DB(DB_WRAPPER):
     def get_cow(self, name, respect=True):
         if respect:
             statement = f"""
-                        select person.name, cow.yield, level.level, level.experience, cow.active
+                        select person.name, level.level, level.experience, cow.active
                         from person, cow, level
                         where person.id = cow.person_id
                         and person.id = level.person_id
@@ -331,7 +326,7 @@ class RANCH_DB(DB_WRAPPER):
                         """
         else:
             statement = f"""
-                        select person.name, cow.yield, level.level, level.experience, cow.active
+                        select person.name, level.level, level.experience, cow.active
                         from person, cow, level
                         where person.id = cow.person_id
                         and person.id = level.person_id

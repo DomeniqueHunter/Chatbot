@@ -61,7 +61,7 @@ class Logic():
         if not self.is_cow(cow_name): return False
         if cow_name.lower() == worker_name.lower(): return False
         
-        cow_name, _y, cow_level, _e, _a = self.get_cow(cow_name)
+        cow_name, cow_level, _e, _a = self.get_cow(cow_name)
         
         date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         count_milking = self.ranch.database.check_milking(cow_name, worker_name, date)[0]
@@ -90,11 +90,11 @@ class Logic():
         # print(milkable_cows)
         return milkable_cows
 
-    async def add_cow(self, cow_name:str, milk_yield=10) -> bool:
+    async def add_cow(self, cow_name:str) -> bool:
         is_cow = self.is_cow(cow_name)
 
         if not is_cow:
-            status = self.ranch.database.add_cow(cow_name, milk_yield)
+            status = self.ranch.database.add_cow(cow_name)
 
             if not status:
                 # is already a cow
@@ -147,6 +147,9 @@ class Logic():
         return 1.2
     
     def worker_milkings(self, worker_lvl:int, cow_lvl:int) -> int:
+        # debug
+        # return 100_000_000
+        
         if cow_lvl <= 10: return 1
         
         if worker_lvl >= 200: return 3
@@ -163,9 +166,11 @@ class Logic():
         :not_force_milking: debug flag
         :return: MilkJobResponse
         """
-        name, max_milk, level_cow, exp_cow, _ = self.ranch.database.get_cow(cow_name, not_force_milking)
+        name, level_cow, exp_cow, _ = self.ranch.database.get_cow(cow_name, not_force_milking)
         _, wname, wlvl, _, _ = self.get_worker(worker_name)
-
+        
+        max_milk = level_cow + 10   # todo: make it a function or so
+        
         if not name.lower() == cow_name.lower():
             return None
 
@@ -174,6 +179,15 @@ class Logic():
 
         date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         count_milking = self.ranch.database.check_milking(cow_name, worker_name, date)[0]  # 0..1..N
+        
+        # debug
+        """
+        print(f"\nMilking Info:") 
+        print(f"{wname} milks {name}: mu:{multiplier} mm:{max_milk}")
+        print(f"date: {date}")
+        print(f"count {count_milking}")
+        not_force_milking = False
+        """
         
         if (count_milking < self.worker_milkings(wlvl, level_cow) or not not_force_milking) and multiplier > 0:
             to_id = (worker_name.lower(), cow_name.lower())
@@ -193,8 +207,9 @@ class Logic():
                 #     return MilkJobResponse(worker_name, cow_name, MilkingStatus.COW_EMPTY)
                 
                 if success:
-                    if count_milking == 0:
-                        cow_lvl_up = self._level_up_cow(cow_name, max_milk, level_cow, exp_cow)
+                    if count_milking == 0 or not not_force_milking:
+                        print("lvl up cow!")
+                        cow_lvl_up = self._level_up_cow(cow_name, level_cow, exp_cow)
                     self.ranch.client.timeouts.set(to_id)
                     status = MilkingStatus.SUCCESS
                 else:
@@ -290,7 +305,7 @@ class Logic():
 
         return milked_cows, not_milkable, worker_lvl_up
 
-    def _level_up_cow(self, cow_name:str, milk:int, level:int, exp:int, add_exp:int=1) -> bool:
+    def _level_up_cow(self, cow_name:str, level:int, exp:int, add_exp:int=1) -> bool:
         exp += add_exp
         lvlup = False
         
@@ -299,14 +314,10 @@ class Logic():
             
             if exp >= exp_needed:
                 level += 1
-                milk += 1
                 exp -= exp_needed
                 lvlup = True
             else:
                 break
-        
-        if lvlup:
-            self.ranch.database.update_cow_milk(cow_name, milk)
         
         self.ranch.database.update_experience(cow_name, level, exp, 'cow')
 
@@ -342,13 +353,13 @@ class Logic():
 
         for cow in cows:
             cow_name = cow[0]
-            _, milk, level, exp = self.ranch.database.get_cow(cow_name)
+            _, level, exp = self.ranch.database.get_cow(cow_name)
             count_milking = self.ranch.database.check_milking(cow_name, worker_name, date)[0]
             
             if count_milking == 0:
                 success = self.ranch.database.milk_cow(cow_name, worker_name, 1, date)
                 if success:
-                    self._level_up_cow(cow_name, milk, level, exp)
+                    self._level_up_cow(cow_name, level, exp)
 
     def _max_level(self, current_level) -> bool:
         if current_level >= 100:
@@ -374,8 +385,8 @@ class Logic():
             
             if self.is_cow(name, True):
                 # person.name, cow.yield, level.level, level.experience, cow.active
-                pname, myield, clvl, cxp, cactive = self.get_cow(name)                
-                response += f"[cow] {pname}, yield:{myield}, lvl:{clvl}, xp:{cxp}, active:{cactive}\n"
+                pname, clvl, cxp, cactive = self.get_cow(name)                
+                response += f"[cow] {pname}, lvl:{clvl}, xp:{cxp}, active:{cactive}\n"
             
             if self.is_worker(name):
                 # worker.id, person.name, level.level, level.experience, worker.active
@@ -417,13 +428,13 @@ class Logic():
     def get_worker_stats(self, name:str):
         return self.ranch.database.get_worker_jobs(name)
 
-    def get_cow(self, name:str, respect:bool=True) -> Tuple[str, int, int, int, int]:
+    def get_cow(self, name:str, respect:bool=True) -> Tuple[str, int, int, int]:
         """
         Get Cow from Database
         
         :name: cow name
         :respect: debug parameter for force milking
-        :return: person.name, cow.yield, level.level, level.experience, cow.active
+        :return: person.name, level.level, level.experience, cow.active
         """
         try:
             return self.ranch.database.get_cow(name, respect)
@@ -537,12 +548,6 @@ class Logic():
             return self.ranch.database.disable("worker", name)
         else:
             return False
-
-    async def cow_update_milk(self, name:str, milk:int):
-        if self.is_cow(name):
-            return self.ranch.database.update_cow_milk(name, milk)
-        else:
-            return False
         
     def __get_days_until_end_of_month(self, year:int, month:int) -> int:
         today = datetime.today()
@@ -607,8 +612,8 @@ class Logic():
             extra_exp = len(last_session.storage) // 4
             
             for cow_name in last_session.storage:
-                _, milk, level_cow, exp_cow, _ = self.ranch.database.get_cow(cow_name, True)
-                lvlup_cow = self._level_up_cow(cow_name, milk, level_cow, exp_cow, add_exp=exp + extra_exp)
+                _, level_cow, exp_cow, _ = self.ranch.database.get_cow(cow_name, True)
+                lvlup_cow = self._level_up_cow(cow_name, level_cow, exp_cow, add_exp=exp + extra_exp)
                 lvlup_text = f" even leveled up!" if lvlup_cow else ""                
                 text += f" - {cow_name}{lvlup_text}\n"
             
