@@ -19,28 +19,48 @@ class WordCounter(PluginPrototype):
         count_to = 120  # 120 pings -> 60 min
         self.counter = Counter(count_to)
 
+        self.wordcount_channels = []
+
         self.load()
+
+    def register_wordcount_channel(self, channel:str):
+        if channel and channel not in self.wordcount_channels:
+            self.wordcount_channels.append(channel)
+
+    def is_wordcount_channel(self, channel:str) -> bool:
+        return channel in self.wordcount_channels
 
     def get_user_count(self, channel, user) -> int:
         return self.db.get_total(channel, user)
 
     async def on_channel_message(self, json_object:str) -> None:
-        # Channel Message Dispatcher
+        # Channel Message Handler
+        data:dict = json.loads(json_object)
+        channel:str = data.get('channel', "")
+        message:str = data.get('message', "").strip()
+        user:str = data.get('character', "")
 
-        data = json.loads(json_object)
-        channel = data.get('channel', "chn")
-        message = data.get('message', "msg").strip()
-        user = data.get('character', "usr")
+        if not self.is_wordcount_channel(channel):
+            return
 
-        print(f">> {channel} {user} {message}")
+        if message.startswith("!"): return
 
+        db_changed:bool = False
         if message.startswith("/me"):
+            # on emote
             words = len(message.split(" ")) - 1
             self.db.add(channel, user, words)
-            self.save()
+            db_changed = True
 
-            # debug
-            print(self.get_user_count(channel, user))
+        else:
+            # normal talk, most likely not rp
+            words = len(message.split(" ")) // 10
+            if words > 0:
+                self.db.add(channel, user, words)
+                db_changed = True
+
+        if db_changed:
+            self.save()
 
     async def show_statistics(self) -> None:
         # admin!
