@@ -19,6 +19,7 @@ class Logic():
         self.remember_workers = deque(maxlen=30)
         
         self.time_between_milkings = 10800  # 10 800 = 3 hr * 60 min * 60 sec
+        self.word_count_divisor = 1000
         
     def is_person(self, name:str) -> bool:
         person = self.ranch.database.get_person(name)
@@ -156,7 +157,7 @@ class Logic():
         if worker_lvl >= 100: return 2        
         return 1
 
-    def __worker_milks_cow(self, worker_name:str, cow_name:str, multiplier:float=0, not_force_milking:bool=True) -> MilkJobResponse:
+    def __worker_milks_cow(self, worker_name:str, cow_name:str, multiplier:float=0, not_force_milking:bool=True, word_count_bonus:int=0) -> MilkJobResponse:
         """
         sends the milking request to the database,
         returns if the milking was a status, the amount of milk, if there was a lvl up and the new milking yield of the cow
@@ -164,6 +165,7 @@ class Logic():
         :cow_name: name of the cow
         :multiplier: float multiplier for the milked amount
         :not_force_milking: debug flag
+        :word_count_bonus: int 
         :return: MilkJobResponse
         """
         name, level_cow, exp_cow, _ = self.ranch.database.get_cow(cow_name, not_force_milking)
@@ -181,19 +183,17 @@ class Logic():
         count_milking = self.ranch.database.check_milking(cow_name, worker_name, date)[0]  # 0..1..N
         
         # debug
-        """
-        print(f"\nMilking Info:") 
-        print(f"{wname} milks {name}: mu:{multiplier} mm:{max_milk}")
-        print(f"date: {date}")
-        print(f"count {count_milking}")
-        not_force_milking = False
-        """
+        # print(f"\nMilking Info:") 
+        # print(f"{wname} milks {name}: mu:{multiplier} mm:{max_milk}")
+        # print(f"date: {date}")
+        # print(f"count {count_milking}")
+        # not_force_milking = False
         
         if (count_milking < self.worker_milkings(wlvl, level_cow) or not not_force_milking) and multiplier > 0:
             to_id = (worker_name.lower(), cow_name.lower())
             
             if self.ranch.client.timeouts.check(to_id, timeout_s=self.time_between_milkings) or not not_force_milking:
-                max_milk = int(max_milk * multiplier)
+                max_milk = int(max_milk * multiplier) + (word_count_bonus // self.word_count_divisor)
                 
                 repetions_factor = 1 / (count_milking + 1) if not_force_milking else 1  # TODO: observe
                 
@@ -223,7 +223,7 @@ class Logic():
         else:
             return MilkJobResponse(worker_name, cow_name, MilkingStatus.MILKING_DONE_TODAY)
 
-    async def milk_cow(self, worker_name:str, cow_name:str) -> MilkJobResponse:
+    async def milk_cow(self, worker_name:str, cow_name:str, word_count_bonus:int=0) -> MilkJobResponse:
         """
         sends the milking request to the database,
         returns if the milking was a success, the amount of milk, if there was a lvl up and the new milking yield of the cow_name
@@ -238,7 +238,7 @@ class Logic():
         multiplier = await self._get_milk_multiplier(worker_name)
         bonus = 0.4
         
-        response = self.__worker_milks_cow(worker_name, cow_name, multiplier + bonus)
+        response = self.__worker_milks_cow(worker_name, cow_name, multiplier + bonus, True, word_count_bonus)
         
         if response.status == MilkingStatus.SUCCESS and response.milking_repetions == 0:
             response.worker_lvl_up = self._level_up_worker(worker_name, w_lvl, w_ep)
@@ -288,7 +288,8 @@ class Logic():
             for character in self.ranch.client.channels[channel].characters.get():
 
                 if self.is_cow(character) and not user.lower() == character.lower():
-                    response = self.__worker_milks_cow(user, character, multiplier)
+                    word_count_bonus = self.ranch.hooks.get_word_count_bonus(channel, user, character)
+                    response = self.__worker_milks_cow(user, character, multiplier, True)
 
                     if response.status == MilkingStatus.SUCCESS:
                         milked_cows.append((response.cow, response.amount, response.cow_lvl_up))

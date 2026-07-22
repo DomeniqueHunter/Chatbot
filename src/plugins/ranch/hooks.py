@@ -1,6 +1,5 @@
 from framework.lib.bbcode import bbcode
 from framework.lib.time.time_helper import time_until_tomorrow, int_to_datetime_string
-from plugins.ranch.Logic import Logic
 
 from datetime import datetime
 import calendar
@@ -148,6 +147,14 @@ class Hooks():
             await self.ranch.client.send_private_message(response, user)
         else:
             await self.ranch.client.send_private_message("not permitted", user)
+            
+    def get_word_count_bonus(self, channel:str, worker:str, cow:str) -> int:
+        word_count_bonus = 0
+        if self.ranch.word_counter:
+            word_counter_worker = self.ranch.word_counter.get_user_count(channel, worker)
+            word_counter_cow = self.ranch.word_counter.get_user_count(channel, cow)
+            word_count_bonus = max(word_counter_cow, word_counter_worker)
+        return word_count_bonus
 
     async def milk(self, worker:str, channel:str, cow_name:str):
         """
@@ -167,11 +174,17 @@ class Hooks():
             is_worker = self.ranch.logic.is_worker(worker)
             is_cow = self.ranch.logic.is_cow(cow_name)
             is_online = self.ranch.client.channels[channel].is_online(cow_name)
+
+            # word counter bonus
+            word_count_bonus = self.get_word_count_bonus(channel, worker, cow_name)
+
             message = ""
 
             if worker.lower() != cow_name.lower() and is_cow and is_worker and is_online:
-                # (success, amount, lvlup, _, lvlup_worker) = await self.ranch.logic.milk_cow(worker, cow_name)  # (success, amount, lvlup, milk)
-                response: MilkJobResponse = await self.ranch.logic.milk_cow(worker, cow_name)  # (success, amount, lvlup, milk)
+                # word counter bonus
+                word_count_bonus = self.get_word_count_bonus(channel, worker, cow_name)
+                
+                response: MilkJobResponse = await self.ranch.logic.milk_cow(worker, cow_name, word_count_bonus)  # (success, amount, lvlup, milk)
 
                 # print(f"STATUS: {response.status}")
 
@@ -273,7 +286,7 @@ class Hooks():
 
                 if lvlup:
                     spoiler_message += f"{bb_cow} has leveled up!\n"
-            
+
             n_milkable_cows = len(milked_cows)
             if n_milkable_cows == 0:
                 pass
@@ -284,7 +297,7 @@ class Hooks():
 
             if lvlup_worker:
                 message += f"{bb_user} has leveled up!\n"
-            
+
             if n_milkable_cows > 0:
                 message += f"Details:\n{bbcode.spoiler(spoiler_message)}"
 

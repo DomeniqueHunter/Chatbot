@@ -1,7 +1,7 @@
 from plugins import PluginPrototype
 
-from plugins.ranch.Hooks import Hooks
-from plugins.ranch.Logic import Logic
+from plugins.ranch import Hooks
+from plugins.ranch import Logic
 
 # from plugins.ranch.DB_Wrapper import RANCH_DB
 from plugins.ranch.MySQL_Wrapper import RANCH_DB
