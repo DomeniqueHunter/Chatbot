@@ -1,5 +1,5 @@
 
-from plugins.Ranch.Logic import Logic
+from plugins.ranch.Logic import Logic
 
 
 def test_is_moo():

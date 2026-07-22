@@ -1,10 +1,11 @@
 from plugins import PluginPrototype
 
-from plugins.Ranch.Hooks import Hooks
-from plugins.Ranch.Logic import Logic
-# from plugins.Ranch.DB_Wrapper import RANCH_DB
-from plugins.Ranch.MySQL_Wrapper import RANCH_DB
-from plugins.Ranch.session import SessionManager
+from plugins.ranch.Hooks import Hooks
+from plugins.ranch.Logic import Logic
+
+# from plugins.ranch.DB_Wrapper import RANCH_DB
+from plugins.ranch.MySQL_Wrapper import RANCH_DB
+from plugins.ranch.session import SessionManager
 
 from framework.lib.counter import Counter
 
@@ -16,7 +17,10 @@ class Ranch(PluginPrototype):
     def __init__(self, client=None):
         self.module_name = "Ranch"
         self.module_version = "2.9.10"
-
+        
+        self.set_client(client)
+        self.word_counter = self.client.core_plugins.get_plugin("word_counter")
+        
         self.logic = Logic(self)
         self.hooks = Hooks(self)
 
@@ -33,7 +37,7 @@ class Ranch(PluginPrototype):
         self.counter = Counter(count_to)
 
         self.milking_channels = []  # id's of milking channels
-        self.set_client(client)
+        
 
     def is_milking_channel(self, channel):
         return channel in self.milking_channels
@@ -55,9 +59,9 @@ class Ranch(PluginPrototype):
             self.client.public_msg_handler.add_action("!makemecow", self.hooks.makemecow, no_help=True)
             self.client.public_msg_handler.add_action("!becomeacow", self.hooks.makemecow, "you will beome a cow", "user", self.module_name)
             self.client.public_msg_handler.add_action("!becomeaworker", self.hooks.becomeaworker, "you will beome a worker", "user", self.module_name)
-            
+
             moo_price = self.hooks._manual_moo_session_price
-            self.client.public_msg_handler.add_action("!buymoo", self.hooks.buy_moo_session, f"buy a 5 min moo session with reward=1exp for {moo_price} coins", "user", self.module_name) 
+            self.client.public_msg_handler.add_action("!buymoo", self.hooks.buy_moo_session, f"buy a 5 min moo session with reward=1exp for {moo_price} coins", "user", self.module_name)
 
             self.client.private_msg_handler.add_action("!ranch_milkablecows <channel>", self.hooks.check_milkable, "Check if cows are milkable", "user", f"{self.module_name} (Direct)")
 
@@ -97,7 +101,7 @@ class Ranch(PluginPrototype):
         self.database = RANCH_DB(user, password, database, host)
         self.database.connect()
         self.database.setup()
-        
+
         # session setup
         self.session_manager = SessionManager(bot=self.client)
 
@@ -107,6 +111,14 @@ class Ranch(PluginPrototype):
 
         self.client.file_manager.add("ranch_milking_channels", "ranch_milking_channels.json", 'json')
 
+        # load here to have all setting while setup time
+        self.load()
+        
+        # register miliing channels as allwoed wordcounter channels
+        if self.word_counter:
+            for channel in self.milking_channels:
+                self.word_counter.register_wordcount_channel(channel)
+
     def save (self):
         if len(self.milking_channels) > 0:
             self.client.file_manager.save('ranch_milking_channels', self.milking_channels)
@@ -114,16 +126,20 @@ class Ranch(PluginPrototype):
     def load(self):
         try:
             self.milking_channels = self.client.file_manager.load('ranch_milking_channels') or []
-            
+
         except:
             print (f"could not load data in '{self.module_name}'")
 
     async def clock(self):
         if self.counter.tick():
             await self.logic.milkmachine()
-        
+
         # check if sessions were closed
         recently_closed_sessions = self.session_manager.check_sessions()
         for channel_id in recently_closed_sessions:
             await self.logic.moo_session_endpage(channel_id)
+
+
+def setup(bot):
+    return Ranch(bot)
 

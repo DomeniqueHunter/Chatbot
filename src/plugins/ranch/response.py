@@ -1,4 +1,4 @@
-from plugins.Ranch.statuscodes import MilkingStatus
+from plugins.ranch.statuscodes import MilkingStatus
 
 
 class MilkJobResponse:

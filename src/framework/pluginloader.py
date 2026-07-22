@@ -47,3 +47,4 @@ class PluginLoader():
     def get_plugin(self, plugin):
         if plugin in self.plugins:
             return self.plugins[plugin]
+        return None

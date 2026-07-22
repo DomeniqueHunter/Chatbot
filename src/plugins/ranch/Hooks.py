@@ -1,12 +1,12 @@
 from framework.lib.bbcode import bbcode
 from framework.lib.time.time_helper import time_until_tomorrow, int_to_datetime_string
-from plugins.Ranch.Logic import Logic
+from plugins.ranch.Logic import Logic
 
 from datetime import datetime
 import calendar
 import random
-from plugins.Ranch.statuscodes import MilkingStatus
-from plugins.Ranch.response import MilkJobResponse
+from plugins.ranch.statuscodes import MilkingStatus
+from plugins.ranch.response import MilkJobResponse
 from framework.lib.argument.parser import parse
 from _datetime import timedelta
 

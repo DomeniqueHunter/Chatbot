@@ -1,11 +1,11 @@
 import random
-from plugins.Ranch.response import MilkJobResponse
+from plugins.ranch.response import MilkJobResponse
 from datetime import datetime
 from collections import deque
 import calendar
 import json
 import re
-from plugins.Ranch.statuscodes import MilkingStatus
+from plugins.ranch.statuscodes import MilkingStatus
 from typing import Tuple
 
 
