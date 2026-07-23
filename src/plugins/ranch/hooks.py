@@ -19,7 +19,7 @@ class Hooks():
         self.ranch = ranch
         self.last_moo_session_purchase = None
 
-        self._manual_moo_session_price = 15  # coins
+        self._manual_moo_session_price = 100  # coins
         self._manual_moo_session_cooldown = 45  # min
 
     async def get_cow(self, user, channel, name=None):

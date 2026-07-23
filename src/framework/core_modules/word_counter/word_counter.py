@@ -49,13 +49,14 @@ class WordCounter(PluginPrototype):
         if message.startswith("/me"):
             # on emote
             words = len(message.split(" ")) - 1
-            self.db.add(channel, user, words)
-            db_changed = True
+            if words > 0:
+                self.db.add(channel, user, words)
+                db_changed = True
 
         else:
             # normal talk, most likely not rp
-            words = len(message.split(" ")) // 10
-            if words > 0:
+            words = len(message.split(" "))
+            if words > 1:
                 self.db.add(channel, user, words)
                 db_changed = True
 

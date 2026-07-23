@@ -4,8 +4,8 @@ from plugins.ranch import Hooks
 from plugins.ranch import Logic
 
 # from plugins.ranch.DB_Wrapper import RANCH_DB
-from plugins.ranch.MySQL_Wrapper import RANCH_DB
-from plugins.ranch.session import SessionManager
+from plugins.ranch import RANCH_DB
+from plugins.ranch import SessionManager
 
 from framework.lib.counter import Counter
 
@@ -16,7 +16,7 @@ class Ranch(PluginPrototype):
 
     def __init__(self, client=None):
         self.module_name = "Ranch"
-        self.module_version = "2.9.10"
+        self.module_version = "2.10.1"
         
         self.set_client(client)
         self.word_counter = self.client.core_plugins.get_plugin("word_counter")
