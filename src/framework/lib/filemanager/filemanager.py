@@ -56,7 +56,7 @@ class FileManager:
         try:
             m_file = self.managed_files[handle]
             if content == None:
-                m_file.get_function()
+                content = m_file.get_function()
                 
             self.save_functions[m_file.type](m_file.file_location, content)
             
@@ -83,6 +83,15 @@ class FileManager:
     def load_all(self) -> None:
         for handle in self.managed_files.keys():
             self.load(handle)
+    
+    # TODO:
+    # unmanaged files: maybe we can make this a little more general
+    # to be able to store all kinds of general files and not just plain text
+    def save_unmanaged_file(self, filename:str, content:str) -> None:
+        self.__save_plain(os.path.join(self.file_root, filename), content)
+    
+    def load_unmanaged_file(self, filename:str) -> str:
+        return self.__load_plain(os.path.join(self.file_root, filename))
            
     def __save_plain(self, f_location, content) -> None:
         with open(f_location, 'w') as fp:
@@ -120,15 +129,30 @@ def test():
         def set_func(self, a):
             self.a = a
     
-    td = TestData('TEST')
+    td = TestData('XXX')
     
     fm = FileManager('.')
     fm.add('test', 'test.txt', 'plain', td.get_func, td.set_func)
+    fm.add('test2', 'test2.txt', 'plain')
     
-    fm.save('test')    
+    print("Managed File save/load function")
+    td.a = "TEST "
+    fm.save('test')
     check = fm.load('test')
-    print('check:', check)
-    print('read :', td.a)
+    print(f"check: {check}")
+    print(f"validate: {'TEST X' == check}")
+    
+    print("\nManaged File given content")
+    fm.save('test2', "TEST Y")
+    check = fm.load("test2")
+    print(f"check: {check}")
+    print(f"validate: {'TEST Y' == check}")
+    
+    print("\nUnmanaged Files")
+    fm.save_unmanaged_file("test3.txt", "Schwabbel")
+    check = fm.load_unmanaged_file("test3.txt")
+    print(f"check: {check}")
+    print(f"validate: {'Schwabbel' == check}")
     
     
 if __name__ == "__main__":
