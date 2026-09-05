@@ -147,7 +147,7 @@ class Hooks():
             await self.ranch.client.send_private_message(response, user)
         else:
             await self.ranch.client.send_private_message("not permitted", user)
-            
+
     def get_word_count_bonus(self, channel:str, worker:str, cow:str) -> int:
         word_count_bonus = 0
         if self.ranch.word_counter:
@@ -183,7 +183,7 @@ class Hooks():
             if worker.lower() != cow_name.lower() and is_cow and is_worker and is_online:
                 # word counter bonus
                 word_count_bonus = self.get_word_count_bonus(channel, worker, cow_name)
-                
+
                 response: MilkJobResponse = await self.ranch.logic.milk_cow(worker, cow_name, word_count_bonus)  # (success, amount, lvlup, milk)
 
                 # print(f"STATUS: {response.status}")
@@ -506,13 +506,9 @@ class Hooks():
         year = int(year)
 
         if year <= datetime.today().year:
-            year, total, month_stats = await self.ranch.logic.get_buisines_year(year)
-            message = f"In year {year} we produced {total} l of milk:\n"
-            message += f"Month: milk amount in l [milk per day in l]\n"
-            for month, (amount, mpd) in month_stats.items():
-                message += f" - {calendar.month_name[month]}: {amount}l [{mpd}l]\n"
-
-            await self.ranch.client.send_public_message(message, channel)
+            message = await self.ranch.logic.get_buisines_year(year)
+            if message:
+                await self.ranch.client.send_public_message(message, channel)
 
     async def moo_show_sessions(self, user:str, input_string:str=None):
         if self.ranch.client.has_admin_rights(user):
