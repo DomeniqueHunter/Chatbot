@@ -208,7 +208,6 @@ class Logic():
 
                 if success:
                     if count_milking == 0 or not not_force_milking:
-                        print("lvl up cow!")
                         cow_lvl_up = self._level_up_cow(cow_name, level_cow, exp_cow)
                     self.ranch.client.timeouts.set(to_id)
                     status = MilkingStatus.SUCCESS

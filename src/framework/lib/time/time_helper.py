@@ -1,8 +1,11 @@
 from datetime import datetime, timedelta, time
 
 
-def days_hours_minutes(td):
-    return td.days, td.seconds // 3600, (td.seconds // 60) % 60
+def days_hours_minutes(td:timedelta, seconds:bool=False) -> tuple:
+    if seconds:
+        return td.days, td.seconds // 3600, (td.seconds // 60) % 60, td.seconds % 60
+    else:
+        return td.days, td.seconds // 3600, (td.seconds // 60) % 60
    
         
 def formatted_delta(dt:timedelta) -> str:
@@ -31,6 +34,10 @@ def time_until_tomorrow():
 def int_to_datetime_string(timestamp: int) -> str:
     dt = datetime.fromtimestamp(timestamp)
     return dt.strftime("%Y-%m-%d %H:%M:%S")
+
+
+def datetime_to_string(dt:datetime, fmt:str="%Y-%m-%d %H:%M:%S") -> str:
+    return dt.strftime(fmt)
 
 
 def test():

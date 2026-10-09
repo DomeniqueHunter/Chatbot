@@ -1,13 +1,12 @@
 from framework.lib.bbcode import bbcode
-from framework.lib.time.time_helper import time_until_tomorrow, int_to_datetime_string
+from framework.lib.time.time_helper import time_until_tomorrow, datetime_to_string,\
+    days_hours_minutes
 
-from datetime import datetime
-import calendar
+from datetime import datetime, timedelta
 import random
 from plugins.ranch.statuscodes import MilkingStatus
 from plugins.ranch.response import MilkJobResponse
 from framework.lib.argument.parser import parse
-from _datetime import timedelta
 
 
 class Hooks():
@@ -18,7 +17,8 @@ class Hooks():
     def __init__(self, ranch):
         self.ranch = ranch
         self.last_moo_session_purchase = None
-
+        
+        self._moo_session_duration = 300 # 5 min
         self._manual_moo_session_price = 100  # coins
         self._manual_moo_session_cooldown = 45  # min
 
@@ -517,15 +517,15 @@ class Hooks():
             for channel_id, session in self.ranch.session_manager.running_sessions.items():
                 channel = self.ranch.client.channel_manager.find_channel_by_id(channel_id)
 
-                started_dt = int_to_datetime_string(session.started)
+                started_dt = datetime_to_string(session.started)
                 running_sessions += f"- {channel.bbcode()}: {started_dt}\n"
 
             closed_sessions = ""
             for channel_id, session in self.ranch.session_manager.closed_sessions.items():
                 channel = self.ranch.client.channel_manager.find_channel_by_id(channel_id)
 
-                started_dt = int_to_datetime_string(session.started)
-                ended_dt = int_to_datetime_string(session.started + session.duration)
+                started_dt = datetime_to_string(session.started)
+                ended_dt = datetime_to_string(session.started + timedelta(seconds=session.duration))
                 closed_sessions += f"- {channel.bbcode()}: {started_dt} - {ended_dt}\n"
 
             message = f"Running Sessions:\n{running_sessions}\nClosed Sessions:\n{closed_sessions}"
@@ -627,24 +627,36 @@ class Hooks():
             await self.ranch.client.send_private_message("wrong channel", user)
             return
 
+        if self.ranch.session_manager.has_session(channel_id):
+            await self.ranch.client.send_private_message("moo session is already running", user)
+            return
+
         price = self._manual_moo_session_price
         if bot_coins.check_balance(user, price):
             if self.last_moo_session_purchase == None or datetime.now() - self.last_moo_session_purchase > timedelta(minutes=self._manual_moo_session_cooldown):
                 channel = self.ranch.client.channel_manager.find_channel_by_id(channel_id)
                 self.last_moo_session_purchase = datetime.now()
 
-                session_duration = 300  # 5min
+                session_duration = self._moo_session_duration
                 channel_message = f"{user} bought a moo session for 5min!"
                 await self.__start_session(user, channel.name, session_duration, 1, message_override=channel_message)
 
                 bot_coins.remove_coins(user, price)
-                # bot_coins.save()
-
-                # message = f"{user} bought a moo session for 5min!"
-                # await self.ranch.client.send_public_message(message, channel.code)
 
             else:
-                await self.ranch.client.send_private_message(f"too soon, wait for a few minutes, there has to be a {self._manual_moo_session_cooldown} cooldown between sessions!", user)
+                last_session = self.ranch.session_manager.last_session(channel_id)
+                if last_session:
+                    now = datetime.now()
+                    last_moo_time_delta = now - last_session.ended
+                    
+                    ready_in = timedelta(minutes=self._manual_moo_session_cooldown) - last_moo_time_delta
+                    _, _, mins, seconds = days_hours_minutes(ready_in, seconds=True)
+                    
+                    answer = (f"too soon, wait for a few minutes, "
+                              f"there has to be a {self._manual_moo_session_cooldown} cooldown between sessions!\n"
+                              f"moo is a available in {mins}:{seconds} min")
+
+                    await self.ranch.client.send_private_message(answer, user)
 
         else:
             await self.ranch.client.send_private_message(f"you need at least {price} {bot_coins.symbol}", user)
