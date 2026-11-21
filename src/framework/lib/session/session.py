@@ -1,25 +1,31 @@
 
 import time
 from framework import opcode
+from dataclasses import dataclass
+
+
+@dataclass
+class SessionData:
+    """Base class for all session data objects."""
 
 
 class Session:
 
-    def __init__(self, channel_id:str=None, duration:int=5, session_type:str="SESS", start_function=None, end_function=None):
+    def __init__(self, channel_id:str=None, timeout:int=5, *, session_type:str="SESS", session_data:SessionData=None, start_function=None, end_function=None):
         """
         @channel_id: identifier
-        @duration: duration of session (min)
+        @timeout: timeout of session
         @session_type: session type
         """
         self.started = int(time.time())
-        self.duration = duration  # min
-        self.end = self.started + duration
+        self.duration = timeout
+        self.end = self.started + timeout
         self.channel_id = channel_id
         self.session_type = session_type
         self.session_id = f"{self.channel_id}_{self.session_type}"
         self.start_function = start_function
         self.end_function = end_function
-        self.storage = None
+        self.storage = session_data
 
     def extend(self, duration:int=None):
         """
@@ -43,17 +49,16 @@ class Session:
 
 class SessionManager:
 
-    def __init__(self, bot=None):
+    def __init__(self):
         self.running_sessions = {}  # 1 session per channel!
         self.closed_sessions = {}  # store only last session for one channel
-        self.bot = bot
 
-    def start_session(self, channel_id:str=None, duration:int=5, session_type:str="SESS", start_function=None, end_function=None):
+    def start_session(self, channel_id:str=None, timeout:int=5, *, session_type:str="SESS", session_data:SessionData=None,start_function=None, end_function=None):
         """
-        Starts a session for a channel with a timeout of duration. The session type shall be what ever string the starter sets
+        Starts a session for a channel with a timeout of timeout. The session type shall be what ever string the starter sets
         to make the session unique for the channel.
         :channel_id:, str: id of the channel
-        :duration, int: duration of session in seconds until timeout
+        :timeout, int: timeout of session in seconds until timeout
         :session_type:, str: additional identifyer to allow multiple different sesssion per chanenl
         :start_function:, start_function:
         :end_function:,: end_function will be cakked after ending the session
@@ -61,7 +66,13 @@ class SessionManager:
         session_id = f"{channel_id}_{session_type}"
 
         if session_id not in self.running_sessions:
-            self.running_sessions[session_id] = Session(duration=duration, channel_id=channel_id, session_type=session_type, start_function=start_function, end_function=end_function)
+            session = Session(channel_id=channel_id, 
+                              timeout=duration, 
+                              session_type=session_type, 
+                              session_data=session_data, 
+                              start_function=start_function, 
+                              end_function=end_function)
+            self.running_sessions[session_id] = session
 
             if start_function and len(self.running_sessions) == 1:
                 # register function!
@@ -79,24 +90,19 @@ class SessionManager:
         # no session started
         return False
 
-    def is_channel(self, channel_id:str):
-        if channel_id in self.running_sessions:
-            return self.running_sessions[channel_id].channel_id == channel_id
-        return False
-
-    def has_session(self, channel_id, session_purpose:str="SESS"):
-        session_id = f"{channel_id}_{session_purpose}"
+    def has_session(self, channel_id, session_type:str="SESS") -> bool:
+        session_id = f"{channel_id}_{session_type}"
         return session_id in self.running_sessions
 
-    def last_session(self, channel_id:str, session_purpose:str="SESS"):
-        session_id = f"{channel_id}_{session_purpose}"
+    def last_session(self, channel_id:str, session_type:str="SESS") -> Session|None:
+        session_id = f"{channel_id}_{session_type}"
         if session_id in self.closed_sessions:
             return self.closed_sessions[session_id]
         return None
 
-    def get_session(self, channel_id, session_purpose:str="SESS"):
-        session_id = f"{channel_id}_{session_purpose}"
-        if self.has_session(channel_id, session_purpose):
+    def get_session(self, channel_id, session_type:str="SESS") -> Session|None:
+        session_id = f"{channel_id}_{session_type}"
+        if self.has_session(channel_id, session_type):
             return self.running_sessions[session_id]
         return None
 
@@ -136,17 +142,23 @@ def test():
     def end_func():
         print("END FUNCTION")
     
-    for _ in range(2):
+    class Data(SessionData):
+        x = 0
+        
+    data = Data()
+    
+    for _ in range(3):
         time.sleep(2)
         print(int(time.time()))
-        print("Started 0" if mgr.start_session(_id, start_function=start_func, end_function=end_func) else "running")
-        print("Started 0_1" if mgr.start_session(_id, 6, "1") else "running")
+        print(f"Started {_id}_SESS" if mgr.start_session(_id, session_data=data, start_function=start_func, end_function=end_func) else "running")
+        print(f"Started {_id}_SEZZ" if mgr.start_session(_id, 6, session_type="SEZZ") else "running")
 
         time.sleep(1)
         print(f"closed: {mgr.check_sessions()}")
 
         time.sleep(1)
         print("Started 1" if mgr.start_session(6, 1) else "running")
+        data.x += 1
 
         time.sleep(1)
         print(f"closed: {mgr.check_sessions()}")
@@ -156,6 +168,9 @@ def test():
 
     print(mgr.has_session(0))
     print(mgr.last_session(1))
+    
+    sess = mgr.get_session(_id, "SESS")
+    print(sess.storage.x)
 
 
 if __name__ == "__main__":
