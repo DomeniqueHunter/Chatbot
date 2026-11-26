@@ -67,7 +67,7 @@ class SessionManager:
 
         if session_id not in self.running_sessions:
             session = Session(channel_id=channel_id, 
-                              timeout=duration, 
+                              timeout=timeout, 
                               session_type=session_type, 
                               session_data=session_data, 
                               start_function=start_function, 
