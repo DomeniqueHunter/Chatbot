@@ -1,4 +1,4 @@
-from typing import Union 
+from typing import Union, Any
 import shlex
 
 __allowed_types: tuple = (str, int, float, bool)
@@ -11,7 +11,7 @@ __default_values: dict = {
 }
 
 
-def parse(input_string:str, *types:type, separator:str=",") -> Union[tuple, None]:
+def parse(input_string:str, *types:type, separator:str=",", default_value:Any=None) -> Union[tuple, None]:
     """
     Parses a string into multiple values of specified types, separated by a given separator.
     Missing values are replaced with the default value of the expected type.
@@ -55,8 +55,12 @@ def parse(input_string:str, *types:type, separator:str=",") -> Union[tuple, None
             parsed_values.append(type_(value))
 
         except ValueError:
-            print(f"Could not convert '{value}' to {type_.__name__} using default value")
-            parsed_values.append(__default_values[type_])
+            if default_value:
+                print(f"Could not convert '{value}' to {type_.__name__} using default value")
+                parsed_values.append(default_value)
+            else:
+                print(f"Could not convert '{value}' to {type_.__name__} using default value")
+                parsed_values.append(__default_values[type_])
 
     return tuple(parsed_values)
 

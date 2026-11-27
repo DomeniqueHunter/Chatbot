@@ -1,5 +1,5 @@
 from framework.lib.bbcode import bbcode
-from framework.lib.time.time_helper import time_until_tomorrow, datetime_to_string,\
+from framework.lib.time.time_helper import time_until_tomorrow, datetime_to_string, \
     days_hours_minutes, time_remaining
 
 from datetime import datetime, timedelta
@@ -17,11 +17,13 @@ class Hooks():
     def __init__(self, ranch):
         self.ranch = ranch
         self.last_moo_session_purchase = None
-        
-        self._moo_session_duration = 300 # 5 min
-        self._manual_moo_session_price = 100  # coins
+
+        self._moo_session_duration = 300  # 5 min
+        self._max_moo_session_duration = 1800 # 30 min
+        self._manual_moo_session_price = 100  # coins / 5 min
         self._manual_moo_session_cooldown = 45  # min
-        self._pps = self._manual_moo_session_price / 60 # price per second
+        self._ppm = 20  # price per minute
+        self._pps = self._ppm / 60  # price per second
 
     async def get_cow(self, user, channel, name=None):
         if self.ranch.is_milking_channel(channel):
@@ -565,8 +567,8 @@ class Hooks():
                 await self.ranch.client.send_private_message(message, user)
                 return
 
-            if session_duration > 30 * 60:
-                session_duration = 30 * 60
+            if session_duration > self._max_moo_session_duration:
+                session_duration = self._max_moo_session_duration
 
             if ep > 10:
                 ep = 10  # still insane..
@@ -617,9 +619,15 @@ class Hooks():
 
             await self.ranch.client.send_private_message(answer, user)
 
-    async def buy_moo_session(self, user:str, channel_id:str, parameter_str:str="") -> None:
+    async def buy_moo_session(self, user:str, channel_id:str, parameter_str:str) -> None:
+        """
+        :user: the user who send the request
+        :channel_id: the channel id where request was sent
+        :parameter_str: (str) must contain, if set integer numbers only
+        """
         bot_coins = self.ranch.client.core_plugins.get_plugin("bot_coins")
-        moo_duration_override = parse(parameter_str, int)[0]
+        moo_duration_override = parse(parameter_str, int, default_value=5)[0]
+        moo_duration = 5 * 60
 
         # check if module is enbaled
         if not bot_coins.module_enabled:
@@ -630,31 +638,34 @@ class Hooks():
         if not self.ranch.is_milking_channel(channel_id):
             await self.ranch.client.send_private_message("wrong channel", user)
             return
-        
+
         # check if session is already running
         if self.ranch.session_manager.has_session(channel_id):
             await self.ranch.client.send_private_message("moo session is already running", user)
             return
-        
+
         # check duration
-        if moo_duration_override * 60 < self._moo_session_duration:
-            moo_duration = self._moo_session_duration
+        if moo_duration_override * 60 != self._moo_session_duration and moo_duration_override > 5 and moo_duration_override * 60 <= self._max_moo_session_duration:
+            moo_duration = moo_duration_override * 60
             
+        elif moo_duration_override * 60 != self._moo_session_duration and moo_duration_override > 5 and moo_duration_override * 60 >= self._max_moo_session_duration:
+            moo_duration = self._max_moo_session_duration
+
         price = self._manual_moo_session_price
-        
+
         # adjust price
-        if moo_duration > self._moo_session_duration:
-            price = int(moo_duration * self._pps)        
-        
+        if moo_duration != self._moo_session_duration:
+            price = int(moo_duration * self._pps)
+
         if bot_coins.check_balance(user, price):
             if self.last_moo_session_purchase == None or datetime.now() - self.last_moo_session_purchase > timedelta(minutes=self._manual_moo_session_cooldown):
                 channel = self.ranch.client.channel_manager.find_channel_by_id(channel_id)
                 self.last_moo_session_purchase = datetime.now()
 
-                session_duration = self._moo_session_duration
                 duration = time_remaining(moo_duration)
-                channel_message = f"{user} bought a moo session for {duration}!"
-                await self.__start_session(user, channel.name, session_duration, 1, message_override=channel_message)
+                
+                channel_message = f"{user} bought a moo session for {bbcode.bold(duration)} for {bbcode.bold(price)} coins!"
+                await self.__start_session(user, channel.name, moo_duration, 1, message_override=channel_message)
 
                 bot_coins.remove_coins(user, price)
 
@@ -663,16 +674,26 @@ class Hooks():
                 if last_session:
                     now = datetime.now()
                     last_moo_time_delta = now - last_session.ended
-                    
+
                     ready_in = timedelta(minutes=self._manual_moo_session_cooldown) - last_moo_time_delta
                     _, _, mins, seconds = days_hours_minutes(ready_in, seconds=True)
-                    
+
                     answer = (f"too soon, wait for a few minutes, "
                               f"there has to be a {self._manual_moo_session_cooldown} cooldown between sessions!\n"
-                              f"moo is a available in {mins}:{seconds} min")
+                              f"moo is a available in {mins}:{seconds} min"
+                              )
 
                     await self.ranch.client.send_private_message(answer, user)
 
         else:
-            await self.ranch.client.send_private_message(f"you need at least {price} {bot_coins.symbol}", user)
+            await self.ranch.client.send_private_message(f"you need at least {price} {bot_coins.symbol} for {moo_duration} min", user)
+
+
+def test():
+    duration = parse("A5", int, default_value=5)[0]
+    print(duration, type(duration))
+
+
+if __name__ == "__main__":
+    test()
 
