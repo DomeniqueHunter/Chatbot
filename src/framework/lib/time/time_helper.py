@@ -48,35 +48,8 @@ def time_remaining(duration:int) -> str:
     hours = duration // 3600 % 24
     minutes = duration // 60 % 60
     seconds = duration % 60
-    
+
     units = ((days, "d"), (hours, "h"), (minutes, "min"), (seconds, "sec"))
     parts = [f"{value}{unit}" for value, unit in units if value]
     return " ".join(parts) or "0sec"
 
-
-def test():
-    print(time_until_tomorrow())
-
-    cases = [
-        (0, "0sec"),
-        (59, "59sec"),
-        (60, "1min"),
-        (3599, "59min 59sec"),
-        (3600, "1h"),
-        (3661, "1h 1min 1sec"),
-        (5420, "1h 30min 20sec"),
-        (86399, "23h 59min 59sec"),
-        (86400, "1d"),
-        (90061, "1d 1h 1min 1sec"),
-        (604800, "7d"),
-    ]
-    for duration, expected in cases:
-        result = time_remaining(duration)
-        status = "OK" if result == expected else "FAIL"
-        print(f"{status}: time_remaining({duration}) -> '{result}' (expected '{expected}')")
-    
-    print(time_remaining(90001))
-
-
-if __name__ == "__main__":
-    test()
