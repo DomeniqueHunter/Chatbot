@@ -664,7 +664,7 @@ class Hooks():
 
                 duration = time_remaining(moo_duration)
                 
-                channel_message = f"{user} bought a moo session for {bbcode.bold(duration)} for {bbcode.bold(price)} coins!"
+                channel_message = f"{user} bought a {bbcode.bold(duration)} moo session for {bbcode.bold(price)} coins!"
                 await self.__start_session(user, channel.name, moo_duration, 1, message_override=channel_message)
 
                 bot_coins.remove_coins(user, price)
