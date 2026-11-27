@@ -1,5 +1,7 @@
 import aiohttp
 import re
+from http.cookies import SimpleCookie
+from yarl import URL
 
 
 class HTTPClient():
@@ -7,8 +9,8 @@ class HTTPClient():
     @staticmethod
     async def get_cookies(url:str, endpoint:str) -> aiohttp.CookieJar:
         async with aiohttp.ClientSession(cookie_jar=aiohttp.CookieJar()) as s:
-            async with s.get(url + endpoint) as response:
-                cookies = s.cookie_jar.filter_cookies(url)                    
+            async with s.get(url + endpoint):
+                cookies = s.cookie_jar.filter_cookies(URL(url))                    
                 return cookies
     
     # todo: type dict
@@ -47,11 +49,16 @@ class HTTPClient():
 
     # todo: type dict
     @staticmethod
-    async def get_login_cookie(endpoint:str, data:dict=None, headers:dict=None) -> aiohttp.CookieJar:
+    async def get_login_cookie(endpoint:str, data:dict=None, headers:dict=None) -> SimpleCookie:
         data = data or {}
         headers = headers or {}
-        async with aiohttp.ClientSession(headers=headers) as session:
+
+        async with aiohttp.ClientSession(headers=headers, cookie_jar=aiohttp.CookieJar()) as session:
             async with session.post(endpoint, data=data) as response:
-                assert response.status == 200
-                return response.cookies
+                response.raise_for_status()
+                cookies = session.cookie_jar.filter_cookies(URL(endpoint))
+
+        if not cookies:
+            raise RuntimeError(f"Login failed: no cookies received from {endpoint}")
+        return cookies
 
