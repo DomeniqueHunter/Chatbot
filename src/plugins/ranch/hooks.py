@@ -619,14 +619,14 @@ class Hooks():
 
             await self.ranch.client.send_private_message(answer, user)
 
-    async def buy_moo_session(self, user:str, channel_id:str, parameter_str:str) -> None:
+    async def buy_moo_session(self, user:str, channel_id:str, parameter_str:str="5") -> None:
         """
         :user: the user who send the request
         :channel_id: the channel id where request was sent
         :parameter_str: (str) must contain, if set integer numbers only
         """
         bot_coins = self.ranch.client.core_plugins.get_plugin("bot_coins")
-        moo_duration_override = parse(parameter_str, int, default_value=5)[0]
+        moo_duration_override = parse(parameter_str, int, default_value=0)[0]
         moo_duration = 5 * 60
 
         # check if module is enbaled
